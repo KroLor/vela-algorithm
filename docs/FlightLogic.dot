@@ -1,0 +1,28 @@
+stateDiagram
+  direction LR
+  CommenceFlight: Поехали!
+  HealthCheck: Проверяем состояние системы
+  DataProcessing: Читаем и обрабатываем данные
+  SendData: Сохраняем и отправляем данные
+  Apogy: Апогей
+  Landing: Приземление
+  [*] --> HealthCheck
+  HealthCheck --> CommenceFlight: Получили сигнал о начале полета
+  CommenceFlight --> DataProcessing: Периодически читаем датчики
+  DataProcessing --> SendData
+  CommenceFlight --> Apogy: Определили апогей
+  state Apogy{
+    StartRecovery: Запускаем систему спасения
+    HealthCheckRecovery: Проверяем что открытие успешно
+    [*] --> StartRecovery
+    StartRecovery --> HealthCheckRecovery
+    HealthCheckRecovery --> [*]
+  }
+  state Landing {
+    ChangeTimer: Увеличиваем период считывания данных
+    [*] --> ChangeTimer
+    ChangeTimer --> [*]
+  }
+  Apogy --> SendData:Записываем/отправляем сообщение
+  Apogy --> Landing:  Определили полную остановку
+  Landing --> SendData
