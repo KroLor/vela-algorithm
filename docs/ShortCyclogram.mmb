@@ -1,0 +1,41 @@
+---
+config:
+  layout: dagre
+  elk:
+    mergeEdges: true
+    nodePlacementStrategy: BRANDES_KOEPF
+  theme: neo
+---
+stateDiagram
+  direction TB
+  state Apogy {
+    direction TB
+    [*] --> StartRecovery
+    StartRecovery --> HealthCheckRecovery
+    HealthCheckRecovery --> [*]
+[*]    StartRecovery
+    HealthCheckRecovery
+[*]  }
+  state Landing {
+    direction TB
+    [*] --> ChangeTimer
+    ChangeTimer --> [*]
+[*]    ChangeTimer
+[*]  }
+  [*] --> HealthCheck
+  HealthCheck --> CommenceFlight:<b>Получили сигнал о начале полета</b>
+  CommenceFlight --> DataProcessing:<b>Периодически читаем датчики</b>
+  DataProcessing --> SendData
+  CommenceFlight --> Apogy:<b>Определили апогей</b>
+  Apogy --> SendData:<b>Записываем/отправляем сообщение</b>
+  Apogy --> Landing:<b>Определили полную остановку</b>
+  Landing --> SendData
+  Apogy:<b>Апогей</b>
+  StartRecovery:<b>Запускаем систему спасения</b>
+  HealthCheckRecovery:<b>Проверяем что открытие успешно</b>
+  Landing:<b>Приземление</b>
+  ChangeTimer:<b>Увеличиваем период считывания данных</b>
+  HealthCheck:<b>Проверяем состояние системы</b>
+  CommenceFlight:<b>Поехали!</b>
+  DataProcessing:<b>Читаем и обрабатываем данные</b>
+  SendData:<b>Сохраняем и отправляем данные</b>
