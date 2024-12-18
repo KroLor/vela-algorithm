@@ -1,0 +1,5 @@
+/home/aomiki/repos/Vela/CMakeFiles/Vela.dir
+/home/aomiki/repos/Vela/CMakeFiles/edit_cache.dir
+/home/aomiki/repos/Vela/CMakeFiles/rebuild_cache.dir
+/home/aomiki/repos/Vela/cmake/stm32cubemx/CMakeFiles/edit_cache.dir
+/home/aomiki/repos/Vela/cmake/stm32cubemx/CMakeFiles/rebuild_cache.dir
