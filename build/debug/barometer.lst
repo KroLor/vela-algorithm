@@ -1,0 +1,131 @@
+ARM GAS  /tmp/ccIMk4Qa.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"barometer.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Core/Src/modules/sensors/barometer.c"
+  20              		.section	.text.check_barometer_identity,"ax",%progbits
+  21              		.align	1
+  22              		.global	check_barometer_identity
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	check_barometer_identity:
+  28              	.LFB134:
+   1:Core/Src/modules/sensors/barometer.c **** #include "barometer.h"
+   2:Core/Src/modules/sensors/barometer.c **** #include "communication.h"
+   3:Core/Src/modules/sensors/barometer.c **** #include <i2c.h>
+   4:Core/Src/modules/sensors/barometer.c **** 
+   5:Core/Src/modules/sensors/barometer.c **** short check_barometer_identity()
+   6:Core/Src/modules/sensors/barometer.c **** {
+  29              		.loc 1 6 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 8
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33 0000 00B5     		push	{lr}
+  34              		.cfi_def_cfa_offset 4
+  35              		.cfi_offset 14, -4
+  36 0002 87B0     		sub	sp, sp, #28
+  37              		.cfi_def_cfa_offset 32
+   7:Core/Src/modules/sensors/barometer.c **** 	uint16_t Address_Bmp280 = 0x76 << 1; //или 0x77 - адрес устройства по лини
+  38              		.loc 1 7 2 view .LVU1
+  39              	.LVL0:
+   8:Core/Src/modules/sensors/barometer.c **** 	uint16_t Register_ID = 0xD0; //Адрес регистра в котором хранится зн
+  40              		.loc 1 8 2 view .LVU2
+   9:Core/Src/modules/sensors/barometer.c **** 	uint8_t Data[1]; //Массив в котором МЫ будем хранить данные с �
+  41              		.loc 1 9 2 view .LVU3
+  10:Core/Src/modules/sensors/barometer.c **** 	uint16_t Size_ = 1; //Длина запрашиваемых данных, 1 байт = 1 реги�
+  42              		.loc 1 10 2 view .LVU4
+  11:Core/Src/modules/sensors/barometer.c **** 	uint32_t Timeout_ = 0xFF; //Таймаут, 255 мс
+  43              		.loc 1 11 2 view .LVU5
+  12:Core/Src/modules/sensors/barometer.c **** 
+  13:Core/Src/modules/sensors/barometer.c **** 	HAL_I2C_Mem_Read(&hi2c1, Address_Bmp280, Register_ID, I2C_MEMADD_SIZE_8BIT, Data, Size_, Timeout_)
+  44              		.loc 1 13 2 view .LVU6
+  45 0004 FF23     		movs	r3, #255
+ARM GAS  /tmp/ccIMk4Qa.s 			page 2
+
+
+  46 0006 0293     		str	r3, [sp, #8]
+  47 0008 0123     		movs	r3, #1
+  48 000a 0193     		str	r3, [sp, #4]
+  49 000c 05AA     		add	r2, sp, #20
+  50 000e 0092     		str	r2, [sp]
+  51 0010 D022     		movs	r2, #208
+  52 0012 EC21     		movs	r1, #236
+  53 0014 0648     		ldr	r0, .L6
+  54 0016 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+  55              	.LVL1:
+  14:Core/Src/modules/sensors/barometer.c **** 	if (Data[0] == 0x58)
+  56              		.loc 1 14 2 view .LVU7
+  57              		.loc 1 14 10 is_stmt 0 view .LVU8
+  58 001a 9DF81430 		ldrb	r3, [sp, #20]	@ zero_extendqisi2
+  59              		.loc 1 14 5 view .LVU9
+  60 001e 582B     		cmp	r3, #88
+  61 0020 03D0     		beq	.L5
+  15:Core/Src/modules/sensors/barometer.c **** 	{
+  16:Core/Src/modules/sensors/barometer.c ****         return 1;
+  17:Core/Src/modules/sensors/barometer.c **** 	} else
+  18:Core/Src/modules/sensors/barometer.c **** 	{
+  19:Core/Src/modules/sensors/barometer.c ****         return 0;
+  62              		.loc 1 19 16 view .LVU10
+  63 0022 0020     		movs	r0, #0
+  64              	.L2:
+  20:Core/Src/modules/sensors/barometer.c **** 	}
+  21:Core/Src/modules/sensors/barometer.c **** 
+  22:Core/Src/modules/sensors/barometer.c ****     return 0;
+  23:Core/Src/modules/sensors/barometer.c **** }...
+  65              		.loc 1 23 1 view .LVU11
+  66 0024 07B0     		add	sp, sp, #28
+  67              		.cfi_remember_state
+  68              		.cfi_def_cfa_offset 4
+  69              		@ sp needed
+  70 0026 5DF804FB 		ldr	pc, [sp], #4
+  71              	.L5:
+  72              		.cfi_restore_state
+  16:Core/Src/modules/sensors/barometer.c ****         return 1;
+  73              		.loc 1 16 16 view .LVU12
+  74 002a 0120     		movs	r0, #1
+  75 002c FAE7     		b	.L2
+  76              	.L7:
+  77 002e 00BF     		.align	2
+  78              	.L6:
+  79 0030 00000000 		.word	hi2c1
+  80              		.cfi_endproc
+  81              	.LFE134:
+  83              		.text
+  84              	.Letext0:
+  85              		.file 2 "/usr/arm-none-eabi/include/machine/_default_types.h"
+  86              		.file 3 "/usr/arm-none-eabi/include/sys/_stdint.h"
+  87              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h"
+  88              		.file 5 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+  89              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+  90              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c.h"
+  91              		.file 8 "Core/Inc/i2c.h"
+ARM GAS  /tmp/ccIMk4Qa.s 			page 3
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 barometer.c
+     /tmp/ccIMk4Qa.s:21     .text.check_barometer_identity:00000000 $t
+     /tmp/ccIMk4Qa.s:27     .text.check_barometer_identity:00000000 check_barometer_identity
+     /tmp/ccIMk4Qa.s:79     .text.check_barometer_identity:00000030 $d
+
+UNDEFINED SYMBOLS
+HAL_I2C_Mem_Read
+hi2c1

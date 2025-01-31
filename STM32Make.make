@@ -80,6 +80,7 @@ Core/Src/i2c.c \
 Core/Src/main.c \
 Core/Src/modules/communication.c \
 Core/Src/modules/sensors/accelerometer.c \
+Core/Src/modules/sensors/barometer.c \
 Core/Src/stm32f4xx_hal_msp.c \
 Core/Src/stm32f4xx_it.c \
 Core/Src/syscalls.c \

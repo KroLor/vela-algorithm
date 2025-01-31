@@ -24,6 +24,8 @@
 #include "gpio.h"
 
 #include "communication.h"
+#include "accelerometer.h"
+#include "barometer.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -123,27 +125,6 @@ uint32_t bmp280_compensate_P_int64(int32_t adc_P)
 	return (uint32_t)p;
 }
 
-void InitBmp()
-{
-	uint16_t Address_Bmp280 = 0x76 << 1; //или 0x77 - адрес устройства по линии I2C
-	uint16_t Register_ID = 0xD0; //Адрес регистра в котором хранится значение ID
-	uint8_t Data[1]; //Массив в котором МЫ будем хранить данные с регистра устройства
-	uint16_t Size_ = 1; //Длина запрашиваемых данных, 1 байт = 1 регистр
-	uint32_t Timeout_ = 0xFF; //Таймаут, 255 мс
-
-	HAL_I2C_Mem_Read(&hi2c1, Address_Bmp280, Register_ID, I2C_MEMADD_SIZE_8BIT, Data, Size_, Timeout_);
-	if (Data[0] == 0x58)
-	{
-		char buffer [28] = "BMP 0x58 READ SUCCESSFULLY\n\r";
-		send_message(buffer, PRIORITY_HIGH);
-	} else
-	{
-		char buffer [20] = "BMP READ ERROR\n\r";
-		send_message(buffer, PRIORITY_HIGH);
-
-	}
-}
-
 void Read_Dig_Variables()
 {
   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0x88, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_T1, 2, 0xFF), "dig_T1");
@@ -159,32 +140,6 @@ void Read_Dig_Variables()
   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0x9A, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P7, 2, 0xFF), "dig_P7");
   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0x9C, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P8, 2, 0xFF), "dig_P8");
   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0x9E, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P9, 2, 0xFF), "dig_P9");
-}
-
-void Acc_LSM_Init()
-{
-  char str_buf[100] =  "--------------------LSM6DS33 init--------------------------\n\r";
-  send_message(str_buf, PRIORITY_HIGH);
-
-	uint8_t dev_address = 0b11010100; //адрес устройства по линии I2C
-	uint16_t register_address = 0x0F; //Адрес регистра в котором хранится значение ID
-	uint8_t data; //Массив в котором МЫ будем хранить данные с регистра устройства
-	uint16_t Size_ = 1; //Длина запрашиваемых данных, 1 байт = 1 регистр
-	uint32_t Timeout_ = 0xFF; //Таймаут, 255 мс
-
-	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, register_address, I2C_MEMADD_SIZE_8BIT, &data, Size_, Timeout_), "WHO AM I");
-	if (data == 0x69)
-	{
-		char buffer [100] = "ACCELEROMETER READ SUCCESSFULLY (nice)\n\r";
-		send_message(buffer, PRIORITY_HIGH);
-
-    uint8_t acc_power_mode = 0b01000100;
-    send_reg_log(HAL_I2C_Mem_Write(&hi2c1, dev_address, 0x10, I2C_MEMADD_SIZE_8BIT, &acc_power_mode, 1, 0xFF), "ctrl_meas");
-	} else
-	{
-		char buffer [50] = "ACCELEROMETER READ ERROR\n\r";
-		send_message(buffer, PRIORITY_HIGH);
-	}
 }
 
 void Read_Acc(double* buffer_xyz)
@@ -224,8 +179,8 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-    char data[100] =  "F411 says: I'm alive\n\r\0";
-    send_message(data, PRIORITY_HIGH);
+  char data[100] =  "F411 says: I'm alive\n\r\0";
+  send_message(data, PRIORITY_HIGH);
 
   /* USER CODE END 1 */
 
@@ -253,8 +208,33 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 
-  Acc_LSM_Init();
-  InitBmp();
+  char str_buf[100] =  "--------------------LSM6DS33 init--------------------------\n\r";
+  send_message(str_buf, PRIORITY_HIGH);
+
+  if (check_acc_identity())
+  {
+		char buffer [100] = "ACCELEROMETER READ SUCCESSFULLY (nice)\n\r";
+		send_message(buffer, PRIORITY_HIGH);
+
+    acc_power_on();
+  }
+  else
+  {
+		char buffer [50] = "ACCELEROMETER READ ERROR\n\r";
+		send_message(buffer, PRIORITY_HIGH);
+  }
+
+  if (check_barometer_identity())
+  {
+		char buffer [28] = "BMP READ SUCCESSFULLY\n\r";
+		send_message(buffer, PRIORITY_HIGH);
+  }
+  else
+  {
+		char buffer [20] = "BMP READ ERROR\n\r";
+		send_message(buffer, PRIORITY_HIGH);
+  }
+
   Read_Dig_Variables();
 
   //datasheet page 25, register ctrl_meas
