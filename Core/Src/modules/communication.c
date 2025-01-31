@@ -2,7 +2,7 @@
 #include <string.h>
 #include <usart.h>
 
-void send_reg_log(HAL_StatusTypeDef status, char *reg, Msg_Priority priority)
+void send_reg_log(HAL_StatusTypeDef status, char *reg)
 {
   char* message = NULL;
 
@@ -32,7 +32,7 @@ void send_reg_log(HAL_StatusTypeDef status, char *reg, Msg_Priority priority)
   strcat(buffer, message);
   strcat(buffer, "\n\r\0");
 
-  send_message(buffer, priority);
+  send_message(buffer, PRIORITY_LOW);
 }
 
 void send_message(char *msg, Msg_Priority priority)

@@ -1,1 +1,1 @@
-void init_acc();
+short check_acc_identity();

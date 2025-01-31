@@ -1,4 +1,4 @@
-ARM GAS  /tmp/ccbnTjYV.s 			page 1
+ARM GAS  /tmp/ccqtVnLS.s 			page 1
 
 
    1              		.cpu cortex-m4
@@ -33,7 +33,7 @@ ARM GAS  /tmp/ccbnTjYV.s 			page 1
    2:Core/Src/modules/communication.c **** #include <string.h>
    3:Core/Src/modules/communication.c **** #include <usart.h>
    4:Core/Src/modules/communication.c **** 
-   5:Core/Src/modules/communication.c **** void send_reg_log(HAL_StatusTypeDef status, char *reg, Msg_Priority priority)
+   5:Core/Src/modules/communication.c **** void send_reg_log(HAL_StatusTypeDef status, char *reg)
    6:Core/Src/modules/communication.c **** {
    7:Core/Src/modules/communication.c ****   char* message = NULL;
    8:Core/Src/modules/communication.c **** 
@@ -58,7 +58,7 @@ ARM GAS  /tmp/ccbnTjYV.s 			page 1
   27:Core/Src/modules/communication.c ****   }
   28:Core/Src/modules/communication.c **** 
   29:Core/Src/modules/communication.c ****   char buffer[100];
-ARM GAS  /tmp/ccbnTjYV.s 			page 2
+ARM GAS  /tmp/ccqtVnLS.s 			page 2
 
 
   30:Core/Src/modules/communication.c ****   strcat(buffer, reg);
@@ -66,7 +66,7 @@ ARM GAS  /tmp/ccbnTjYV.s 			page 1
   32:Core/Src/modules/communication.c ****   strcat(buffer, message);
   33:Core/Src/modules/communication.c ****   strcat(buffer, "\n\r\0");
   34:Core/Src/modules/communication.c **** 
-  35:Core/Src/modules/communication.c ****   send_message(buffer, priority);
+  35:Core/Src/modules/communication.c ****   send_message(buffer, PRIORITY_LOW);
   36:Core/Src/modules/communication.c **** }
   37:Core/Src/modules/communication.c **** 
   38:Core/Src/modules/communication.c **** void send_message(char *msg, Msg_Priority priority)
@@ -93,7 +93,7 @@ ARM GAS  /tmp/ccbnTjYV.s 			page 1
   48 000e 0248     		ldr	r0, .L3
   49 0010 FFF7FEFF 		bl	HAL_UART_Transmit
   50              	.LVL2:
-  41:Core/Src/modules/communication.c **** }...
+  41:Core/Src/modules/communication.c **** }
   51              		.loc 1 41 1 view .LVU5
   52 0014 10BD     		pop	{r4, pc}
   53              	.LVL3:
@@ -118,7 +118,7 @@ ARM GAS  /tmp/ccbnTjYV.s 			page 1
   71      00
   72 0011 000000   		.align	2
   73              	.LC3:
-ARM GAS  /tmp/ccbnTjYV.s 			page 3
+ARM GAS  /tmp/ccqtVnLS.s 			page 3
 
 
   74 0014 54494D45 		.ascii	"TIMEOUT\000"
@@ -135,190 +135,188 @@ ARM GAS  /tmp/ccbnTjYV.s 			page 1
   85              	send_reg_log:
   86              	.LVL4:
   87              	.LFB134:
-   6:Core/Src/modules/communication.c **** {
+   6:Core/Src/modules/communication.c ****   char* message = NULL;
   88              		.loc 1 6 1 is_stmt 1 view -0
   89              		.cfi_startproc
   90              		@ args = 0, pretend = 0, frame = 104
   91              		@ frame_needed = 0, uses_anonymous_args = 0
-   6:Core/Src/modules/communication.c **** {
+   6:Core/Src/modules/communication.c ****   char* message = NULL;
   92              		.loc 1 6 1 is_stmt 0 view .LVU8
-  93 0000 70B5     		push	{r4, r5, r6, lr}
-  94              		.cfi_def_cfa_offset 16
-  95              		.cfi_offset 4, -16
-  96              		.cfi_offset 5, -12
-  97              		.cfi_offset 6, -8
-  98              		.cfi_offset 14, -4
-  99 0002 9AB0     		sub	sp, sp, #104
- 100              		.cfi_def_cfa_offset 120
- 101 0004 1546     		mov	r5, r2
-   7:Core/Src/modules/communication.c ****   char* message = NULL;
- 102              		.loc 1 7 3 is_stmt 1 view .LVU9
- 103              	.LVL5:
-   9:Core/Src/modules/communication.c ****   switch (status)
- 104              		.loc 1 9 3 view .LVU10
- 105 0006 0328     		cmp	r0, #3
- 106 0008 03D8     		bhi	.L6
- 107 000a DFE800F0 		tbb	[pc, r0]
- 108              	.L8:
- 109 000e 29       		.byte	(.L12-.L8)/2
- 110 000f 04       		.byte	(.L10-.L8)/2
- 111 0010 25       		.byte	(.L9-.L8)/2
- 112 0011 27       		.byte	(.L7-.L8)/2
- 113              		.p2align 1
- 114              	.L6:
- 115 0012 0026     		movs	r6, #0
- 116 0014 00E0     		b	.L11
- 117              	.L10:
-  15:Core/Src/modules/communication.c ****       message = "ERROR";
- 118              		.loc 1 15 7 view .LVU11
- 119              	.LVL6:
-  16:Core/Src/modules/communication.c ****       break;
- 120              		.loc 1 16 7 view .LVU12
-  15:Core/Src/modules/communication.c ****       message = "ERROR";
- 121              		.loc 1 15 15 is_stmt 0 view .LVU13
- 122 0016 134E     		ldr	r6, .L14
- 123              	.LVL7:
-ARM GAS  /tmp/ccbnTjYV.s 			page 4
+  93 0000 30B5     		push	{r4, r5, lr}
+  94              		.cfi_def_cfa_offset 12
+  95              		.cfi_offset 4, -12
+  96              		.cfi_offset 5, -8
+  97              		.cfi_offset 14, -4
+  98 0002 9BB0     		sub	sp, sp, #108
+  99              		.cfi_def_cfa_offset 120
+   7:Core/Src/modules/communication.c **** 
+ 100              		.loc 1 7 3 is_stmt 1 view .LVU9
+ 101              	.LVL5:
+   9:Core/Src/modules/communication.c ****   {
+ 102              		.loc 1 9 3 view .LVU10
+ 103 0004 0328     		cmp	r0, #3
+ 104 0006 03D8     		bhi	.L6
+ 105 0008 DFE800F0 		tbb	[pc, r0]
+ 106              	.L8:
+ 107 000c 29       		.byte	(.L12-.L8)/2
+ 108 000d 04       		.byte	(.L10-.L8)/2
+ 109 000e 25       		.byte	(.L9-.L8)/2
+ 110 000f 27       		.byte	(.L7-.L8)/2
+ 111              		.p2align 1
+ 112              	.L6:
+ 113 0010 0025     		movs	r5, #0
+ 114 0012 00E0     		b	.L11
+ 115              	.L10:
+  15:Core/Src/modules/communication.c ****       break;
+ 116              		.loc 1 15 7 view .LVU11
+ 117              	.LVL6:
+  16:Core/Src/modules/communication.c ****     
+ 118              		.loc 1 16 7 view .LVU12
+  15:Core/Src/modules/communication.c ****       break;
+ 119              		.loc 1 15 15 is_stmt 0 view .LVU13
+ 120 0014 134D     		ldr	r5, .L14
+ 121              	.LVL7:
+ 122              	.L11:
+  29:Core/Src/modules/communication.c ****   strcat(buffer, reg);
+ARM GAS  /tmp/ccqtVnLS.s 			page 4
 
 
- 124              	.L11:
-  29:Core/Src/modules/communication.c ****   char buffer[100];
- 125              		.loc 1 29 3 is_stmt 1 view .LVU14
-  30:Core/Src/modules/communication.c ****   strcat(buffer, reg);
- 126              		.loc 1 30 3 view .LVU15
- 127 0018 01AC     		add	r4, sp, #4
- 128 001a 2046     		mov	r0, r4
- 129              	.LVL8:
-  30:Core/Src/modules/communication.c ****   strcat(buffer, reg);
- 130              		.loc 1 30 3 is_stmt 0 view .LVU16
- 131 001c FFF7FEFF 		bl	strcat
- 132              	.LVL9:
-  31:Core/Src/modules/communication.c ****   strcat(buffer, ": ");
- 133              		.loc 1 31 3 is_stmt 1 view .LVU17
- 134 0020 2046     		mov	r0, r4
- 135 0022 FFF7FEFF 		bl	strlen
- 136              	.LVL10:
-  31:Core/Src/modules/communication.c ****   strcat(buffer, ": ");
- 137              		.loc 1 31 3 is_stmt 0 discriminator 1 view .LVU18
- 138 0026 2218     		adds	r2, r4, r0
- 139 0028 0F4B     		ldr	r3, .L14+4
- 140 002a 1988     		ldrh	r1, [r3]	@ unaligned
- 141 002c 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
- 142 002e 2152     		strh	r1, [r4, r0]	@ unaligned
- 143 0030 9370     		strb	r3, [r2, #2]
-  32:Core/Src/modules/communication.c ****   strcat(buffer, message);
- 144              		.loc 1 32 3 is_stmt 1 view .LVU19
- 145 0032 3146     		mov	r1, r6
- 146 0034 2046     		mov	r0, r4
- 147 0036 FFF7FEFF 		bl	strcat
- 148              	.LVL11:
-  33:Core/Src/modules/communication.c ****   strcat(buffer, "\n\r\0");
- 149              		.loc 1 33 3 view .LVU20
- 150 003a 2046     		mov	r0, r4
- 151 003c FFF7FEFF 		bl	strlen
- 152              	.LVL12:
-  33:Core/Src/modules/communication.c ****   strcat(buffer, "\n\r\0");
- 153              		.loc 1 33 3 is_stmt 0 discriminator 1 view .LVU21
- 154 0040 2218     		adds	r2, r4, r0
- 155 0042 0A4B     		ldr	r3, .L14+8
- 156 0044 1988     		ldrh	r1, [r3]	@ unaligned
- 157 0046 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
- 158 0048 2152     		strh	r1, [r4, r0]	@ unaligned
- 159 004a 9370     		strb	r3, [r2, #2]
-  35:Core/Src/modules/communication.c ****   send_message(buffer, priority);
- 160              		.loc 1 35 3 is_stmt 1 view .LVU22
- 161 004c 2946     		mov	r1, r5
- 162 004e 2046     		mov	r0, r4
- 163 0050 FFF7FEFF 		bl	send_message
- 164              	.LVL13:
-  36:Core/Src/modules/communication.c **** }
- 165              		.loc 1 36 1 is_stmt 0 view .LVU23
- 166 0054 1AB0     		add	sp, sp, #104
- 167              		.cfi_remember_state
- 168              		.cfi_def_cfa_offset 16
- 169              		@ sp needed
- 170 0056 70BD     		pop	{r4, r5, r6, pc}
-ARM GAS  /tmp/ccbnTjYV.s 			page 5
+ 123              		.loc 1 29 3 is_stmt 1 view .LVU14
+  30:Core/Src/modules/communication.c ****   strcat(buffer, ": ");
+ 124              		.loc 1 30 3 view .LVU15
+ 125 0016 01AC     		add	r4, sp, #4
+ 126 0018 2046     		mov	r0, r4
+ 127              	.LVL8:
+  30:Core/Src/modules/communication.c ****   strcat(buffer, ": ");
+ 128              		.loc 1 30 3 is_stmt 0 view .LVU16
+ 129 001a FFF7FEFF 		bl	strcat
+ 130              	.LVL9:
+  31:Core/Src/modules/communication.c ****   strcat(buffer, message);
+ 131              		.loc 1 31 3 is_stmt 1 view .LVU17
+ 132 001e 2046     		mov	r0, r4
+ 133 0020 FFF7FEFF 		bl	strlen
+ 134              	.LVL10:
+  31:Core/Src/modules/communication.c ****   strcat(buffer, message);
+ 135              		.loc 1 31 3 is_stmt 0 discriminator 1 view .LVU18
+ 136 0024 2218     		adds	r2, r4, r0
+ 137 0026 104B     		ldr	r3, .L14+4
+ 138 0028 1988     		ldrh	r1, [r3]	@ unaligned
+ 139 002a 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 140 002c 2152     		strh	r1, [r4, r0]	@ unaligned
+ 141 002e 9370     		strb	r3, [r2, #2]
+  32:Core/Src/modules/communication.c ****   strcat(buffer, "\n\r\0");
+ 142              		.loc 1 32 3 is_stmt 1 view .LVU19
+ 143 0030 2946     		mov	r1, r5
+ 144 0032 2046     		mov	r0, r4
+ 145 0034 FFF7FEFF 		bl	strcat
+ 146              	.LVL11:
+  33:Core/Src/modules/communication.c **** 
+ 147              		.loc 1 33 3 view .LVU20
+ 148 0038 2046     		mov	r0, r4
+ 149 003a FFF7FEFF 		bl	strlen
+ 150              	.LVL12:
+  33:Core/Src/modules/communication.c **** 
+ 151              		.loc 1 33 3 is_stmt 0 discriminator 1 view .LVU21
+ 152 003e 2218     		adds	r2, r4, r0
+ 153 0040 0A4B     		ldr	r3, .L14+8
+ 154 0042 1988     		ldrh	r1, [r3]	@ unaligned
+ 155 0044 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 156 0046 2152     		strh	r1, [r4, r0]	@ unaligned
+ 157 0048 9370     		strb	r3, [r2, #2]
+  35:Core/Src/modules/communication.c **** }
+ 158              		.loc 1 35 3 is_stmt 1 view .LVU22
+ 159 004a 0021     		movs	r1, #0
+ 160 004c 2046     		mov	r0, r4
+ 161 004e FFF7FEFF 		bl	send_message
+ 162              	.LVL13:
+  36:Core/Src/modules/communication.c **** 
+ 163              		.loc 1 36 1 is_stmt 0 view .LVU23
+ 164 0052 1BB0     		add	sp, sp, #108
+ 165              		.cfi_remember_state
+ 166              		.cfi_def_cfa_offset 12
+ 167              		@ sp needed
+ 168 0054 30BD     		pop	{r4, r5, pc}
+ 169              	.LVL14:
+ 170              	.L9:
+ARM GAS  /tmp/ccqtVnLS.s 			page 5
 
 
- 171              	.LVL14:
- 172              	.L9:
- 173              		.cfi_restore_state
-  19:Core/Src/modules/communication.c ****       message = "BUSY";
- 174              		.loc 1 19 7 is_stmt 1 view .LVU24
-  20:Core/Src/modules/communication.c ****       break;
- 175              		.loc 1 20 7 view .LVU25
-  19:Core/Src/modules/communication.c ****       message = "BUSY";
- 176              		.loc 1 19 15 is_stmt 0 view .LVU26
- 177 0058 054E     		ldr	r6, .L14+12
-  20:Core/Src/modules/communication.c ****       break;
- 178              		.loc 1 20 7 view .LVU27
- 179 005a DDE7     		b	.L11
- 180              	.LVL15:
- 181              	.L7:
-  22:Core/Src/modules/communication.c ****       message = "TIMEOUT";
- 182              		.loc 1 22 7 is_stmt 1 view .LVU28
-  23:Core/Src/modules/communication.c ****       break;
- 183              		.loc 1 23 7 view .LVU29
-  22:Core/Src/modules/communication.c ****       message = "TIMEOUT";
- 184              		.loc 1 22 15 is_stmt 0 view .LVU30
- 185 005c 054E     		ldr	r6, .L14+16
-  23:Core/Src/modules/communication.c ****       break;
- 186              		.loc 1 23 7 view .LVU31
- 187 005e DBE7     		b	.L11
- 188              	.LVL16:
- 189              	.L12:
-  12:Core/Src/modules/communication.c ****       message = "OK";
- 190              		.loc 1 12 15 view .LVU32
- 191 0060 054E     		ldr	r6, .L14+20
- 192 0062 D9E7     		b	.L11
- 193              	.L15:
- 194              		.align	2
- 195              	.L14:
- 196 0064 04000000 		.word	.LC1
- 197 0068 1C000000 		.word	.LC4
- 198 006c 00000000 		.word	.LANCHOR0
- 199 0070 0C000000 		.word	.LC2
- 200 0074 14000000 		.word	.LC3
- 201 0078 00000000 		.word	.LC0
- 202              		.cfi_endproc
- 203              	.LFE134:
- 205              		.section	.rodata
- 206              		.align	2
- 207              		.set	.LANCHOR0,. + 0
- 208              	.LC5:
- 209 0000 0A0D0000 		.ascii	"\012\015\000\000"
- 210              		.text
- 211              	.Letext0:
- 212              		.file 2 "/usr/arm-none-eabi/include/machine/_default_types.h"
- 213              		.file 3 "/usr/arm-none-eabi/include/sys/_stdint.h"
- 214              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h"
- 215              		.file 5 "/usr/lib/gcc/arm-none-eabi/14.2.0/include/stddef.h"
- 216              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
- 217              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
- 218              		.file 8 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h"
- 219              		.file 9 "Core/Inc/modules/communication.h"
-ARM GAS  /tmp/ccbnTjYV.s 			page 6
+ 171              		.cfi_restore_state
+  19:Core/Src/modules/communication.c ****       break;
+ 172              		.loc 1 19 7 is_stmt 1 view .LVU24
+  20:Core/Src/modules/communication.c ****     case HAL_TIMEOUT:
+ 173              		.loc 1 20 7 view .LVU25
+  19:Core/Src/modules/communication.c ****       break;
+ 174              		.loc 1 19 15 is_stmt 0 view .LVU26
+ 175 0056 064D     		ldr	r5, .L14+12
+  20:Core/Src/modules/communication.c ****     case HAL_TIMEOUT:
+ 176              		.loc 1 20 7 view .LVU27
+ 177 0058 DDE7     		b	.L11
+ 178              	.LVL15:
+ 179              	.L7:
+  22:Core/Src/modules/communication.c ****       break;
+ 180              		.loc 1 22 7 is_stmt 1 view .LVU28
+  23:Core/Src/modules/communication.c **** 
+ 181              		.loc 1 23 7 view .LVU29
+  22:Core/Src/modules/communication.c ****       break;
+ 182              		.loc 1 22 15 is_stmt 0 view .LVU30
+ 183 005a 064D     		ldr	r5, .L14+16
+  23:Core/Src/modules/communication.c **** 
+ 184              		.loc 1 23 7 view .LVU31
+ 185 005c DBE7     		b	.L11
+ 186              	.LVL16:
+ 187              	.L12:
+  12:Core/Src/modules/communication.c ****       break;
+ 188              		.loc 1 12 15 view .LVU32
+ 189 005e 064D     		ldr	r5, .L14+20
+ 190 0060 D9E7     		b	.L11
+ 191              	.L15:
+ 192 0062 00BF     		.align	2
+ 193              	.L14:
+ 194 0064 04000000 		.word	.LC1
+ 195 0068 1C000000 		.word	.LC4
+ 196 006c 00000000 		.word	.LANCHOR0
+ 197 0070 0C000000 		.word	.LC2
+ 198 0074 14000000 		.word	.LC3
+ 199 0078 00000000 		.word	.LC0
+ 200              		.cfi_endproc
+ 201              	.LFE134:
+ 203              		.section	.rodata
+ 204              		.align	2
+ 205              		.set	.LANCHOR0,. + 0
+ 206              	.LC5:
+ 207 0000 0A0D0000 		.ascii	"\012\015\000\000"
+ 208              		.text
+ 209              	.Letext0:
+ 210              		.file 2 "/usr/arm-none-eabi/include/machine/_default_types.h"
+ 211              		.file 3 "/usr/arm-none-eabi/include/sys/_stdint.h"
+ 212              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h"
+ 213              		.file 5 "/usr/lib/gcc/arm-none-eabi/14.2.0/include/stddef.h"
+ 214              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 215              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 216              		.file 8 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h"
+ 217              		.file 9 "Core/Inc/modules/communication.h"
+ 218              		.file 10 "/usr/arm-none-eabi/include/string.h"
+ 219              		.file 11 "Core/Inc/usart.h"
+ARM GAS  /tmp/ccqtVnLS.s 			page 6
 
 
- 220              		.file 10 "/usr/arm-none-eabi/include/string.h"
- 221              		.file 11 "Core/Inc/usart.h"
- 222              		.file 12 "<built-in>"
-ARM GAS  /tmp/ccbnTjYV.s 			page 7
+ 220              		.file 12 "<built-in>"
+ARM GAS  /tmp/ccqtVnLS.s 			page 7
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 communication.c
-     /tmp/ccbnTjYV.s:21     .text.send_message:00000000 $t
-     /tmp/ccbnTjYV.s:27     .text.send_message:00000000 send_message
-     /tmp/ccbnTjYV.s:58     .text.send_message:00000018 $d
-     /tmp/ccbnTjYV.s:63     .rodata.send_reg_log.str1.4:00000000 $d
-     /tmp/ccbnTjYV.s:79     .text.send_reg_log:00000000 $t
-     /tmp/ccbnTjYV.s:85     .text.send_reg_log:00000000 send_reg_log
-     /tmp/ccbnTjYV.s:109    .text.send_reg_log:0000000e $d
-     /tmp/ccbnTjYV.s:113    .text.send_reg_log:00000012 $t
-     /tmp/ccbnTjYV.s:196    .text.send_reg_log:00000064 $d
-     /tmp/ccbnTjYV.s:206    .rodata:00000000 $d
+     /tmp/ccqtVnLS.s:21     .text.send_message:00000000 $t
+     /tmp/ccqtVnLS.s:27     .text.send_message:00000000 send_message
+     /tmp/ccqtVnLS.s:58     .text.send_message:00000018 $d
+     /tmp/ccqtVnLS.s:63     .rodata.send_reg_log.str1.4:00000000 $d
+     /tmp/ccqtVnLS.s:79     .text.send_reg_log:00000000 $t
+     /tmp/ccqtVnLS.s:85     .text.send_reg_log:00000000 send_reg_log
+     /tmp/ccqtVnLS.s:107    .text.send_reg_log:0000000c $d
+     /tmp/ccqtVnLS.s:111    .text.send_reg_log:00000010 $t
+     /tmp/ccqtVnLS.s:194    .text.send_reg_log:00000064 $d
+     /tmp/ccqtVnLS.s:204    .rodata:00000000 $d
 
 UNDEFINED SYMBOLS
 strlen
