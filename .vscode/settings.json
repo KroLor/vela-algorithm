@@ -1,6 +1,12 @@
 {
     "files.associations": {
-        "cstdint": "c"
+        "cstdint": "c",
+        "compare": "c",
+        "usart.h": "c",
+        "gpio.h": "c",
+        "tim.h": "c",
+        "i2c.h": "c",
+        "main.h": "c"
     },
     "cortex-debug.armToolchainPath": "/usr/bin",
     "cortex-debug.openocdPath": "/usr/bin/openocd"
