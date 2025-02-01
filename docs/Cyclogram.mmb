@@ -1,0 +1,202 @@
+---
+config:
+  layout: elk
+  elk:
+    mergeEdges: true
+    nodePlacementStrategy: LINEAR_SEGMENTS
+---
+stateDiagram-v2
+direction LR
+JumperInterrupt: Ждем отключение джампера
+CommenceFlight: Поехали!
+HealthCheck: Система проверки всех систем
+
+DataProcessing: Система обработки данных
+SendData: Отправляем сообщение
+
+DeterminedFlightPhase: Видим новую стадию полета?
+Apogy: Апогей
+Landing: Приземление
+
+ApogyTimer: Таймер до апогея
+LandingTimer: Таймер до приземления
+SensorsTimer: Таймер проверки сенсоров
+
+[*] --> JumperInterrupt
+[*] --> HealthCheck
+
+HealthCheck --> SendData : Отправляем сообщение
+JumperInterrupt --> CommenceFlight
+CommenceFlight --> SensorsTimer: Ставим таймер на проверку сенсоров
+CommenceFlight --> ApogyTimer: Ставим таймер до апогея
+SensorsTimer --> DataProcessing: Таймер отсчитал заданное время
+ApogyTimer --> Apogy: Таймер отсчитал заданное время
+Apogy --> SendData: Записываем/отправляем сообщение
+DeterminedFlightPhase --> Apogy: Апогей
+DeterminedFlightPhase --> Landing: Приземление
+Apogy --> LandingTimer: Запускаем таймер до приземления
+LandingTimer --> Landing
+Landing --> SendData: Отправляем сообщение о приземлении
+Landing --> SensorsTimer: Делаем таймер дольше
+
+
+state HealthCheck {
+    HFormMessage: Формируем сообщение
+    HealthCheckAllSystems: Проверяем все системы
+
+    [*] --> HealthCheckAllSystems 
+    state HealthCheckAllSystems {
+        
+        HCheckBmp: Проверяем доступ к id регистру датчика темп/давл
+        HCheckBmpRegisters: Провремя что регистры температуры/давления читабельные
+        [*] --> HCheckBmp
+        HCheckBmp --> HCheckBmpRegisters
+        HCheckBmpRegisters --> [*]
+        --
+        HCheckAcc: Проверяем доступ к id регистру акселерометра
+        HCheckAccRegisters: Провремя что регистры акселерометра читабельные
+
+        [*] --> HCheckAcc
+        HCheckAcc --> HCheckAccRegisters
+        HCheckAccRegisters --> [*]
+        --
+        HCheckGps : Проверяем GPS
+
+        [*] --> HCheckGps
+        HCheckGps --> [*]
+        --
+        HCheckPhotoresistor: Проверяем что фоторезистор дает ожидаемые значения
+
+        [*] --> HCheckPhotoresistor
+        HCheckPhotoresistor --> [*]
+        --
+        HCheckMicroSD: Проверяем доступ к MicroSD
+        HCheckMicroSDRW: Проверяем чтение/запись в MicroSD
+
+        [*] --> HCheckMicroSD
+        HCheckMicroSD --> HCheckMicroSDRW
+        HCheckMicroSDRW --> [*]
+        --
+        HCheckRadio: Проверяем доступ к радио модулю
+        HCheckRadioSend: Проверяем отправку по радио
+        [*] --> HCheckRadio
+        HCheckRadio --> HCheckRadioSend
+        HCheckRadioSend --> [*]
+    }
+    HealthCheckAllSystems --> HFormMessage
+    HFormMessage --> [*]
+}
+state Apogy {
+    ApogySystemInit: Инициация системы спасения
+    [*] --> ApogySystemInit
+    state ApogySystemInit {
+        StartServo: Запуск сервомотора
+        WaitForOpen: Ждем немного
+        LimitSwitchCheck: Проверяем концевую кнопку
+        PhotoresistorCheck: Проверяем фоторезистор
+
+        [*] --> StartServo
+        StartServo --> WaitForOpen
+        WaitForOpen --> LimitSwitchCheck
+        LimitSwitchCheck --> PhotoresistorCheck
+        PhotoresistorCheck --> [*]
+    }
+    IsRecoveryAllOk: Все сработало?
+    RecoveryFailed: Что то пошло не так
+    FormMessage: Формируем сообщение
+    ApogySystemInit --> IsRecoveryAllOk
+    IsRecoveryAllOk --> RecoveryFailed: Нет
+    RecoveryFailed --> ApogySystemInit: Повторяем открытие
+    IsRecoveryAllOk --> FormMessage: Да
+    RecoveryFailed --> FormMessage: Пишем инфо о неудаче
+    FormMessage --> [*]
+}
+state Landing {
+    LogLanding: Отправить сообщение о призмелении
+    [*] --> LogLanding
+    LogLanding --> [*]
+    --
+    AlterSensorTimer: Сделать период таймера на обработку датчиков дольше
+    [*] --> AlterSensorTimer
+    AlterSensorTimer --> [*]
+}
+
+state DataProcessing {
+    direction LR
+    CheckSensors: Проверяем сенсоры
+    CalcData: Вычисляем значения
+    state CheckSensors {
+        FormPackage: Формируем сообщение
+
+        state ReadSensors {
+            CheckGps: Читаем GPS
+            [*] --> CheckGps
+            CheckGps --> [*]
+            --
+            CheckAccelerometerAndGyro: Читаем акселерометр и гироскоп
+            [*] --> CheckAccelerometerAndGyro
+            CheckAccelerometerAndGyro --> [*]
+            --
+            CheckEnvironment: Читаем давление, температуру
+            [*] --> CheckEnvironment
+            CheckEnvironment --> [*]
+            --
+            CheckPhotoresistor: Читаем фоторезистор
+            [*] --> CheckPhotoresistor
+            CheckPhotoresistor --> [*]
+        }
+        [*] --> ReadSensors
+        ReadSensors --> FormPackage
+        FormPackage --> [*]
+    }
+    state CalcData {
+        state ConvertData {
+            ConvertTemp: Конвертируем температуру
+            [*] --> ConvertTemp
+            ConvertTemp --> [*]
+            --
+            ConvertAcc: Конвертируем акселерометр
+            [*] --> ConvertAcc
+            ConvertAcc --> [*]
+            --
+            ConvertGyro: Конвертирурем гироскоп
+            [*] --> ConvertGyro
+            ConvertGyro --> [*]
+            --
+            ConvertPressure: Конвертируем Давление
+            [*] --> ConvertPressure
+            ConvertPressure --> [*]
+        }
+
+        ConvertData: Конвертируем в человеческие значения
+        DetermineApogy: Проверяем апогей
+        DetermineLanding: Проверяем приземление
+        CalcSmthElse: Cчитаем то нибудь еще интересное 
+
+
+        [*] --> ConvertData
+        ConvertData --> DetermineApogy
+        DetermineApogy --> DetermineLanding 
+        DetermineLanding --> CalcSmthElse
+        CalcSmthElse --> [*]
+    }
+    [*] --> CheckSensors
+    CheckSensors --> CalcData: Сообщение (raw)
+    CalcData --> [*]
+}
+    DataProcessing --> DeterminedFlightPhase: Сообщение (вычисления)
+    DataProcessing --> SendData: Сообщение (raw + вычисления)
+
+state SendData {
+    WriteToMicroSd: Записываем в MicroSD
+    [*] --> WriteToMicroSd
+    WriteToMicroSd --> [*]
+    --
+    TransmitOverRadio: Передаем по радио
+    [*] --> TransmitOverRadio
+    TransmitOverRadio --> [*]
+    --
+    SignalHealthOnLed: Показываем состояние системы на LED
+    [*] --> SignalHealthOnLed
+    SignalHealthOnLed --> [*]
+}
