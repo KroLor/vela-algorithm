@@ -1,0 +1,493 @@
+ARM GAS  /tmp/ccmn1NHD.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"barometer.c"
+  16              		.text
+  17              		.section	.text.check_barometer_identity,"ax",%progbits
+  18              		.align	1
+  19              		.global	check_barometer_identity
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	check_barometer_identity:
+  25              		@ args = 0, pretend = 0, frame = 8
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27 0000 00B5     		push	{lr}
+  28 0002 87B0     		sub	sp, sp, #28
+  29 0004 FF23     		movs	r3, #255
+  30 0006 0293     		str	r3, [sp, #8]
+  31 0008 0123     		movs	r3, #1
+  32 000a 0193     		str	r3, [sp, #4]
+  33 000c 05AA     		add	r2, sp, #20
+  34 000e 0092     		str	r2, [sp]
+  35 0010 D022     		movs	r2, #208
+  36 0012 EC21     		movs	r1, #236
+  37 0014 0648     		ldr	r0, .L6
+  38 0016 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+  39 001a 9DF81430 		ldrb	r3, [sp, #20]	@ zero_extendqisi2
+  40 001e 582B     		cmp	r3, #88
+  41 0020 03D0     		beq	.L5
+  42 0022 0020     		movs	r0, #0
+  43              	.L2:
+  44 0024 07B0     		add	sp, sp, #28
+  45              		@ sp needed
+  46 0026 5DF804FB 		ldr	pc, [sp], #4
+  47              	.L5:
+  48 002a 0120     		movs	r0, #1
+  49 002c FAE7     		b	.L2
+  50              	.L7:
+  51 002e 00BF     		.align	2
+  52              	.L6:
+  53 0030 00000000 		.word	hi2c1
+  55              		.section	.rodata.read_dig_variables.str1.4,"aMS",%progbits,1
+  56              		.align	2
+  57              	.LC0:
+  58 0000 6469675F 		.ascii	"dig_T1\000"
+  58      543100
+ARM GAS  /tmp/ccmn1NHD.s 			page 2
+
+
+  59 0007 00       		.align	2
+  60              	.LC1:
+  61 0008 6469675F 		.ascii	"dig_T2\000"
+  61      543200
+  62 000f 00       		.align	2
+  63              	.LC2:
+  64 0010 6469675F 		.ascii	"dig_T3\000"
+  64      543300
+  65 0017 00       		.align	2
+  66              	.LC3:
+  67 0018 6469675F 		.ascii	"dig_P1\000"
+  67      503100
+  68 001f 00       		.align	2
+  69              	.LC4:
+  70 0020 6469675F 		.ascii	"dig_P2\000"
+  70      503200
+  71 0027 00       		.align	2
+  72              	.LC5:
+  73 0028 6469675F 		.ascii	"dig_P3\000"
+  73      503300
+  74 002f 00       		.align	2
+  75              	.LC6:
+  76 0030 6469675F 		.ascii	"dig_P4\000"
+  76      503400
+  77 0037 00       		.align	2
+  78              	.LC7:
+  79 0038 6469675F 		.ascii	"dig_P5\000"
+  79      503500
+  80 003f 00       		.align	2
+  81              	.LC8:
+  82 0040 6469675F 		.ascii	"dig_P6\000"
+  82      503600
+  83 0047 00       		.align	2
+  84              	.LC9:
+  85 0048 6469675F 		.ascii	"dig_P7\000"
+  85      503700
+  86 004f 00       		.align	2
+  87              	.LC10:
+  88 0050 6469675F 		.ascii	"dig_P8\000"
+  88      503800
+  89 0057 00       		.align	2
+  90              	.LC11:
+  91 0058 6469675F 		.ascii	"dig_P9\000"
+  91      503900
+  92              		.section	.text.read_dig_variables,"ax",%progbits
+  93              		.align	1
+  94              		.global	read_dig_variables
+  95              		.syntax unified
+  96              		.thumb
+  97              		.thumb_func
+  99              	read_dig_variables:
+ 100              		@ args = 0, pretend = 0, frame = 0
+ 101              		@ frame_needed = 0, uses_anonymous_args = 0
+ 102 0000 70B5     		push	{r4, r5, r6, lr}
+ 103 0002 84B0     		sub	sp, sp, #16
+ 104 0004 504C     		ldr	r4, .L10
+ 105 0006 FF26     		movs	r6, #255
+ARM GAS  /tmp/ccmn1NHD.s 			page 3
+
+
+ 106 0008 0296     		str	r6, [sp, #8]
+ 107 000a 0225     		movs	r5, #2
+ 108 000c 0195     		str	r5, [sp, #4]
+ 109 000e 4F4B     		ldr	r3, .L10+4
+ 110 0010 0093     		str	r3, [sp]
+ 111 0012 0123     		movs	r3, #1
+ 112 0014 8822     		movs	r2, #136
+ 113 0016 EC21     		movs	r1, #236
+ 114 0018 2046     		mov	r0, r4
+ 115 001a FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 116 001e 4C49     		ldr	r1, .L10+8
+ 117 0020 FFF7FEFF 		bl	send_reg_log
+ 118 0024 0296     		str	r6, [sp, #8]
+ 119 0026 0195     		str	r5, [sp, #4]
+ 120 0028 4A4B     		ldr	r3, .L10+12
+ 121 002a 0093     		str	r3, [sp]
+ 122 002c 0123     		movs	r3, #1
+ 123 002e 8A22     		movs	r2, #138
+ 124 0030 EC21     		movs	r1, #236
+ 125 0032 2046     		mov	r0, r4
+ 126 0034 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 127 0038 4749     		ldr	r1, .L10+16
+ 128 003a FFF7FEFF 		bl	send_reg_log
+ 129 003e 0296     		str	r6, [sp, #8]
+ 130 0040 0195     		str	r5, [sp, #4]
+ 131 0042 464B     		ldr	r3, .L10+20
+ 132 0044 0093     		str	r3, [sp]
+ 133 0046 0123     		movs	r3, #1
+ 134 0048 8C22     		movs	r2, #140
+ 135 004a EC21     		movs	r1, #236
+ 136 004c 2046     		mov	r0, r4
+ 137 004e FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 138 0052 4349     		ldr	r1, .L10+24
+ 139 0054 FFF7FEFF 		bl	send_reg_log
+ 140 0058 0296     		str	r6, [sp, #8]
+ 141 005a 0195     		str	r5, [sp, #4]
+ 142 005c 414B     		ldr	r3, .L10+28
+ 143 005e 0093     		str	r3, [sp]
+ 144 0060 0123     		movs	r3, #1
+ 145 0062 8E22     		movs	r2, #142
+ 146 0064 EC21     		movs	r1, #236
+ 147 0066 2046     		mov	r0, r4
+ 148 0068 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 149 006c 3E49     		ldr	r1, .L10+32
+ 150 006e FFF7FEFF 		bl	send_reg_log
+ 151 0072 0296     		str	r6, [sp, #8]
+ 152 0074 0195     		str	r5, [sp, #4]
+ 153 0076 3D4B     		ldr	r3, .L10+36
+ 154 0078 0093     		str	r3, [sp]
+ 155 007a 0123     		movs	r3, #1
+ 156 007c 9022     		movs	r2, #144
+ 157 007e EC21     		movs	r1, #236
+ 158 0080 2046     		mov	r0, r4
+ 159 0082 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 160 0086 3A49     		ldr	r1, .L10+40
+ 161 0088 FFF7FEFF 		bl	send_reg_log
+ 162 008c 0296     		str	r6, [sp, #8]
+ARM GAS  /tmp/ccmn1NHD.s 			page 4
+
+
+ 163 008e 0195     		str	r5, [sp, #4]
+ 164 0090 384B     		ldr	r3, .L10+44
+ 165 0092 0093     		str	r3, [sp]
+ 166 0094 0123     		movs	r3, #1
+ 167 0096 9222     		movs	r2, #146
+ 168 0098 EC21     		movs	r1, #236
+ 169 009a 2046     		mov	r0, r4
+ 170 009c FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 171 00a0 3549     		ldr	r1, .L10+48
+ 172 00a2 FFF7FEFF 		bl	send_reg_log
+ 173 00a6 0296     		str	r6, [sp, #8]
+ 174 00a8 0195     		str	r5, [sp, #4]
+ 175 00aa 344B     		ldr	r3, .L10+52
+ 176 00ac 0093     		str	r3, [sp]
+ 177 00ae 0123     		movs	r3, #1
+ 178 00b0 9422     		movs	r2, #148
+ 179 00b2 EC21     		movs	r1, #236
+ 180 00b4 2046     		mov	r0, r4
+ 181 00b6 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 182 00ba 3149     		ldr	r1, .L10+56
+ 183 00bc FFF7FEFF 		bl	send_reg_log
+ 184 00c0 0296     		str	r6, [sp, #8]
+ 185 00c2 0195     		str	r5, [sp, #4]
+ 186 00c4 2F4B     		ldr	r3, .L10+60
+ 187 00c6 0093     		str	r3, [sp]
+ 188 00c8 0123     		movs	r3, #1
+ 189 00ca 9622     		movs	r2, #150
+ 190 00cc EC21     		movs	r1, #236
+ 191 00ce 2046     		mov	r0, r4
+ 192 00d0 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 193 00d4 2C49     		ldr	r1, .L10+64
+ 194 00d6 FFF7FEFF 		bl	send_reg_log
+ 195 00da 0296     		str	r6, [sp, #8]
+ 196 00dc 0195     		str	r5, [sp, #4]
+ 197 00de 2B4B     		ldr	r3, .L10+68
+ 198 00e0 0093     		str	r3, [sp]
+ 199 00e2 0123     		movs	r3, #1
+ 200 00e4 9822     		movs	r2, #152
+ 201 00e6 EC21     		movs	r1, #236
+ 202 00e8 2046     		mov	r0, r4
+ 203 00ea FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 204 00ee 2849     		ldr	r1, .L10+72
+ 205 00f0 FFF7FEFF 		bl	send_reg_log
+ 206 00f4 0296     		str	r6, [sp, #8]
+ 207 00f6 0195     		str	r5, [sp, #4]
+ 208 00f8 264B     		ldr	r3, .L10+76
+ 209 00fa 0093     		str	r3, [sp]
+ 210 00fc 0123     		movs	r3, #1
+ 211 00fe 9A22     		movs	r2, #154
+ 212 0100 EC21     		movs	r1, #236
+ 213 0102 2046     		mov	r0, r4
+ 214 0104 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 215 0108 2349     		ldr	r1, .L10+80
+ 216 010a FFF7FEFF 		bl	send_reg_log
+ 217 010e 0296     		str	r6, [sp, #8]
+ 218 0110 0195     		str	r5, [sp, #4]
+ 219 0112 224B     		ldr	r3, .L10+84
+ARM GAS  /tmp/ccmn1NHD.s 			page 5
+
+
+ 220 0114 0093     		str	r3, [sp]
+ 221 0116 0123     		movs	r3, #1
+ 222 0118 9C22     		movs	r2, #156
+ 223 011a EC21     		movs	r1, #236
+ 224 011c 2046     		mov	r0, r4
+ 225 011e FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 226 0122 1F49     		ldr	r1, .L10+88
+ 227 0124 FFF7FEFF 		bl	send_reg_log
+ 228 0128 0296     		str	r6, [sp, #8]
+ 229 012a 0195     		str	r5, [sp, #4]
+ 230 012c 1D4B     		ldr	r3, .L10+92
+ 231 012e 0093     		str	r3, [sp]
+ 232 0130 0123     		movs	r3, #1
+ 233 0132 9E22     		movs	r2, #158
+ 234 0134 EC21     		movs	r1, #236
+ 235 0136 2046     		mov	r0, r4
+ 236 0138 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 237 013c 1A49     		ldr	r1, .L10+96
+ 238 013e FFF7FEFF 		bl	send_reg_log
+ 239 0142 04B0     		add	sp, sp, #16
+ 240              		@ sp needed
+ 241 0144 70BD     		pop	{r4, r5, r6, pc}
+ 242              	.L11:
+ 243 0146 00BF     		.align	2
+ 244              	.L10:
+ 245 0148 00000000 		.word	hi2c1
+ 246 014c 00000000 		.word	dig_T1
+ 247 0150 00000000 		.word	.LC0
+ 248 0154 00000000 		.word	dig_T2
+ 249 0158 08000000 		.word	.LC1
+ 250 015c 00000000 		.word	dig_T3
+ 251 0160 10000000 		.word	.LC2
+ 252 0164 00000000 		.word	dig_P1
+ 253 0168 18000000 		.word	.LC3
+ 254 016c 00000000 		.word	dig_P2
+ 255 0170 20000000 		.word	.LC4
+ 256 0174 00000000 		.word	dig_P3
+ 257 0178 28000000 		.word	.LC5
+ 258 017c 00000000 		.word	dig_P4
+ 259 0180 30000000 		.word	.LC6
+ 260 0184 00000000 		.word	dig_P5
+ 261 0188 38000000 		.word	.LC7
+ 262 018c 00000000 		.word	dig_P6
+ 263 0190 40000000 		.word	.LC8
+ 264 0194 00000000 		.word	dig_P7
+ 265 0198 48000000 		.word	.LC9
+ 266 019c 00000000 		.word	dig_P8
+ 267 01a0 50000000 		.word	.LC10
+ 268 01a4 00000000 		.word	dig_P9
+ 269 01a8 58000000 		.word	.LC11
+ 271              		.section	.rodata.barometer_power_on.str1.4,"aMS",%progbits,1
+ 272              		.align	2
+ 273              	.LC13:
+ 274 0000 6374726C 		.ascii	"ctrl_meas\000"
+ 274      5F6D6561 
+ 274      7300
+ 275 000a 0000     		.align	2
+ARM GAS  /tmp/ccmn1NHD.s 			page 6
+
+
+ 276              	.LC12:
+ 277 000c 2F2F2F2F 		.ascii	"////barometer_power_on///\000"
+ 277      6261726F 
+ 277      6D657465 
+ 277      725F706F 
+ 277      7765725F 
+ 278              		.section	.text.barometer_power_on,"ax",%progbits
+ 279              		.align	1
+ 280              		.global	barometer_power_on
+ 281              		.syntax unified
+ 282              		.thumb
+ 283              		.thumb_func
+ 285              	barometer_power_on:
+ 286              		@ args = 0, pretend = 0, frame = 104
+ 287              		@ frame_needed = 0, uses_anonymous_args = 0
+ 288 0000 10B5     		push	{r4, lr}
+ 289 0002 9EB0     		sub	sp, sp, #120
+ 290 0004 184C     		ldr	r4, .L14
+ 291 0006 0DF1140C 		add	ip, sp, #20
+ 292 000a 2068     		ldr	r0, [r4]	@ unaligned
+ 293 000c 6168     		ldr	r1, [r4, #4]	@ unaligned
+ 294 000e A268     		ldr	r2, [r4, #8]	@ unaligned
+ 295 0010 E368     		ldr	r3, [r4, #12]	@ unaligned
+ 296 0012 ACE80F00 		stmia	ip!, {r0, r1, r2, r3}
+ 297 0016 2069     		ldr	r0, [r4, #16]	@ unaligned
+ 298 0018 6169     		ldr	r1, [r4, #20]	@ unaligned
+ 299 001a ACE80300 		stmia	ip!, {r0, r1}
+ 300 001e 238B     		ldrh	r3, [r4, #24]	@ unaligned
+ 301 0020 ACF80030 		strh	r3, [ip]	@ unaligned
+ 302 0024 4A22     		movs	r2, #74
+ 303 0026 0021     		movs	r1, #0
+ 304 0028 0DF12E00 		add	r0, sp, #46
+ 305 002c FFF7FEFF 		bl	memset
+ 306 0030 0221     		movs	r1, #2
+ 307 0032 05A8     		add	r0, sp, #20
+ 308 0034 FFF7FEFF 		bl	send_message
+ 309 0038 FFF7FEFF 		bl	read_dig_variables
+ 310 003c 4923     		movs	r3, #73
+ 311 003e 8DF81330 		strb	r3, [sp, #19]
+ 312 0042 FF23     		movs	r3, #255
+ 313 0044 0293     		str	r3, [sp, #8]
+ 314 0046 0123     		movs	r3, #1
+ 315 0048 0193     		str	r3, [sp, #4]
+ 316 004a 0DF11302 		add	r2, sp, #19
+ 317 004e 0092     		str	r2, [sp]
+ 318 0050 F422     		movs	r2, #244
+ 319 0052 EC21     		movs	r1, #236
+ 320 0054 0548     		ldr	r0, .L14+4
+ 321 0056 FFF7FEFF 		bl	HAL_I2C_Mem_Write
+ 322 005a 0549     		ldr	r1, .L14+8
+ 323 005c FFF7FEFF 		bl	send_reg_log
+ 324 0060 0020     		movs	r0, #0
+ 325 0062 1EB0     		add	sp, sp, #120
+ 326              		@ sp needed
+ 327 0064 10BD     		pop	{r4, pc}
+ 328              	.L15:
+ 329 0066 00BF     		.align	2
+ARM GAS  /tmp/ccmn1NHD.s 			page 7
+
+
+ 330              	.L14:
+ 331 0068 0C000000 		.word	.LC12
+ 332 006c 00000000 		.word	hi2c1
+ 333 0070 00000000 		.word	.LC13
+ 335              		.global	actual_pressure
+ 336              		.section	.bss.actual_pressure,"aw",%nobits
+ 337              		.align	2
+ 340              	actual_pressure:
+ 341 0000 00000000 		.space	4
+ 342              		.global	actual_temp
+ 343              		.section	.bss.actual_temp,"aw",%nobits
+ 344              		.align	2
+ 347              	actual_temp:
+ 348 0000 00000000 		.space	4
+ 349              		.global	dig_P9
+ 350              		.section	.bss.dig_P9,"aw",%nobits
+ 351              		.align	1
+ 354              	dig_P9:
+ 355 0000 0000     		.space	2
+ 356              		.global	dig_P8
+ 357              		.section	.bss.dig_P8,"aw",%nobits
+ 358              		.align	1
+ 361              	dig_P8:
+ 362 0000 0000     		.space	2
+ 363              		.global	dig_P7
+ 364              		.section	.bss.dig_P7,"aw",%nobits
+ 365              		.align	1
+ 368              	dig_P7:
+ 369 0000 0000     		.space	2
+ 370              		.global	dig_P6
+ 371              		.section	.bss.dig_P6,"aw",%nobits
+ 372              		.align	1
+ 375              	dig_P6:
+ 376 0000 0000     		.space	2
+ 377              		.global	dig_P5
+ 378              		.section	.bss.dig_P5,"aw",%nobits
+ 379              		.align	1
+ 382              	dig_P5:
+ 383 0000 0000     		.space	2
+ 384              		.global	dig_P4
+ 385              		.section	.bss.dig_P4,"aw",%nobits
+ 386              		.align	1
+ 389              	dig_P4:
+ 390 0000 0000     		.space	2
+ 391              		.global	dig_P3
+ 392              		.section	.bss.dig_P3,"aw",%nobits
+ 393              		.align	1
+ 396              	dig_P3:
+ 397 0000 0000     		.space	2
+ 398              		.global	dig_P2
+ 399              		.section	.bss.dig_P2,"aw",%nobits
+ 400              		.align	1
+ 403              	dig_P2:
+ 404 0000 0000     		.space	2
+ 405              		.global	dig_P1
+ 406              		.section	.bss.dig_P1,"aw",%nobits
+ 407              		.align	1
+ARM GAS  /tmp/ccmn1NHD.s 			page 8
+
+
+ 410              	dig_P1:
+ 411 0000 0000     		.space	2
+ 412              		.global	dig_T3
+ 413              		.section	.bss.dig_T3,"aw",%nobits
+ 414              		.align	1
+ 417              	dig_T3:
+ 418 0000 0000     		.space	2
+ 419              		.global	dig_T2
+ 420              		.section	.bss.dig_T2,"aw",%nobits
+ 421              		.align	1
+ 424              	dig_T2:
+ 425 0000 0000     		.space	2
+ 426              		.global	dig_T1
+ 427              		.section	.bss.dig_T1,"aw",%nobits
+ 428              		.align	1
+ 431              	dig_T1:
+ 432 0000 0000     		.space	2
+ 433              		.ident	"GCC: (Arch Repository) 14.2.0"
+ARM GAS  /tmp/ccmn1NHD.s 			page 9
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 barometer.c
+     /tmp/ccmn1NHD.s:18     .text.check_barometer_identity:00000000 $t
+     /tmp/ccmn1NHD.s:24     .text.check_barometer_identity:00000000 check_barometer_identity
+     /tmp/ccmn1NHD.s:53     .text.check_barometer_identity:00000030 $d
+     /tmp/ccmn1NHD.s:56     .rodata.read_dig_variables.str1.4:00000000 $d
+     /tmp/ccmn1NHD.s:93     .text.read_dig_variables:00000000 $t
+     /tmp/ccmn1NHD.s:99     .text.read_dig_variables:00000000 read_dig_variables
+     /tmp/ccmn1NHD.s:245    .text.read_dig_variables:00000148 $d
+     /tmp/ccmn1NHD.s:431    .bss.dig_T1:00000000 dig_T1
+     /tmp/ccmn1NHD.s:424    .bss.dig_T2:00000000 dig_T2
+     /tmp/ccmn1NHD.s:417    .bss.dig_T3:00000000 dig_T3
+     /tmp/ccmn1NHD.s:410    .bss.dig_P1:00000000 dig_P1
+     /tmp/ccmn1NHD.s:403    .bss.dig_P2:00000000 dig_P2
+     /tmp/ccmn1NHD.s:396    .bss.dig_P3:00000000 dig_P3
+     /tmp/ccmn1NHD.s:389    .bss.dig_P4:00000000 dig_P4
+     /tmp/ccmn1NHD.s:382    .bss.dig_P5:00000000 dig_P5
+     /tmp/ccmn1NHD.s:375    .bss.dig_P6:00000000 dig_P6
+     /tmp/ccmn1NHD.s:368    .bss.dig_P7:00000000 dig_P7
+     /tmp/ccmn1NHD.s:361    .bss.dig_P8:00000000 dig_P8
+     /tmp/ccmn1NHD.s:354    .bss.dig_P9:00000000 dig_P9
+     /tmp/ccmn1NHD.s:272    .rodata.barometer_power_on.str1.4:00000000 $d
+     /tmp/ccmn1NHD.s:279    .text.barometer_power_on:00000000 $t
+     /tmp/ccmn1NHD.s:285    .text.barometer_power_on:00000000 barometer_power_on
+     /tmp/ccmn1NHD.s:331    .text.barometer_power_on:00000068 $d
+     /tmp/ccmn1NHD.s:340    .bss.actual_pressure:00000000 actual_pressure
+     /tmp/ccmn1NHD.s:337    .bss.actual_pressure:00000000 $d
+     /tmp/ccmn1NHD.s:347    .bss.actual_temp:00000000 actual_temp
+     /tmp/ccmn1NHD.s:344    .bss.actual_temp:00000000 $d
+     /tmp/ccmn1NHD.s:351    .bss.dig_P9:00000000 $d
+     /tmp/ccmn1NHD.s:358    .bss.dig_P8:00000000 $d
+     /tmp/ccmn1NHD.s:365    .bss.dig_P7:00000000 $d
+     /tmp/ccmn1NHD.s:372    .bss.dig_P6:00000000 $d
+     /tmp/ccmn1NHD.s:379    .bss.dig_P5:00000000 $d
+     /tmp/ccmn1NHD.s:386    .bss.dig_P4:00000000 $d
+     /tmp/ccmn1NHD.s:393    .bss.dig_P3:00000000 $d
+     /tmp/ccmn1NHD.s:400    .bss.dig_P2:00000000 $d
+     /tmp/ccmn1NHD.s:407    .bss.dig_P1:00000000 $d
+     /tmp/ccmn1NHD.s:414    .bss.dig_T3:00000000 $d
+     /tmp/ccmn1NHD.s:421    .bss.dig_T2:00000000 $d
+     /tmp/ccmn1NHD.s:428    .bss.dig_T1:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_I2C_Mem_Read
+hi2c1
+send_reg_log
+memset
+send_message
+HAL_I2C_Mem_Write

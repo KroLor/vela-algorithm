@@ -1,4 +1,4 @@
-ARM GAS  /tmp/ccaP50pF.s 			page 1
+ARM GAS  /tmp/ccuHEjgd.s 			page 1
 
 
    1              		.cpu cortex-m4
@@ -58,7 +58,7 @@ ARM GAS  /tmp/ccaP50pF.s 			page 1
   12:Core/Src/modules/sensors/accelerometer.c **** 	uint16_t register_address = 0x0F; //Адрес регистра в котором хранится
   43              		.loc 1 12 2 view .LVU1
   44              	.LVL0:
-ARM GAS  /tmp/ccaP50pF.s 			page 2
+ARM GAS  /tmp/ccuHEjgd.s 			page 2
 
 
   13:Core/Src/modules/sensors/accelerometer.c **** 	uint8_t data; //Массив в котором МЫ будем хранить данные с ре
@@ -118,7 +118,7 @@ ARM GAS  /tmp/ccaP50pF.s 			page 1
   82              		.loc 1 24 3 is_stmt 1 view .LVU12
   24:Core/Src/modules/sensors/accelerometer.c **** 		send_message(buffer, PRIORITY_HIGH);
   83              		.loc 1 24 8 is_stmt 0 view .LVU13
-ARM GAS  /tmp/ccaP50pF.s 			page 3
+ARM GAS  /tmp/ccuHEjgd.s 			page 3
 
 
   84 0030 0DF1140C 		add	ip, sp, #20
@@ -178,7 +178,7 @@ ARM GAS  /tmp/ccaP50pF.s 			page 1
  132              		.loc 1 31 1 is_stmt 1 view -0
  133              		.cfi_startproc
  134              		@ args = 0, pretend = 0, frame = 8
-ARM GAS  /tmp/ccaP50pF.s 			page 4
+ARM GAS  /tmp/ccuHEjgd.s 			page 4
 
 
  135              		@ frame_needed = 0, uses_anonymous_args = 0
@@ -238,7 +238,7 @@ ARM GAS  /tmp/ccaP50pF.s 			page 1
  186      4C45524F 
  186      4D455445 
  186      52205245 
-ARM GAS  /tmp/ccaP50pF.s 			page 5
+ARM GAS  /tmp/ccuHEjgd.s 			page 5
 
 
  186      41442045 
@@ -257,21 +257,21 @@ ARM GAS  /tmp/ccaP50pF.s 			page 1
  195              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c.h"
  196              		.file 8 "Core/Inc/modules/communication.h"
  197              		.file 9 "Core/Inc/i2c.h"
-ARM GAS  /tmp/ccaP50pF.s 			page 6
+ARM GAS  /tmp/ccuHEjgd.s 			page 6
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 accelerometer.c
-     /tmp/ccaP50pF.s:21     .rodata.check_acc_identity.str1.4:00000000 $d
-     /tmp/ccaP50pF.s:25     .text.check_acc_identity:00000000 $t
-     /tmp/ccaP50pF.s:31     .text.check_acc_identity:00000000 check_acc_identity
-     /tmp/ccaP50pF.s:112    .text.check_acc_identity:00000074 $d
-     /tmp/ccaP50pF.s:120    .rodata.acc_power_on.str1.4:00000000 $d
-     /tmp/ccaP50pF.s:124    .text.acc_power_on:00000000 $t
-     /tmp/ccaP50pF.s:130    .text.acc_power_on:00000000 acc_power_on
-     /tmp/ccaP50pF.s:171    .text.acc_power_on:00000030 $d
-     /tmp/ccaP50pF.s:180    .rodata.dev_address:00000000 dev_address
-     /tmp/ccaP50pF.s:183    .rodata:00000000 $d
+     /tmp/ccuHEjgd.s:21     .rodata.check_acc_identity.str1.4:00000000 $d
+     /tmp/ccuHEjgd.s:25     .text.check_acc_identity:00000000 $t
+     /tmp/ccuHEjgd.s:31     .text.check_acc_identity:00000000 check_acc_identity
+     /tmp/ccuHEjgd.s:112    .text.check_acc_identity:00000074 $d
+     /tmp/ccuHEjgd.s:120    .rodata.acc_power_on.str1.4:00000000 $d
+     /tmp/ccuHEjgd.s:124    .text.acc_power_on:00000000 $t
+     /tmp/ccuHEjgd.s:130    .text.acc_power_on:00000000 acc_power_on
+     /tmp/ccuHEjgd.s:171    .text.acc_power_on:00000030 $d
+     /tmp/ccuHEjgd.s:180    .rodata.dev_address:00000000 dev_address
+     /tmp/ccuHEjgd.s:183    .rodata:00000000 $d
 
 UNDEFINED SYMBOLS
 HAL_I2C_Mem_Read

@@ -1,0 +1,165 @@
+ARM GAS  /tmp/ccZeYW50.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"communication.c"
+  16              		.text
+  17              		.section	.text.send_message,"ax",%progbits
+  18              		.align	1
+  19              		.global	send_message
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	send_message:
+  25              		@ args = 0, pretend = 0, frame = 0
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27 0000 10B5     		push	{r4, lr}
+  28 0002 0446     		mov	r4, r0
+  29 0004 FFF7FEFF 		bl	strlen
+  30 0008 FF23     		movs	r3, #255
+  31 000a 82B2     		uxth	r2, r0
+  32 000c 2146     		mov	r1, r4
+  33 000e 0248     		ldr	r0, .L3
+  34 0010 FFF7FEFF 		bl	HAL_UART_Transmit
+  35 0014 10BD     		pop	{r4, pc}
+  36              	.L4:
+  37 0016 00BF     		.align	2
+  38              	.L3:
+  39 0018 00000000 		.word	huart1
+  41              		.section	.rodata.send_reg_log.str1.4,"aMS",%progbits,1
+  42              		.align	2
+  43              	.LC0:
+  44 0000 4F4B00   		.ascii	"OK\000"
+  45 0003 00       		.align	2
+  46              	.LC1:
+  47 0004 4552524F 		.ascii	"ERROR\000"
+  47      5200
+  48 000a 0000     		.align	2
+  49              	.LC2:
+  50 000c 42555359 		.ascii	"BUSY\000"
+  50      00
+  51 0011 000000   		.align	2
+  52              	.LC3:
+  53 0014 54494D45 		.ascii	"TIMEOUT\000"
+  53      4F555400 
+  54              		.align	2
+  55              	.LC4:
+  56 001c 3A2000   		.ascii	": \000"
+ARM GAS  /tmp/ccZeYW50.s 			page 2
+
+
+  57              		.section	.text.send_reg_log,"ax",%progbits
+  58              		.align	1
+  59              		.global	send_reg_log
+  60              		.syntax unified
+  61              		.thumb
+  62              		.thumb_func
+  64              	send_reg_log:
+  65              		@ args = 0, pretend = 0, frame = 104
+  66              		@ frame_needed = 0, uses_anonymous_args = 0
+  67 0000 30B5     		push	{r4, r5, lr}
+  68 0002 9BB0     		sub	sp, sp, #108
+  69 0004 0328     		cmp	r0, #3
+  70 0006 03D8     		bhi	.L6
+  71 0008 DFE800F0 		tbb	[pc, r0]
+  72              	.L8:
+  73 000c 29       		.byte	(.L12-.L8)/2
+  74 000d 04       		.byte	(.L10-.L8)/2
+  75 000e 25       		.byte	(.L9-.L8)/2
+  76 000f 27       		.byte	(.L7-.L8)/2
+  77              		.p2align 1
+  78              	.L6:
+  79 0010 0025     		movs	r5, #0
+  80 0012 00E0     		b	.L11
+  81              	.L10:
+  82 0014 134D     		ldr	r5, .L14
+  83              	.L11:
+  84 0016 01AC     		add	r4, sp, #4
+  85 0018 2046     		mov	r0, r4
+  86 001a FFF7FEFF 		bl	strcat
+  87 001e 2046     		mov	r0, r4
+  88 0020 FFF7FEFF 		bl	strlen
+  89 0024 2218     		adds	r2, r4, r0
+  90 0026 104B     		ldr	r3, .L14+4
+  91 0028 1988     		ldrh	r1, [r3]	@ unaligned
+  92 002a 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+  93 002c 2152     		strh	r1, [r4, r0]	@ unaligned
+  94 002e 9370     		strb	r3, [r2, #2]
+  95 0030 2946     		mov	r1, r5
+  96 0032 2046     		mov	r0, r4
+  97 0034 FFF7FEFF 		bl	strcat
+  98 0038 2046     		mov	r0, r4
+  99 003a FFF7FEFF 		bl	strlen
+ 100 003e 2218     		adds	r2, r4, r0
+ 101 0040 0A4B     		ldr	r3, .L14+8
+ 102 0042 1988     		ldrh	r1, [r3]	@ unaligned
+ 103 0044 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 104 0046 2152     		strh	r1, [r4, r0]	@ unaligned
+ 105 0048 9370     		strb	r3, [r2, #2]
+ 106 004a 0021     		movs	r1, #0
+ 107 004c 2046     		mov	r0, r4
+ 108 004e FFF7FEFF 		bl	send_message
+ 109 0052 1BB0     		add	sp, sp, #108
+ 110              		@ sp needed
+ 111 0054 30BD     		pop	{r4, r5, pc}
+ 112              	.L9:
+ 113 0056 064D     		ldr	r5, .L14+12
+ 114 0058 DDE7     		b	.L11
+ARM GAS  /tmp/ccZeYW50.s 			page 3
+
+
+ 115              	.L7:
+ 116 005a 064D     		ldr	r5, .L14+16
+ 117 005c DBE7     		b	.L11
+ 118              	.L12:
+ 119 005e 064D     		ldr	r5, .L14+20
+ 120 0060 D9E7     		b	.L11
+ 121              	.L15:
+ 122 0062 00BF     		.align	2
+ 123              	.L14:
+ 124 0064 04000000 		.word	.LC1
+ 125 0068 1C000000 		.word	.LC4
+ 126 006c 00000000 		.word	.LANCHOR0
+ 127 0070 0C000000 		.word	.LC2
+ 128 0074 14000000 		.word	.LC3
+ 129 0078 00000000 		.word	.LC0
+ 131              		.section	.rodata
+ 132              		.align	2
+ 133              		.set	.LANCHOR0,. + 0
+ 134              	.LC5:
+ 135 0000 0A0D0000 		.ascii	"\012\015\000\000"
+ 136              		.ident	"GCC: (Arch Repository) 14.2.0"
+ARM GAS  /tmp/ccZeYW50.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 communication.c
+     /tmp/ccZeYW50.s:18     .text.send_message:00000000 $t
+     /tmp/ccZeYW50.s:24     .text.send_message:00000000 send_message
+     /tmp/ccZeYW50.s:39     .text.send_message:00000018 $d
+     /tmp/ccZeYW50.s:42     .rodata.send_reg_log.str1.4:00000000 $d
+     /tmp/ccZeYW50.s:58     .text.send_reg_log:00000000 $t
+     /tmp/ccZeYW50.s:64     .text.send_reg_log:00000000 send_reg_log
+     /tmp/ccZeYW50.s:73     .text.send_reg_log:0000000c $d
+     /tmp/ccZeYW50.s:77     .text.send_reg_log:00000010 $t
+     /tmp/ccZeYW50.s:124    .text.send_reg_log:00000064 $d
+     /tmp/ccZeYW50.s:132    .rodata:00000000 $d
+
+UNDEFINED SYMBOLS
+strlen
+HAL_UART_Transmit
+huart1
+strcat
