@@ -2,6 +2,8 @@
 #include <string.h>
 #include <usart.h>
 
+static const uint32_t timeout_default = 0xFF; //Таймаут, 255 мс
+
 void send_reg_log(HAL_StatusTypeDef status, char *reg)
 {
   char* message = NULL;
@@ -37,5 +39,5 @@ void send_reg_log(HAL_StatusTypeDef status, char *reg)
 
 void send_message(char *msg, Msg_Priority priority)
 {
-  HAL_UART_Transmit(&huart1, (uint8_t *)msg, strlen(msg), 0xFF);
+  HAL_UART_Transmit(&huart1, (uint8_t *)msg, strlen(msg), timeout_default);
 }

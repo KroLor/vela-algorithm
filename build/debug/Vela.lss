@@ -23,25 +23,25 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
   9 .ARM.attributes 00000030  00000000  00000000  000091d4  2**0
                   CONTENTS, READONLY
- 10 .debug_info   00031bf3  00000000  00000000  00009204  2**0
+ 10 .debug_info   00031c05  00000000  00000000  00009204  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 11 .debug_abbrev 00008a8e  00000000  00000000  0003adf7  2**0
+ 11 .debug_abbrev 00008a9f  00000000  00000000  0003ae09  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 12 .debug_loclists 000132c1  00000000  00000000  00043885  2**0
+ 12 .debug_loclists 000132c1  00000000  00000000  000438a8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_aranges 00001978  00000000  00000000  00056b48  2**3
+ 13 .debug_aranges 00001978  00000000  00000000  00056b70  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_rnglists 000013e5  00000000  00000000  000584c0  2**0
+ 14 .debug_rnglists 000013e5  00000000  00000000  000584e8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_line   0001cb82  00000000  00000000  000598a5  2**0
+ 15 .debug_line   0001cb82  00000000  00000000  000598cd  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_str    00006f4b  00000000  00000000  00076427  2**0
+ 16 .debug_str    00006f4b  00000000  00000000  0007644f  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .comment      0000003c  00000000  00000000  0007d372  2**0
+ 17 .comment      0000003c  00000000  00000000  0007d39a  2**0
                   CONTENTS, READONLY
- 18 .debug_frame  00003de4  00000000  00000000  0007d3b0  2**2
+ 18 .debug_frame  00003de4  00000000  00000000  0007d3d8  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .debug_line_str 00000189  00000000  00000000  00081194  2**0
+ 19 .debug_line_str 00000189  00000000  00000000  000811bc  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -1881,7 +1881,7 @@ void send_message(char *msg, Msg_Priority priority)
 {
  8001438:	b510      	push	{r4, lr}
  800143a:	4604      	mov	r4, r0
-  HAL_UART_Transmit(&huart1, (uint8_t *)msg, strlen(msg), 0xFF);
+  HAL_UART_Transmit(&huart1, (uint8_t *)msg, strlen(msg), timeout_default);
  800143c:	f7fe ff00 	bl	8000240 <strlen>
  8001440:	23ff      	movs	r3, #255	@ 0xff
  8001442:	b282      	uxth	r2, r0
