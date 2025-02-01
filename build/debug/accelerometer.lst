@@ -1,4 +1,4 @@
-ARM GAS  /tmp/ccuHEjgd.s 			page 1
+ARM GAS  /tmp/ccTh5w1y.s 			page 1
 
 
    1              		.cpu cortex-m4
@@ -41,11 +41,12 @@ ARM GAS  /tmp/ccuHEjgd.s 			page 1
    5:Core/Src/modules/sensors/accelerometer.c **** #include "communication.h"
    6:Core/Src/modules/sensors/accelerometer.c **** #include "string.h"
    7:Core/Src/modules/sensors/accelerometer.c **** 
-   8:Core/Src/modules/sensors/accelerometer.c **** const uint8_t dev_address = 0b11010100; //адрес устройства по линии I2C
-   9:Core/Src/modules/sensors/accelerometer.c **** 
-  10:Core/Src/modules/sensors/accelerometer.c **** short check_acc_identity()
-  11:Core/Src/modules/sensors/accelerometer.c **** {
-  33              		.loc 1 11 1 view -0
+   8:Core/Src/modules/sensors/accelerometer.c **** static const uint8_t dev_address = 0b11010100; //адрес устройства по линии I2
+   9:Core/Src/modules/sensors/accelerometer.c **** static const uint32_t timeout_default = 0xFF; //Таймаут, 255 мс
+  10:Core/Src/modules/sensors/accelerometer.c **** 
+  11:Core/Src/modules/sensors/accelerometer.c **** short check_acc_identity()
+  12:Core/Src/modules/sensors/accelerometer.c **** {
+  33              		.loc 1 12 1 view -0
   34              		.cfi_startproc
   35              		@ args = 0, pretend = 0, frame = 56
   36              		@ frame_needed = 0, uses_anonymous_args = 0
@@ -55,49 +56,47 @@ ARM GAS  /tmp/ccuHEjgd.s 			page 1
   40              		.cfi_offset 14, -4
   41 0002 92B0     		sub	sp, sp, #72
   42              		.cfi_def_cfa_offset 80
-  12:Core/Src/modules/sensors/accelerometer.c **** 	uint16_t register_address = 0x0F; //Адрес регистра в котором хранится
-  43              		.loc 1 12 2 view .LVU1
+  13:Core/Src/modules/sensors/accelerometer.c **** 	uint16_t register_address = 0x0F; //Адрес регистра в котором хранится
+  43              		.loc 1 13 2 view .LVU1
+ARM GAS  /tmp/ccTh5w1y.s 			page 2
+
+
   44              	.LVL0:
-ARM GAS  /tmp/ccuHEjgd.s 			page 2
-
-
-  13:Core/Src/modules/sensors/accelerometer.c **** 	uint8_t data; //Массив в котором МЫ будем хранить данные с ре
-  45              		.loc 1 13 2 view .LVU2
-  14:Core/Src/modules/sensors/accelerometer.c **** 	uint16_t Size_ = 1; //Длина запрашиваемых данных, 1 байт = 1 реги�
-  46              		.loc 1 14 2 view .LVU3
-  15:Core/Src/modules/sensors/accelerometer.c **** 	uint32_t Timeout_ = 0xFF; //Таймаут, 255 мс
-  47              		.loc 1 15 2 view .LVU4
+  14:Core/Src/modules/sensors/accelerometer.c **** 	uint8_t data; //Массив в котором МЫ будем хранить данные с ре
+  45              		.loc 1 14 2 view .LVU2
+  15:Core/Src/modules/sensors/accelerometer.c **** 	uint16_t Size_ = 1; //Длина запрашиваемых данных, 1 байт = 1 реги�
+  46              		.loc 1 15 2 view .LVU3
   16:Core/Src/modules/sensors/accelerometer.c **** 
   17:Core/Src/modules/sensors/accelerometer.c **** 	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, register_address, I2C_MEMADD_SIZE_8BIT, &data, 
-  48              		.loc 1 17 2 view .LVU5
-  49 0004 FF23     		movs	r3, #255
-  50 0006 0293     		str	r3, [sp, #8]
-  51 0008 0123     		movs	r3, #1
-  52 000a 0193     		str	r3, [sp, #4]
-  53 000c 0DF14702 		add	r2, sp, #71
-  54 0010 0092     		str	r2, [sp]
-  55 0012 0F22     		movs	r2, #15
-  56 0014 D421     		movs	r1, #212
-  57 0016 1748     		ldr	r0, .L6
-  58 0018 FFF7FEFF 		bl	HAL_I2C_Mem_Read
-  59              	.LVL1:
-  60              		.loc 1 17 2 is_stmt 0 discriminator 1 view .LVU6
-  61 001c 1649     		ldr	r1, .L6+4
-  62 001e FFF7FEFF 		bl	send_reg_log
-  63              	.LVL2:
+  47              		.loc 1 17 2 view .LVU4
+  48 0004 FF23     		movs	r3, #255
+  49 0006 0293     		str	r3, [sp, #8]
+  50 0008 0123     		movs	r3, #1
+  51 000a 0193     		str	r3, [sp, #4]
+  52 000c 0DF14702 		add	r2, sp, #71
+  53 0010 0092     		str	r2, [sp]
+  54 0012 0F22     		movs	r2, #15
+  55 0014 D421     		movs	r1, #212
+  56 0016 1748     		ldr	r0, .L6
+  57 0018 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+  58              	.LVL1:
+  59              		.loc 1 17 2 is_stmt 0 discriminator 1 view .LVU5
+  60 001c 1649     		ldr	r1, .L6+4
+  61 001e FFF7FEFF 		bl	send_reg_log
+  62              	.LVL2:
   18:Core/Src/modules/sensors/accelerometer.c **** 	if (data == 0x69)
-  64              		.loc 1 18 2 is_stmt 1 view .LVU7
-  65              		.loc 1 18 11 is_stmt 0 view .LVU8
-  66 0022 9DF84730 		ldrb	r3, [sp, #71]	@ zero_extendqisi2
-  67              		.loc 1 18 5 view .LVU9
-  68 0026 692B     		cmp	r3, #105
-  69 0028 02D1     		bne	.L5
+  63              		.loc 1 18 2 is_stmt 1 view .LVU6
+  64              		.loc 1 18 11 is_stmt 0 view .LVU7
+  65 0022 9DF84730 		ldrb	r3, [sp, #71]	@ zero_extendqisi2
+  66              		.loc 1 18 5 view .LVU8
+  67 0026 692B     		cmp	r3, #105
+  68 0028 02D1     		bne	.L5
   19:Core/Src/modules/sensors/accelerometer.c **** 	{
   20:Core/Src/modules/sensors/accelerometer.c ****         //successfuly read register
   21:Core/Src/modules/sensors/accelerometer.c ****         return 1;
-  70              		.loc 1 21 16 view .LVU10
-  71 002a 0120     		movs	r0, #1
-  72              	.L2:
+  69              		.loc 1 21 16 view .LVU9
+  70 002a 0120     		movs	r0, #1
+  71              	.L2:
   22:Core/Src/modules/sensors/accelerometer.c **** 	} else
   23:Core/Src/modules/sensors/accelerometer.c **** 	{
   24:Core/Src/modules/sensors/accelerometer.c **** 		char buffer [50] = "ACCELEROMETER READ ERROR\n\r";
@@ -105,173 +104,500 @@ ARM GAS  /tmp/ccuHEjgd.s 			page 1
   26:Core/Src/modules/sensors/accelerometer.c **** 		return 0;
   27:Core/Src/modules/sensors/accelerometer.c ****     }
   28:Core/Src/modules/sensors/accelerometer.c **** }
-  73              		.loc 1 28 1 view .LVU11
-  74 002c 12B0     		add	sp, sp, #72
-  75              		.cfi_remember_state
-  76              		.cfi_def_cfa_offset 8
-  77              		@ sp needed
-  78 002e 10BD     		pop	{r4, pc}
-  79              	.L5:
-  80              		.cfi_restore_state
-  81              	.LBB2:
+  72              		.loc 1 28 1 view .LVU10
+  73 002c 12B0     		add	sp, sp, #72
+  74              		.cfi_remember_state
+  75              		.cfi_def_cfa_offset 8
+  76              		@ sp needed
+  77 002e 10BD     		pop	{r4, pc}
+  78              	.L5:
+  79              		.cfi_restore_state
+  80              	.LBB2:
   24:Core/Src/modules/sensors/accelerometer.c **** 		send_message(buffer, PRIORITY_HIGH);
-  82              		.loc 1 24 3 is_stmt 1 view .LVU12
+  81              		.loc 1 24 3 is_stmt 1 view .LVU11
   24:Core/Src/modules/sensors/accelerometer.c **** 		send_message(buffer, PRIORITY_HIGH);
-  83              		.loc 1 24 8 is_stmt 0 view .LVU13
-ARM GAS  /tmp/ccuHEjgd.s 			page 3
+  82              		.loc 1 24 8 is_stmt 0 view .LVU12
+  83 0030 0DF1140C 		add	ip, sp, #20
+ARM GAS  /tmp/ccTh5w1y.s 			page 3
 
 
-  84 0030 0DF1140C 		add	ip, sp, #20
-  85 0034 114C     		ldr	r4, .L6+8
-  86 0036 0FCC     		ldmia	r4!, {r0, r1, r2, r3}
-  87 0038 ACE80F00 		stmia	ip!, {r0, r1, r2, r3}
-  88 003c 94E80700 		ldm	r4, {r0, r1, r2}
-  89 0040 ACE80300 		stmia	ip!, {r0, r1}
-  90 0044 2CF8022B 		strh	r2, [ip], #2	@ movhi
-  91 0048 120C     		lsrs	r2, r2, #16
-  92 004a 8CF80020 		strb	r2, [ip]
-  93 004e 0024     		movs	r4, #0
-  94 0050 CDF82F40 		str	r4, [sp, #47]	@ unaligned
-  95 0054 CDF83340 		str	r4, [sp, #51]	@ unaligned
-  96 0058 CDF83740 		str	r4, [sp, #55]	@ unaligned
-  97 005c CDF83B40 		str	r4, [sp, #59]	@ unaligned
-  98 0060 CDF83F40 		str	r4, [sp, #63]	@ unaligned
-  99 0064 CDF84240 		str	r4, [sp, #66]	@ unaligned
+  84 0034 114C     		ldr	r4, .L6+8
+  85 0036 0FCC     		ldmia	r4!, {r0, r1, r2, r3}
+  86 0038 ACE80F00 		stmia	ip!, {r0, r1, r2, r3}
+  87 003c 94E80700 		ldm	r4, {r0, r1, r2}
+  88 0040 ACE80300 		stmia	ip!, {r0, r1}
+  89 0044 2CF8022B 		strh	r2, [ip], #2	@ movhi
+  90 0048 120C     		lsrs	r2, r2, #16
+  91 004a 8CF80020 		strb	r2, [ip]
+  92 004e 0024     		movs	r4, #0
+  93 0050 CDF82F40 		str	r4, [sp, #47]	@ unaligned
+  94 0054 CDF83340 		str	r4, [sp, #51]	@ unaligned
+  95 0058 CDF83740 		str	r4, [sp, #55]	@ unaligned
+  96 005c CDF83B40 		str	r4, [sp, #59]	@ unaligned
+  97 0060 CDF83F40 		str	r4, [sp, #63]	@ unaligned
+  98 0064 CDF84240 		str	r4, [sp, #66]	@ unaligned
   25:Core/Src/modules/sensors/accelerometer.c **** 		return 0;
- 100              		.loc 1 25 3 is_stmt 1 view .LVU14
- 101 0068 0221     		movs	r1, #2
- 102 006a 05A8     		add	r0, sp, #20
- 103 006c FFF7FEFF 		bl	send_message
- 104              	.LVL3:
+  99              		.loc 1 25 3 is_stmt 1 view .LVU13
+ 100 0068 0221     		movs	r1, #2
+ 101 006a 05A8     		add	r0, sp, #20
+ 102 006c FFF7FEFF 		bl	send_message
+ 103              	.LVL3:
   26:Core/Src/modules/sensors/accelerometer.c ****     }
- 105              		.loc 1 26 3 view .LVU15
+ 104              		.loc 1 26 3 view .LVU14
   26:Core/Src/modules/sensors/accelerometer.c ****     }
- 106              		.loc 1 26 10 is_stmt 0 view .LVU16
- 107 0070 2046     		mov	r0, r4
- 108 0072 DBE7     		b	.L2
- 109              	.L7:
- 110              		.align	2
- 111              	.L6:
- 112 0074 00000000 		.word	hi2c1
- 113 0078 00000000 		.word	.LC0
- 114 007c 00000000 		.word	.LANCHOR0
- 115              	.LBE2:
- 116              		.cfi_endproc
- 117              	.LFE134:
- 119              		.section	.rodata.acc_power_on.str1.4,"aMS",%progbits,1
- 120              		.align	2
- 121              	.LC2:
- 122 0000 6374726C 		.ascii	"ctrl_meas\000"
- 122      5F6D6561 
- 122      7300
- 123              		.section	.text.acc_power_on,"ax",%progbits
- 124              		.align	1
- 125              		.global	acc_power_on
- 126              		.syntax unified
- 127              		.thumb
- 128              		.thumb_func
- 130              	acc_power_on:
- 131              	.LFB135:
+ 105              		.loc 1 26 10 is_stmt 0 view .LVU15
+ 106 0070 2046     		mov	r0, r4
+ 107 0072 DBE7     		b	.L2
+ 108              	.L7:
+ 109              		.align	2
+ 110              	.L6:
+ 111 0074 00000000 		.word	hi2c1
+ 112 0078 00000000 		.word	.LC0
+ 113 007c 00000000 		.word	.LANCHOR0
+ 114              	.LBE2:
+ 115              		.cfi_endproc
+ 116              	.LFE134:
+ 118              		.section	.rodata.acc_power_on.str1.4,"aMS",%progbits,1
+ 119              		.align	2
+ 120              	.LC2:
+ 121 0000 6374726C 		.ascii	"ctrl_meas\000"
+ 121      5F6D6561 
+ 121      7300
+ 122              		.section	.text.acc_power_on,"ax",%progbits
+ 123              		.align	1
+ 124              		.global	acc_power_on
+ 125              		.syntax unified
+ 126              		.thumb
+ 127              		.thumb_func
+ 129              	acc_power_on:
+ 130              	.LFB135:
   29:Core/Src/modules/sensors/accelerometer.c **** 
   30:Core/Src/modules/sensors/accelerometer.c **** short acc_power_on()
   31:Core/Src/modules/sensors/accelerometer.c **** {
- 132              		.loc 1 31 1 is_stmt 1 view -0
- 133              		.cfi_startproc
- 134              		@ args = 0, pretend = 0, frame = 8
-ARM GAS  /tmp/ccuHEjgd.s 			page 4
+ 131              		.loc 1 31 1 is_stmt 1 view -0
+ 132              		.cfi_startproc
+ 133              		@ args = 0, pretend = 0, frame = 8
+ 134              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  /tmp/ccTh5w1y.s 			page 4
 
 
- 135              		@ frame_needed = 0, uses_anonymous_args = 0
- 136 0000 00B5     		push	{lr}
- 137              		.cfi_def_cfa_offset 4
- 138              		.cfi_offset 14, -4
- 139 0002 87B0     		sub	sp, sp, #28
- 140              		.cfi_def_cfa_offset 32
+ 135 0000 00B5     		push	{lr}
+ 136              		.cfi_def_cfa_offset 4
+ 137              		.cfi_offset 14, -4
+ 138 0002 87B0     		sub	sp, sp, #28
+ 139              		.cfi_def_cfa_offset 32
   32:Core/Src/modules/sensors/accelerometer.c **** 	uint8_t acc_power_mode = 0b01000100;
- 141              		.loc 1 32 2 view .LVU18
- 142              		.loc 1 32 10 is_stmt 0 view .LVU19
- 143 0004 4423     		movs	r3, #68
- 144 0006 8DF81730 		strb	r3, [sp, #23]
+ 140              		.loc 1 32 2 view .LVU17
+ 141              		.loc 1 32 10 is_stmt 0 view .LVU18
+ 142 0004 4423     		movs	r3, #68
+ 143 0006 8DF81730 		strb	r3, [sp, #23]
   33:Core/Src/modules/sensors/accelerometer.c **** 	send_reg_log(HAL_I2C_Mem_Write(&hi2c1, dev_address, 0x10, I2C_MEMADD_SIZE_8BIT, &acc_power_mode, 1
- 145              		.loc 1 33 2 is_stmt 1 view .LVU20
- 146 000a FF23     		movs	r3, #255
- 147 000c 0293     		str	r3, [sp, #8]
- 148 000e 0123     		movs	r3, #1
- 149 0010 0193     		str	r3, [sp, #4]
- 150 0012 0DF11702 		add	r2, sp, #23
- 151 0016 0092     		str	r2, [sp]
- 152 0018 1022     		movs	r2, #16
- 153 001a D421     		movs	r1, #212
- 154 001c 0448     		ldr	r0, .L10
- 155 001e FFF7FEFF 		bl	HAL_I2C_Mem_Write
- 156              	.LVL4:
- 157              		.loc 1 33 2 is_stmt 0 discriminator 1 view .LVU21
- 158 0022 0449     		ldr	r1, .L10+4
- 159 0024 FFF7FEFF 		bl	send_reg_log
- 160              	.LVL5:
+ 144              		.loc 1 33 2 is_stmt 1 view .LVU19
+ 145 000a FF23     		movs	r3, #255
+ 146 000c 0293     		str	r3, [sp, #8]
+ 147 000e 0123     		movs	r3, #1
+ 148 0010 0193     		str	r3, [sp, #4]
+ 149 0012 0DF11702 		add	r2, sp, #23
+ 150 0016 0092     		str	r2, [sp]
+ 151 0018 1022     		movs	r2, #16
+ 152 001a D421     		movs	r1, #212
+ 153 001c 0448     		ldr	r0, .L10
+ 154 001e FFF7FEFF 		bl	HAL_I2C_Mem_Write
+ 155              	.LVL4:
+ 156              		.loc 1 33 2 is_stmt 0 discriminator 1 view .LVU20
+ 157 0022 0449     		ldr	r1, .L10+4
+ 158 0024 FFF7FEFF 		bl	send_reg_log
+ 159              	.LVL5:
   34:Core/Src/modules/sensors/accelerometer.c **** 
   35:Core/Src/modules/sensors/accelerometer.c ****     return 0;
- 161              		.loc 1 35 5 is_stmt 1 view .LVU22
+ 160              		.loc 1 35 5 is_stmt 1 view .LVU21
   36:Core/Src/modules/sensors/accelerometer.c **** }
- 162              		.loc 1 36 1 is_stmt 0 view .LVU23
- 163 0028 0020     		movs	r0, #0
- 164 002a 07B0     		add	sp, sp, #28
- 165              		.cfi_def_cfa_offset 4
- 166              		@ sp needed
- 167 002c 5DF804FB 		ldr	pc, [sp], #4
- 168              	.L11:
- 169              		.align	2
- 170              	.L10:
- 171 0030 00000000 		.word	hi2c1
- 172 0034 00000000 		.word	.LC2
- 173              		.cfi_endproc
- 174              	.LFE135:
- 176              		.global	dev_address
- 177              		.section	.rodata.dev_address,"a"
- 180              	dev_address:
- 181 0000 D4       		.byte	-44
- 182              		.section	.rodata
- 183              		.align	2
- 184              		.set	.LANCHOR0,. + 0
- 185              	.LC1:
- 186 0000 41434345 		.ascii	"ACCELEROMETER READ ERROR\012\015\000"
- 186      4C45524F 
- 186      4D455445 
- 186      52205245 
-ARM GAS  /tmp/ccuHEjgd.s 			page 5
+ 161              		.loc 1 36 1 is_stmt 0 view .LVU22
+ 162 0028 0020     		movs	r0, #0
+ 163 002a 07B0     		add	sp, sp, #28
+ 164              		.cfi_def_cfa_offset 4
+ 165              		@ sp needed
+ 166 002c 5DF804FB 		ldr	pc, [sp], #4
+ 167              	.L11:
+ 168              		.align	2
+ 169              	.L10:
+ 170 0030 00000000 		.word	hi2c1
+ 171 0034 00000000 		.word	.LC2
+ 172              		.cfi_endproc
+ 173              	.LFE135:
+ 175              		.section	.rodata.read_acceleration_xyz.str1.4,"aMS",%progbits,1
+ 176              		.align	2
+ 177              	.LC3:
+ 178 0000 4F555458 		.ascii	"OUTX_L_XL\000"
+ 178      5F4C5F58 
+ 178      4C00
+ 179 000a 0000     		.align	2
+ 180              	.LC4:
+ 181 000c 4F555458 		.ascii	"OUTX_H_XL\000"
+ 181      5F485F58 
+ 181      4C00
+ 182 0016 0000     		.align	2
+ 183              	.LC5:
+ARM GAS  /tmp/ccTh5w1y.s 			page 5
 
 
- 186      41442045 
- 187 001b 00000000 		.space	23
- 187      00000000 
- 187      00000000 
- 187      00000000 
- 187      00000000 
- 188              		.text
- 189              	.Letext0:
- 190              		.file 2 "/usr/arm-none-eabi/include/machine/_default_types.h"
- 191              		.file 3 "/usr/arm-none-eabi/include/sys/_stdint.h"
- 192              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h"
- 193              		.file 5 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
- 194              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
- 195              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c.h"
- 196              		.file 8 "Core/Inc/modules/communication.h"
- 197              		.file 9 "Core/Inc/i2c.h"
-ARM GAS  /tmp/ccuHEjgd.s 			page 6
+ 184 0018 4F555459 		.ascii	"OUTY_L_XL\000"
+ 184      5F4C5F58 
+ 184      4C00
+ 185 0022 0000     		.align	2
+ 186              	.LC6:
+ 187 0024 4F555459 		.ascii	"OUTY_H_XL\000"
+ 187      5F485F58 
+ 187      4C00
+ 188 002e 0000     		.align	2
+ 189              	.LC7:
+ 190 0030 4F55545A 		.ascii	"OUTZ_L_XL\000"
+ 190      5F4C5F58 
+ 190      4C00
+ 191 003a 0000     		.align	2
+ 192              	.LC8:
+ 193 003c 4F55545A 		.ascii	"OUTZ_H_XL\000"
+ 193      5F485F58 
+ 193      4C00
+ 194              		.section	.text.read_acceleration_xyz,"ax",%progbits
+ 195              		.align	1
+ 196              		.global	read_acceleration_xyz
+ 197              		.syntax unified
+ 198              		.thumb
+ 199              		.thumb_func
+ 201              	read_acceleration_xyz:
+ 202              	.LVL6:
+ 203              	.LFB136:
+  37:Core/Src/modules/sensors/accelerometer.c **** 
+  38:Core/Src/modules/sensors/accelerometer.c **** void read_acceleration_xyz(double* buffer_xyz)
+  39:Core/Src/modules/sensors/accelerometer.c **** {
+ 204              		.loc 1 39 1 is_stmt 1 view -0
+ 205              		.cfi_startproc
+ 206              		@ args = 0, pretend = 0, frame = 16
+ 207              		@ frame_needed = 0, uses_anonymous_args = 0
+ 208              		.loc 1 39 1 is_stmt 0 view .LVU24
+ 209 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 210              		.cfi_def_cfa_offset 36
+ 211              		.cfi_offset 4, -36
+ 212              		.cfi_offset 5, -32
+ 213              		.cfi_offset 6, -28
+ 214              		.cfi_offset 7, -24
+ 215              		.cfi_offset 8, -20
+ 216              		.cfi_offset 9, -16
+ 217              		.cfi_offset 10, -12
+ 218              		.cfi_offset 11, -8
+ 219              		.cfi_offset 14, -4
+ 220 0004 89B0     		sub	sp, sp, #36
+ 221              		.cfi_def_cfa_offset 72
+ 222 0006 8046     		mov	r8, r0
+  40:Core/Src/modules/sensors/accelerometer.c **** 	uint16_t raw_val[2];
+ 223              		.loc 1 40 2 is_stmt 1 view .LVU25
+  41:Core/Src/modules/sensors/accelerometer.c **** 
+  42:Core/Src/modules/sensors/accelerometer.c **** 	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x28, I2C_MEMADD_SIZE_8BIT, (uint8_t*)raw_val, 
+ 224              		.loc 1 42 2 view .LVU26
+ 225 0008 5D4E     		ldr	r6, .L14+16
+ 226 000a FF27     		movs	r7, #255
+ 227 000c 0297     		str	r7, [sp, #8]
+ARM GAS  /tmp/ccTh5w1y.s 			page 6
+
+
+ 228 000e 0124     		movs	r4, #1
+ 229 0010 0194     		str	r4, [sp, #4]
+ 230 0012 0DF11C0B 		add	fp, sp, #28
+ 231 0016 CDF800B0 		str	fp, [sp]
+ 232 001a 2346     		mov	r3, r4
+ 233 001c 2822     		movs	r2, #40
+ 234 001e D421     		movs	r1, #212
+ 235 0020 3046     		mov	r0, r6
+ 236              	.LVL7:
+ 237              		.loc 1 42 2 is_stmt 0 view .LVU27
+ 238 0022 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 239              	.LVL8:
+ 240              		.loc 1 42 2 discriminator 1 view .LVU28
+ 241 0026 5749     		ldr	r1, .L14+20
+ 242 0028 FFF7FEFF 		bl	send_reg_log
+ 243              	.LVL9:
+  43:Core/Src/modules/sensors/accelerometer.c **** 	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x29, I2C_MEMADD_SIZE_8BIT, (uint8_t*)raw_val+1
+ 244              		.loc 1 43 2 is_stmt 1 view .LVU29
+ 245 002c 0297     		str	r7, [sp, #8]
+ 246 002e 0194     		str	r4, [sp, #4]
+ 247 0030 0DF11D0A 		add	r10, sp, #29
+ 248 0034 CDF800A0 		str	r10, [sp]
+ 249 0038 2346     		mov	r3, r4
+ 250 003a 2922     		movs	r2, #41
+ 251 003c D421     		movs	r1, #212
+ 252 003e 3046     		mov	r0, r6
+ 253 0040 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 254              	.LVL10:
+ 255              		.loc 1 43 2 is_stmt 0 discriminator 1 view .LVU30
+ 256 0044 5049     		ldr	r1, .L14+24
+ 257 0046 FFF7FEFF 		bl	send_reg_log
+ 258              	.LVL11:
+  44:Core/Src/modules/sensors/accelerometer.c **** 
+  45:Core/Src/modules/sensors/accelerometer.c **** 	int16_t x_val = raw_val[1] << 8 | raw_val[0];
+ 259              		.loc 1 45 2 is_stmt 1 view .LVU31
+ 260              		.loc 1 45 25 is_stmt 0 view .LVU32
+ 261 004a BDF81E50 		ldrh	r5, [sp, #30]
+ 262              		.loc 1 45 34 view .LVU33
+ 263 004e 2D02     		lsls	r5, r5, #8
+ 264 0050 2DB2     		sxth	r5, r5
+ 265              		.loc 1 45 43 view .LVU34
+ 266 0052 BDF91C30 		ldrsh	r3, [sp, #28]
+ 267              		.loc 1 45 10 view .LVU35
+ 268 0056 1D43     		orrs	r5, r5, r3
+ 269              	.LVL12:
+  46:Core/Src/modules/sensors/accelerometer.c **** 	raw_val[0] = raw_val[1] = 0;
+ 270              		.loc 1 46 2 is_stmt 1 view .LVU36
+ 271              		.loc 1 46 26 is_stmt 0 view .LVU37
+ 272 0058 4FF00009 		mov	r9, #0
+ 273 005c ADF81E90 		strh	r9, [sp, #30]	@ movhi
+ 274              		.loc 1 46 13 view .LVU38
+ 275 0060 ADF81C90 		strh	r9, [sp, #28]	@ movhi
+  47:Core/Src/modules/sensors/accelerometer.c ****   
+  48:Core/Src/modules/sensors/accelerometer.c **** 	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x2A, I2C_MEMADD_SIZE_8BIT, (uint8_t*)raw_val, 
+ 276              		.loc 1 48 2 is_stmt 1 view .LVU39
+ 277 0064 0297     		str	r7, [sp, #8]
+ 278 0066 0194     		str	r4, [sp, #4]
+ARM GAS  /tmp/ccTh5w1y.s 			page 7
+
+
+ 279 0068 CDF800B0 		str	fp, [sp]
+ 280 006c 2346     		mov	r3, r4
+ 281 006e 2A22     		movs	r2, #42
+ 282 0070 D421     		movs	r1, #212
+ 283 0072 3046     		mov	r0, r6
+ 284 0074 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 285              	.LVL13:
+ 286              		.loc 1 48 2 is_stmt 0 discriminator 1 view .LVU40
+ 287 0078 4449     		ldr	r1, .L14+28
+ 288 007a FFF7FEFF 		bl	send_reg_log
+ 289              	.LVL14:
+  49:Core/Src/modules/sensors/accelerometer.c **** 	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x2B, I2C_MEMADD_SIZE_8BIT, (uint8_t*)raw_val+1
+ 290              		.loc 1 49 2 is_stmt 1 view .LVU41
+ 291 007e 0297     		str	r7, [sp, #8]
+ 292 0080 0194     		str	r4, [sp, #4]
+ 293 0082 CDF800A0 		str	r10, [sp]
+ 294 0086 2346     		mov	r3, r4
+ 295 0088 2B22     		movs	r2, #43
+ 296 008a D421     		movs	r1, #212
+ 297 008c 3046     		mov	r0, r6
+ 298 008e FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 299              	.LVL15:
+ 300              		.loc 1 49 2 is_stmt 0 discriminator 1 view .LVU42
+ 301 0092 3F49     		ldr	r1, .L14+32
+ 302 0094 FFF7FEFF 		bl	send_reg_log
+ 303              	.LVL16:
+  50:Core/Src/modules/sensors/accelerometer.c **** 
+  51:Core/Src/modules/sensors/accelerometer.c **** 	int16_t y_val = raw_val[1] << 8 | raw_val[0];
+ 304              		.loc 1 51 2 is_stmt 1 view .LVU43
+ 305              		.loc 1 51 25 is_stmt 0 view .LVU44
+ 306 0098 BDF81E30 		ldrh	r3, [sp, #30]
+ 307              		.loc 1 51 34 view .LVU45
+ 308 009c 1B02     		lsls	r3, r3, #8
+ 309 009e 1BB2     		sxth	r3, r3
+ 310              		.loc 1 51 43 view .LVU46
+ 311 00a0 BDF91C20 		ldrsh	r2, [sp, #28]
+ 312              		.loc 1 51 10 view .LVU47
+ 313 00a4 1343     		orrs	r3, r3, r2
+ 314 00a6 0593     		str	r3, [sp, #20]
+ 315              	.LVL17:
+  52:Core/Src/modules/sensors/accelerometer.c **** 	raw_val[0] = raw_val[1] = 0;
+ 316              		.loc 1 52 2 is_stmt 1 view .LVU48
+ 317              		.loc 1 52 26 is_stmt 0 view .LVU49
+ 318 00a8 ADF81E90 		strh	r9, [sp, #30]	@ movhi
+ 319              		.loc 1 52 13 view .LVU50
+ 320 00ac ADF81C90 		strh	r9, [sp, #28]	@ movhi
+  53:Core/Src/modules/sensors/accelerometer.c ****   
+  54:Core/Src/modules/sensors/accelerometer.c **** 	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x2C, I2C_MEMADD_SIZE_8BIT, (uint8_t*)raw_val, 
+ 321              		.loc 1 54 2 is_stmt 1 view .LVU51
+ 322 00b0 0297     		str	r7, [sp, #8]
+ 323 00b2 0194     		str	r4, [sp, #4]
+ 324 00b4 CDF800B0 		str	fp, [sp]
+ 325 00b8 2346     		mov	r3, r4
+ 326 00ba 2C22     		movs	r2, #44
+ 327 00bc D421     		movs	r1, #212
+ 328 00be 3046     		mov	r0, r6
+ 329 00c0 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ARM GAS  /tmp/ccTh5w1y.s 			page 8
+
+
+ 330              	.LVL18:
+ 331              		.loc 1 54 2 is_stmt 0 discriminator 1 view .LVU52
+ 332 00c4 3349     		ldr	r1, .L14+36
+ 333 00c6 FFF7FEFF 		bl	send_reg_log
+ 334              	.LVL19:
+  55:Core/Src/modules/sensors/accelerometer.c **** 	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x2D, I2C_MEMADD_SIZE_8BIT, (uint8_t*)raw_val+1
+ 335              		.loc 1 55 2 is_stmt 1 view .LVU53
+ 336 00ca 0297     		str	r7, [sp, #8]
+ 337 00cc 0194     		str	r4, [sp, #4]
+ 338 00ce CDF800A0 		str	r10, [sp]
+ 339 00d2 2346     		mov	r3, r4
+ 340 00d4 2D22     		movs	r2, #45
+ 341 00d6 D421     		movs	r1, #212
+ 342 00d8 3046     		mov	r0, r6
+ 343 00da FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 344              	.LVL20:
+ 345              		.loc 1 55 2 is_stmt 0 discriminator 1 view .LVU54
+ 346 00de 2E49     		ldr	r1, .L14+40
+ 347 00e0 FFF7FEFF 		bl	send_reg_log
+ 348              	.LVL21:
+  56:Core/Src/modules/sensors/accelerometer.c **** 
+  57:Core/Src/modules/sensors/accelerometer.c **** 	int16_t z_val = raw_val[1] << 8 | raw_val[0];
+ 349              		.loc 1 57 2 is_stmt 1 view .LVU55
+ 350              		.loc 1 57 25 is_stmt 0 view .LVU56
+ 351 00e4 BDF81E40 		ldrh	r4, [sp, #30]
+ 352              		.loc 1 57 34 view .LVU57
+ 353 00e8 2402     		lsls	r4, r4, #8
+ 354 00ea 24B2     		sxth	r4, r4
+ 355              		.loc 1 57 43 view .LVU58
+ 356 00ec BDF91C30 		ldrsh	r3, [sp, #28]
+ 357              		.loc 1 57 10 view .LVU59
+ 358 00f0 1C43     		orrs	r4, r4, r3
+ 359              	.LVL22:
+  58:Core/Src/modules/sensors/accelerometer.c **** 
+  59:Core/Src/modules/sensors/accelerometer.c **** 	buffer_xyz[0] = ((double)x_val * 0.488/1000)*9.81;
+ 360              		.loc 1 59 2 is_stmt 1 view .LVU60
+ 361              		.loc 1 59 19 is_stmt 0 view .LVU61
+ 362 00f2 2846     		mov	r0, r5
+ 363 00f4 FFF7FEFF 		bl	__aeabi_i2d
+ 364              	.LVL23:
+ 365              		.loc 1 59 33 view .LVU62
+ 366 00f8 1DA3     		adr	r3, .L14
+ 367 00fa D3E90023 		ldrd	r2, [r3]
+ 368 00fe FFF7FEFF 		bl	__aeabi_dmul
+ 369              	.LVL24:
+ 370              		.loc 1 59 40 view .LVU63
+ 371 0102 0022     		movs	r2, #0
+ 372 0104 254B     		ldr	r3, .L14+44
+ 373 0106 FFF7FEFF 		bl	__aeabi_ddiv
+ 374              	.LVL25:
+ 375              		.loc 1 59 46 view .LVU64
+ 376 010a 1BA3     		adr	r3, .L14+8
+ 377 010c D3E90023 		ldrd	r2, [r3]
+ 378 0110 FFF7FEFF 		bl	__aeabi_dmul
+ 379              	.LVL26:
+ 380              		.loc 1 59 16 view .LVU65
+ 381 0114 C8E90001 		strd	r0, [r8]
+ARM GAS  /tmp/ccTh5w1y.s 			page 9
+
+
+  60:Core/Src/modules/sensors/accelerometer.c **** 	buffer_xyz[1] = ((double)y_val * 0.488/1000)*9.81;
+ 382              		.loc 1 60 2 is_stmt 1 view .LVU66
+ 383              		.loc 1 60 19 is_stmt 0 view .LVU67
+ 384 0118 0598     		ldr	r0, [sp, #20]
+ 385 011a FFF7FEFF 		bl	__aeabi_i2d
+ 386              	.LVL27:
+ 387              		.loc 1 60 33 view .LVU68
+ 388 011e 14A3     		adr	r3, .L14
+ 389 0120 D3E90023 		ldrd	r2, [r3]
+ 390 0124 FFF7FEFF 		bl	__aeabi_dmul
+ 391              	.LVL28:
+ 392              		.loc 1 60 40 view .LVU69
+ 393 0128 0022     		movs	r2, #0
+ 394 012a 1C4B     		ldr	r3, .L14+44
+ 395 012c FFF7FEFF 		bl	__aeabi_ddiv
+ 396              	.LVL29:
+ 397              		.loc 1 60 46 view .LVU70
+ 398 0130 11A3     		adr	r3, .L14+8
+ 399 0132 D3E90023 		ldrd	r2, [r3]
+ 400 0136 FFF7FEFF 		bl	__aeabi_dmul
+ 401              	.LVL30:
+ 402              		.loc 1 60 16 view .LVU71
+ 403 013a C8E90201 		strd	r0, [r8, #8]
+  61:Core/Src/modules/sensors/accelerometer.c **** 	buffer_xyz[2] = ((double)z_val * 0.488/1000)*9.81;
+ 404              		.loc 1 61 2 is_stmt 1 view .LVU72
+ 405              		.loc 1 61 19 is_stmt 0 view .LVU73
+ 406 013e 2046     		mov	r0, r4
+ 407 0140 FFF7FEFF 		bl	__aeabi_i2d
+ 408              	.LVL31:
+ 409              		.loc 1 61 33 view .LVU74
+ 410 0144 0AA3     		adr	r3, .L14
+ 411 0146 D3E90023 		ldrd	r2, [r3]
+ 412 014a FFF7FEFF 		bl	__aeabi_dmul
+ 413              	.LVL32:
+ 414              		.loc 1 61 40 view .LVU75
+ 415 014e 0022     		movs	r2, #0
+ 416 0150 124B     		ldr	r3, .L14+44
+ 417 0152 FFF7FEFF 		bl	__aeabi_ddiv
+ 418              	.LVL33:
+ 419              		.loc 1 61 46 view .LVU76
+ 420 0156 08A3     		adr	r3, .L14+8
+ 421 0158 D3E90023 		ldrd	r2, [r3]
+ 422 015c FFF7FEFF 		bl	__aeabi_dmul
+ 423              	.LVL34:
+ 424              		.loc 1 61 16 view .LVU77
+ 425 0160 C8E90401 		strd	r0, [r8, #16]
+  62:Core/Src/modules/sensors/accelerometer.c **** }...
+ 426              		.loc 1 62 1 view .LVU78
+ 427 0164 09B0     		add	sp, sp, #36
+ 428              		.cfi_def_cfa_offset 36
+ 429              		@ sp needed
+ 430 0166 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 431              	.LVL35:
+ 432              	.L15:
+ 433              		.loc 1 62 1 view .LVU79
+ 434 016a 00BFAFF3 		.align	3
+ 434      0080
+ARM GAS  /tmp/ccTh5w1y.s 			page 10
+
+
+ 435              	.L14:
+ 436 0170 08AC1C5A 		.word	1511828488
+ 437 0174 643BDF3F 		.word	1071594340
+ 438 0178 1F85EB51 		.word	1374389535
+ 439 017c B89E2340 		.word	1076076216
+ 440 0180 00000000 		.word	hi2c1
+ 441 0184 00000000 		.word	.LC3
+ 442 0188 0C000000 		.word	.LC4
+ 443 018c 18000000 		.word	.LC5
+ 444 0190 24000000 		.word	.LC6
+ 445 0194 30000000 		.word	.LC7
+ 446 0198 3C000000 		.word	.LC8
+ 447 019c 00408F40 		.word	1083129856
+ 448              		.cfi_endproc
+ 449              	.LFE136:
+ 451              		.section	.rodata
+ 452              		.align	2
+ 453              		.set	.LANCHOR0,. + 0
+ 454              	.LC1:
+ 455 0000 41434345 		.ascii	"ACCELEROMETER READ ERROR\012\015\000"
+ 455      4C45524F 
+ 455      4D455445 
+ 455      52205245 
+ 455      41442045 
+ 456 001b 00000000 		.space	23
+ 456      00000000 
+ 456      00000000 
+ 456      00000000 
+ 456      00000000 
+ 457              		.text
+ 458              	.Letext0:
+ 459              		.file 2 "/usr/arm-none-eabi/include/machine/_default_types.h"
+ 460              		.file 3 "/usr/arm-none-eabi/include/sys/_stdint.h"
+ 461              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h"
+ 462              		.file 5 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 463              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 464              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c.h"
+ 465              		.file 8 "Core/Inc/modules/communication.h"
+ 466              		.file 9 "Core/Inc/i2c.h"
+ARM GAS  /tmp/ccTh5w1y.s 			page 11
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 accelerometer.c
-     /tmp/ccuHEjgd.s:21     .rodata.check_acc_identity.str1.4:00000000 $d
-     /tmp/ccuHEjgd.s:25     .text.check_acc_identity:00000000 $t
-     /tmp/ccuHEjgd.s:31     .text.check_acc_identity:00000000 check_acc_identity
-     /tmp/ccuHEjgd.s:112    .text.check_acc_identity:00000074 $d
-     /tmp/ccuHEjgd.s:120    .rodata.acc_power_on.str1.4:00000000 $d
-     /tmp/ccuHEjgd.s:124    .text.acc_power_on:00000000 $t
-     /tmp/ccuHEjgd.s:130    .text.acc_power_on:00000000 acc_power_on
-     /tmp/ccuHEjgd.s:171    .text.acc_power_on:00000030 $d
-     /tmp/ccuHEjgd.s:180    .rodata.dev_address:00000000 dev_address
-     /tmp/ccuHEjgd.s:183    .rodata:00000000 $d
+     /tmp/ccTh5w1y.s:21     .rodata.check_acc_identity.str1.4:00000000 $d
+     /tmp/ccTh5w1y.s:25     .text.check_acc_identity:00000000 $t
+     /tmp/ccTh5w1y.s:31     .text.check_acc_identity:00000000 check_acc_identity
+     /tmp/ccTh5w1y.s:111    .text.check_acc_identity:00000074 $d
+     /tmp/ccTh5w1y.s:119    .rodata.acc_power_on.str1.4:00000000 $d
+     /tmp/ccTh5w1y.s:123    .text.acc_power_on:00000000 $t
+     /tmp/ccTh5w1y.s:129    .text.acc_power_on:00000000 acc_power_on
+     /tmp/ccTh5w1y.s:170    .text.acc_power_on:00000030 $d
+     /tmp/ccTh5w1y.s:176    .rodata.read_acceleration_xyz.str1.4:00000000 $d
+     /tmp/ccTh5w1y.s:195    .text.read_acceleration_xyz:00000000 $t
+     /tmp/ccTh5w1y.s:201    .text.read_acceleration_xyz:00000000 read_acceleration_xyz
+     /tmp/ccTh5w1y.s:436    .text.read_acceleration_xyz:00000170 $d
+     /tmp/ccTh5w1y.s:452    .rodata:00000000 $d
 
 UNDEFINED SYMBOLS
 HAL_I2C_Mem_Read
@@ -279,3 +605,6 @@ send_reg_log
 send_message
 hi2c1
 HAL_I2C_Mem_Write
+__aeabi_i2d
+__aeabi_dmul
+__aeabi_ddiv

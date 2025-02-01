@@ -6,7 +6,8 @@
         "gpio.h": "c",
         "tim.h": "c",
         "i2c.h": "c",
-        "main.h": "c"
+        "main.h": "c",
+        "accelerometer.h": "c"
     },
     "cortex-debug.armToolchainPath": "/usr/bin",
     "cortex-debug.openocdPath": "/usr/bin/openocd"

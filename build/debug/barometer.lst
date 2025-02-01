@@ -1,4 +1,4 @@
-ARM GAS  /tmp/ccH8O7Bv.s 			page 1
+ARM GAS  /tmp/ccpdPHoJ.s 			page 1
 
 
    1              		.cpu cortex-m4
@@ -32,60 +32,63 @@ ARM GAS  /tmp/ccH8O7Bv.s 			page 1
    2:Core/Src/modules/sensors/barometer.c **** #include "communication.h"
    3:Core/Src/modules/sensors/barometer.c **** #include <i2c.h>
    4:Core/Src/modules/sensors/barometer.c **** 
-   5:Core/Src/modules/sensors/barometer.c **** uint16_t dig_T1;
-   6:Core/Src/modules/sensors/barometer.c **** int16_t  dig_T2;
-   7:Core/Src/modules/sensors/barometer.c **** int16_t  dig_T3;
-   8:Core/Src/modules/sensors/barometer.c **** 
-   9:Core/Src/modules/sensors/barometer.c **** /* Для pressure */
-  10:Core/Src/modules/sensors/barometer.c **** uint16_t dig_P1;
-  11:Core/Src/modules/sensors/barometer.c **** int16_t  dig_P2;
-  12:Core/Src/modules/sensors/barometer.c **** int16_t  dig_P3;
-  13:Core/Src/modules/sensors/barometer.c **** int16_t  dig_P4;
-  14:Core/Src/modules/sensors/barometer.c **** int16_t  dig_P5;
-  15:Core/Src/modules/sensors/barometer.c **** int16_t  dig_P6;
-  16:Core/Src/modules/sensors/barometer.c **** int16_t  dig_P7;
-  17:Core/Src/modules/sensors/barometer.c **** int16_t  dig_P8;
-  18:Core/Src/modules/sensors/barometer.c **** int16_t  dig_P9;
-  19:Core/Src/modules/sensors/barometer.c **** 
-  20:Core/Src/modules/sensors/barometer.c **** // Returns temperature in DegC, resolution is 0.01 DegC. Output value of “5123” equals 51.23 De
-  21:Core/Src/modules/sensors/barometer.c **** // t_fine carries fine temperature as global value
-  22:Core/Src/modules/sensors/barometer.c **** int32_t bmp280_compensate_T_int32(int32_t adc_T);
-  23:Core/Src/modules/sensors/barometer.c **** 
-  24:Core/Src/modules/sensors/barometer.c **** // Returns pressure in Pa as unsigned 32 bit integer in Q24.8 format (24 integer bits and 8 fractio
-  25:Core/Src/modules/sensors/barometer.c **** // Output value of “24674867” represents 24674867/256 = 96386.2 Pa = 963.862 hPa
-  26:Core/Src/modules/sensors/barometer.c **** uint32_t bmp280_compensate_P_int64(int32_t adc_P);
-  27:Core/Src/modules/sensors/barometer.c **** 
-  28:Core/Src/modules/sensors/barometer.c **** uint32_t read_pressure()
-  29:Core/Src/modules/sensors/barometer.c **** {
-  30:Core/Src/modules/sensors/barometer.c **** 	uint8_t pressure_raw[3];
-ARM GAS  /tmp/ccH8O7Bv.s 			page 2
+   5:Core/Src/modules/sensors/barometer.c **** static const uint8_t dev_address = 0x76 << 1; //или 0x77, адрес устройства по �
+   6:Core/Src/modules/sensors/barometer.c **** static const uint32_t timeout_default = 0xFF; //Таймаут, 255 мс
+   7:Core/Src/modules/sensors/barometer.c **** 
+   8:Core/Src/modules/sensors/barometer.c **** static uint16_t dig_T1;
+   9:Core/Src/modules/sensors/barometer.c **** static int16_t  dig_T2;
+  10:Core/Src/modules/sensors/barometer.c **** static int16_t  dig_T3;
+  11:Core/Src/modules/sensors/barometer.c **** 
+  12:Core/Src/modules/sensors/barometer.c **** /* Для pressure */
+  13:Core/Src/modules/sensors/barometer.c **** static uint16_t dig_P1;
+  14:Core/Src/modules/sensors/barometer.c **** static int16_t  dig_P2;
+  15:Core/Src/modules/sensors/barometer.c **** static int16_t  dig_P3;
+  16:Core/Src/modules/sensors/barometer.c **** static int16_t  dig_P4;
+  17:Core/Src/modules/sensors/barometer.c **** static int16_t  dig_P5;
+  18:Core/Src/modules/sensors/barometer.c **** static int16_t  dig_P6;
+  19:Core/Src/modules/sensors/barometer.c **** static int16_t  dig_P7;
+  20:Core/Src/modules/sensors/barometer.c **** static int16_t  dig_P8;
+  21:Core/Src/modules/sensors/barometer.c **** static int16_t  dig_P9;
+  22:Core/Src/modules/sensors/barometer.c **** 
+  23:Core/Src/modules/sensors/barometer.c **** // Returns temperature in DegC, resolution is 0.01 DegC. Output value of “5123” equals 51.23 De
+  24:Core/Src/modules/sensors/barometer.c **** // t_fine carries fine temperature as global value
+  25:Core/Src/modules/sensors/barometer.c **** int32_t bmp280_compensate_T_int32(int32_t adc_T);
+  26:Core/Src/modules/sensors/barometer.c **** 
+  27:Core/Src/modules/sensors/barometer.c **** // Returns pressure in Pa as unsigned 32 bit integer in Q24.8 format (24 integer bits and 8 fractio
+  28:Core/Src/modules/sensors/barometer.c **** // Output value of “24674867” represents 24674867/256 = 96386.2 Pa = 963.862 hPa
+  29:Core/Src/modules/sensors/barometer.c **** uint32_t bmp280_compensate_P_int64(int32_t adc_P);
+  30:Core/Src/modules/sensors/barometer.c **** 
+ARM GAS  /tmp/ccpdPHoJ.s 			page 2
 
 
-  31:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0xF7, I2C_MEMADD_SIZE_8BIT, pressure_raw, 1, 0
-  32:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0xF8, I2C_MEMADD_SIZE_8BIT, pressure_raw+1, 1,
-  33:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0xF9, I2C_MEMADD_SIZE_8BIT, pressure_raw+2, 1,
-  34:Core/Src/modules/sensors/barometer.c **** 
-  35:Core/Src/modules/sensors/barometer.c ****     int32_t pressure_raw_32 = (int32_t) ( ((uint32_t)pressure_raw[0] << 12) | ((uint32_t)pressure_r
-  36:Core/Src/modules/sensors/barometer.c ****     uint32_t actual_pressure = bmp280_compensate_P_int64(pressure_raw_32);
-  37:Core/Src/modules/sensors/barometer.c **** 	return actual_pressure;
-  38:Core/Src/modules/sensors/barometer.c **** }
-  39:Core/Src/modules/sensors/barometer.c **** 
-  40:Core/Src/modules/sensors/barometer.c **** int32_t read_temp()
-  41:Core/Src/modules/sensors/barometer.c **** {
-  42:Core/Src/modules/sensors/barometer.c **** 	uint8_t temp_raw[3];
-  43:Core/Src/modules/sensors/barometer.c ****     temp_raw[0] = temp_raw[1] = temp_raw[2]  = 0;
-  44:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0xFA, I2C_MEMADD_SIZE_8BIT, temp_raw, 1, 0xFF)
-  45:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0xFB, I2C_MEMADD_SIZE_8BIT, temp_raw+1, 1, 0xF
-  46:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0xFC, I2C_MEMADD_SIZE_8BIT, temp_raw+2, 1, 0xF
-  47:Core/Src/modules/sensors/barometer.c **** 
-  48:Core/Src/modules/sensors/barometer.c ****     int32_t temp_raw_32 = (int32_t) ( ((uint32_t)temp_raw[0] << 12) | ((uint32_t)temp_raw[1] << 4) 
-  49:Core/Src/modules/sensors/barometer.c ****     int32_t actual_temp = bmp280_compensate_T_int32(temp_raw_32);
-  50:Core/Src/modules/sensors/barometer.c **** 	return actual_temp;
-  51:Core/Src/modules/sensors/barometer.c **** }
-  52:Core/Src/modules/sensors/barometer.c **** 
-  53:Core/Src/modules/sensors/barometer.c **** short check_barometer_identity()
-  54:Core/Src/modules/sensors/barometer.c **** {
-  29              		.loc 1 54 1 view -0
+  31:Core/Src/modules/sensors/barometer.c **** uint32_t read_pressure()
+  32:Core/Src/modules/sensors/barometer.c **** {
+  33:Core/Src/modules/sensors/barometer.c **** 	uint8_t pressure_raw[3];
+  34:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xF7, I2C_MEMADD_SIZE_8BIT, pressure_raw, 1,
+  35:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xF8, I2C_MEMADD_SIZE_8BIT, pressure_raw+1, 
+  36:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xF9, I2C_MEMADD_SIZE_8BIT, pressure_raw+2, 
+  37:Core/Src/modules/sensors/barometer.c **** 
+  38:Core/Src/modules/sensors/barometer.c ****     int32_t pressure_raw_32 = (int32_t) ( ((uint32_t)pressure_raw[0] << 12) | ((uint32_t)pressure_r
+  39:Core/Src/modules/sensors/barometer.c ****     uint32_t actual_pressure = bmp280_compensate_P_int64(pressure_raw_32);
+  40:Core/Src/modules/sensors/barometer.c **** 	return actual_pressure;
+  41:Core/Src/modules/sensors/barometer.c **** }
+  42:Core/Src/modules/sensors/barometer.c **** 
+  43:Core/Src/modules/sensors/barometer.c **** int32_t read_temp()
+  44:Core/Src/modules/sensors/barometer.c **** {
+  45:Core/Src/modules/sensors/barometer.c **** 	uint8_t temp_raw[3];
+  46:Core/Src/modules/sensors/barometer.c ****     temp_raw[0] = temp_raw[1] = temp_raw[2]  = 0;
+  47:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xFA, I2C_MEMADD_SIZE_8BIT, temp_raw, 1, tim
+  48:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xFB, I2C_MEMADD_SIZE_8BIT, temp_raw+1, 1, t
+  49:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xFC, I2C_MEMADD_SIZE_8BIT, temp_raw+2, 1, t
+  50:Core/Src/modules/sensors/barometer.c **** 
+  51:Core/Src/modules/sensors/barometer.c ****     int32_t temp_raw_32 = (int32_t) ( ((uint32_t)temp_raw[0] << 12) | ((uint32_t)temp_raw[1] << 4) 
+  52:Core/Src/modules/sensors/barometer.c ****     int32_t actual_temp = bmp280_compensate_T_int32(temp_raw_32);
+  53:Core/Src/modules/sensors/barometer.c **** 	return actual_temp;
+  54:Core/Src/modules/sensors/barometer.c **** }
+  55:Core/Src/modules/sensors/barometer.c **** 
+  56:Core/Src/modules/sensors/barometer.c **** short check_barometer_identity()
+  57:Core/Src/modules/sensors/barometer.c **** {
+  29              		.loc 1 57 1 view -0
   30              		.cfi_startproc
   31              		@ args = 0, pretend = 0, frame = 8
   32              		@ frame_needed = 0, uses_anonymous_args = 0
@@ -94,1341 +97,1282 @@ ARM GAS  /tmp/ccH8O7Bv.s 			page 1
   35              		.cfi_offset 14, -4
   36 0002 87B0     		sub	sp, sp, #28
   37              		.cfi_def_cfa_offset 32
-  55:Core/Src/modules/sensors/barometer.c **** 	uint16_t Address_Bmp280 = 0x76 << 1; //или 0x77 - адрес устройства по лини
-  38              		.loc 1 55 2 view .LVU1
+  58:Core/Src/modules/sensors/barometer.c **** 	uint16_t Register_ID = 0xD0; //Адрес регистра в котором хранится зн
+  38              		.loc 1 58 2 view .LVU1
   39              	.LVL0:
-  56:Core/Src/modules/sensors/barometer.c **** 	uint16_t Register_ID = 0xD0; //Адрес регистра в котором хранится зн
-  40              		.loc 1 56 2 view .LVU2
-  57:Core/Src/modules/sensors/barometer.c **** 	uint8_t Data[1]; //Массив в котором МЫ будем хранить данные с �
-  41              		.loc 1 57 2 view .LVU3
-  58:Core/Src/modules/sensors/barometer.c **** 	uint16_t Size_ = 1; //Длина запрашиваемых данных, 1 байт = 1 реги�
-  42              		.loc 1 58 2 view .LVU4
-  59:Core/Src/modules/sensors/barometer.c **** 	uint32_t Timeout_ = 0xFF; //Таймаут, 255 мс
-  43              		.loc 1 59 2 view .LVU5
-  60:Core/Src/modules/sensors/barometer.c **** 
-  61:Core/Src/modules/sensors/barometer.c **** 	HAL_I2C_Mem_Read(&hi2c1, Address_Bmp280, Register_ID, I2C_MEMADD_SIZE_8BIT, Data, Size_, Timeout_)
-  44              		.loc 1 61 2 view .LVU6
-  45 0004 FF23     		movs	r3, #255
-  46 0006 0293     		str	r3, [sp, #8]
-  47 0008 0123     		movs	r3, #1
-  48 000a 0193     		str	r3, [sp, #4]
-  49 000c 05AA     		add	r2, sp, #20
-  50 000e 0092     		str	r2, [sp]
-  51 0010 D022     		movs	r2, #208
-  52 0012 EC21     		movs	r1, #236
-  53 0014 0648     		ldr	r0, .L6
-  54 0016 FFF7FEFF 		bl	HAL_I2C_Mem_Read
-ARM GAS  /tmp/ccH8O7Bv.s 			page 3
+  59:Core/Src/modules/sensors/barometer.c **** 	uint8_t Data[1]; //Массив в котором МЫ будем хранить данные с �
+  40              		.loc 1 59 2 view .LVU2
+  60:Core/Src/modules/sensors/barometer.c **** 	uint16_t Size_ = 1; //Длина запрашиваемых данных, 1 байт = 1 реги�
+  41              		.loc 1 60 2 view .LVU3
+  61:Core/Src/modules/sensors/barometer.c **** 
+  62:Core/Src/modules/sensors/barometer.c **** 	HAL_I2C_Mem_Read(&hi2c1, dev_address, Register_ID, I2C_MEMADD_SIZE_8BIT, Data, Size_, timeout_defa
+  42              		.loc 1 62 2 view .LVU4
+  43 0004 FF23     		movs	r3, #255
+  44 0006 0293     		str	r3, [sp, #8]
+  45 0008 0123     		movs	r3, #1
+  46 000a 0193     		str	r3, [sp, #4]
+  47 000c 05AA     		add	r2, sp, #20
+  48 000e 0092     		str	r2, [sp]
+  49 0010 D022     		movs	r2, #208
+  50 0012 EC21     		movs	r1, #236
+  51 0014 0648     		ldr	r0, .L6
+  52 0016 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+  53              	.LVL1:
+ARM GAS  /tmp/ccpdPHoJ.s 			page 3
 
 
-  55              	.LVL1:
-  62:Core/Src/modules/sensors/barometer.c **** 	if (Data[0] == 0x58)
-  56              		.loc 1 62 2 view .LVU7
-  57              		.loc 1 62 10 is_stmt 0 view .LVU8
-  58 001a 9DF81430 		ldrb	r3, [sp, #20]	@ zero_extendqisi2
-  59              		.loc 1 62 5 view .LVU9
-  60 001e 582B     		cmp	r3, #88
-  61 0020 03D0     		beq	.L5
-  63:Core/Src/modules/sensors/barometer.c **** 	{
-  64:Core/Src/modules/sensors/barometer.c ****         return 1;
+  63:Core/Src/modules/sensors/barometer.c **** 	if (Data[0] == 0x58)
+  54              		.loc 1 63 2 view .LVU5
+  55              		.loc 1 63 10 is_stmt 0 view .LVU6
+  56 001a 9DF81430 		ldrb	r3, [sp, #20]	@ zero_extendqisi2
+  57              		.loc 1 63 5 view .LVU7
+  58 001e 582B     		cmp	r3, #88
+  59 0020 03D0     		beq	.L5
+  64:Core/Src/modules/sensors/barometer.c **** 	{
+  65:Core/Src/modules/sensors/barometer.c ****         return 1;
+  66:Core/Src/modules/sensors/barometer.c **** 	} else
+  67:Core/Src/modules/sensors/barometer.c **** 	{
+  68:Core/Src/modules/sensors/barometer.c ****         return 0;
+  60              		.loc 1 68 16 view .LVU8
+  61 0022 0020     		movs	r0, #0
+  62              	.L2:
+  69:Core/Src/modules/sensors/barometer.c **** 	}
+  70:Core/Src/modules/sensors/barometer.c **** 
+  71:Core/Src/modules/sensors/barometer.c ****     return 0;
+  72:Core/Src/modules/sensors/barometer.c **** }
+  63              		.loc 1 72 1 view .LVU9
+  64 0024 07B0     		add	sp, sp, #28
+  65              		.cfi_remember_state
+  66              		.cfi_def_cfa_offset 4
+  67              		@ sp needed
+  68 0026 5DF804FB 		ldr	pc, [sp], #4
+  69              	.L5:
+  70              		.cfi_restore_state
   65:Core/Src/modules/sensors/barometer.c **** 	} else
-  66:Core/Src/modules/sensors/barometer.c **** 	{
-  67:Core/Src/modules/sensors/barometer.c ****         return 0;
-  62              		.loc 1 67 16 view .LVU10
-  63 0022 0020     		movs	r0, #0
-  64              	.L2:
-  68:Core/Src/modules/sensors/barometer.c **** 	}
-  69:Core/Src/modules/sensors/barometer.c **** 
-  70:Core/Src/modules/sensors/barometer.c ****     return 0;
-  71:Core/Src/modules/sensors/barometer.c **** }
-  65              		.loc 1 71 1 view .LVU11
-  66 0024 07B0     		add	sp, sp, #28
-  67              		.cfi_remember_state
-  68              		.cfi_def_cfa_offset 4
-  69              		@ sp needed
-  70 0026 5DF804FB 		ldr	pc, [sp], #4
-  71              	.L5:
-  72              		.cfi_restore_state
-  64:Core/Src/modules/sensors/barometer.c **** 	} else
-  73              		.loc 1 64 16 view .LVU12
-  74 002a 0120     		movs	r0, #1
-  75 002c FAE7     		b	.L2
-  76              	.L7:
-  77 002e 00BF     		.align	2
-  78              	.L6:
-  79 0030 00000000 		.word	hi2c1
-  80              		.cfi_endproc
-  81              	.LFE136:
-  83              		.section	.rodata.read_dig_variables.str1.4,"aMS",%progbits,1
-  84              		.align	2
-  85              	.LC0:
-  86 0000 6469675F 		.ascii	"dig_T1\000"
-  86      543100
-  87 0007 00       		.align	2
-  88              	.LC1:
-  89 0008 6469675F 		.ascii	"dig_T2\000"
-  89      543200
-  90 000f 00       		.align	2
-  91              	.LC2:
-  92 0010 6469675F 		.ascii	"dig_T3\000"
-  92      543300
-  93 0017 00       		.align	2
-  94              	.LC3:
-  95 0018 6469675F 		.ascii	"dig_P1\000"
-  95      503100
-  96 001f 00       		.align	2
-  97              	.LC4:
-ARM GAS  /tmp/ccH8O7Bv.s 			page 4
+  71              		.loc 1 65 16 view .LVU10
+  72 002a 0120     		movs	r0, #1
+  73 002c FAE7     		b	.L2
+  74              	.L7:
+  75 002e 00BF     		.align	2
+  76              	.L6:
+  77 0030 00000000 		.word	hi2c1
+  78              		.cfi_endproc
+  79              	.LFE136:
+  81              		.section	.rodata.read_dig_variables.str1.4,"aMS",%progbits,1
+  82              		.align	2
+  83              	.LC0:
+  84 0000 6469675F 		.ascii	"dig_T1\000"
+  84      543100
+  85 0007 00       		.align	2
+  86              	.LC1:
+  87 0008 6469675F 		.ascii	"dig_T2\000"
+  87      543200
+  88 000f 00       		.align	2
+  89              	.LC2:
+  90 0010 6469675F 		.ascii	"dig_T3\000"
+  90      543300
+  91 0017 00       		.align	2
+  92              	.LC3:
+  93 0018 6469675F 		.ascii	"dig_P1\000"
+  93      503100
+  94 001f 00       		.align	2
+  95              	.LC4:
+  96 0020 6469675F 		.ascii	"dig_P2\000"
+ARM GAS  /tmp/ccpdPHoJ.s 			page 4
 
 
-  98 0020 6469675F 		.ascii	"dig_P2\000"
-  98      503200
-  99 0027 00       		.align	2
- 100              	.LC5:
- 101 0028 6469675F 		.ascii	"dig_P3\000"
- 101      503300
- 102 002f 00       		.align	2
- 103              	.LC6:
- 104 0030 6469675F 		.ascii	"dig_P4\000"
- 104      503400
- 105 0037 00       		.align	2
- 106              	.LC7:
- 107 0038 6469675F 		.ascii	"dig_P5\000"
- 107      503500
- 108 003f 00       		.align	2
- 109              	.LC8:
- 110 0040 6469675F 		.ascii	"dig_P6\000"
- 110      503600
- 111 0047 00       		.align	2
- 112              	.LC9:
- 113 0048 6469675F 		.ascii	"dig_P7\000"
- 113      503700
- 114 004f 00       		.align	2
- 115              	.LC10:
- 116 0050 6469675F 		.ascii	"dig_P8\000"
- 116      503800
- 117 0057 00       		.align	2
- 118              	.LC11:
- 119 0058 6469675F 		.ascii	"dig_P9\000"
- 119      503900
- 120              		.section	.text.read_dig_variables,"ax",%progbits
- 121              		.align	1
- 122              		.global	read_dig_variables
- 123              		.syntax unified
- 124              		.thumb
- 125              		.thumb_func
- 127              	read_dig_variables:
- 128              	.LFB137:
-  72:Core/Src/modules/sensors/barometer.c **** 
-  73:Core/Src/modules/sensors/barometer.c **** void read_dig_variables()
-  74:Core/Src/modules/sensors/barometer.c **** {
- 129              		.loc 1 74 1 is_stmt 1 view -0
- 130              		.cfi_startproc
- 131              		@ args = 0, pretend = 0, frame = 0
- 132              		@ frame_needed = 0, uses_anonymous_args = 0
- 133 0000 70B5     		push	{r4, r5, r6, lr}
- 134              		.cfi_def_cfa_offset 16
- 135              		.cfi_offset 4, -16
- 136              		.cfi_offset 5, -12
- 137              		.cfi_offset 6, -8
- 138              		.cfi_offset 14, -4
- 139 0002 84B0     		sub	sp, sp, #16
- 140              		.cfi_def_cfa_offset 32
-  75:Core/Src/modules/sensors/barometer.c ****   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0x88, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_T1, 
- 141              		.loc 1 75 3 view .LVU14
- 142 0004 504C     		ldr	r4, .L10
- 143 0006 FF26     		movs	r6, #255
-ARM GAS  /tmp/ccH8O7Bv.s 			page 5
+  96      503200
+  97 0027 00       		.align	2
+  98              	.LC5:
+  99 0028 6469675F 		.ascii	"dig_P3\000"
+  99      503300
+ 100 002f 00       		.align	2
+ 101              	.LC6:
+ 102 0030 6469675F 		.ascii	"dig_P4\000"
+ 102      503400
+ 103 0037 00       		.align	2
+ 104              	.LC7:
+ 105 0038 6469675F 		.ascii	"dig_P5\000"
+ 105      503500
+ 106 003f 00       		.align	2
+ 107              	.LC8:
+ 108 0040 6469675F 		.ascii	"dig_P6\000"
+ 108      503600
+ 109 0047 00       		.align	2
+ 110              	.LC9:
+ 111 0048 6469675F 		.ascii	"dig_P7\000"
+ 111      503700
+ 112 004f 00       		.align	2
+ 113              	.LC10:
+ 114 0050 6469675F 		.ascii	"dig_P8\000"
+ 114      503800
+ 115 0057 00       		.align	2
+ 116              	.LC11:
+ 117 0058 6469675F 		.ascii	"dig_P9\000"
+ 117      503900
+ 118              		.section	.text.read_dig_variables,"ax",%progbits
+ 119              		.align	1
+ 120              		.global	read_dig_variables
+ 121              		.syntax unified
+ 122              		.thumb
+ 123              		.thumb_func
+ 125              	read_dig_variables:
+ 126              	.LFB137:
+  73:Core/Src/modules/sensors/barometer.c **** 
+  74:Core/Src/modules/sensors/barometer.c **** void read_dig_variables()
+  75:Core/Src/modules/sensors/barometer.c **** {
+ 127              		.loc 1 75 1 is_stmt 1 view -0
+ 128              		.cfi_startproc
+ 129              		@ args = 0, pretend = 0, frame = 0
+ 130              		@ frame_needed = 0, uses_anonymous_args = 0
+ 131 0000 70B5     		push	{r4, r5, r6, lr}
+ 132              		.cfi_def_cfa_offset 16
+ 133              		.cfi_offset 4, -16
+ 134              		.cfi_offset 5, -12
+ 135              		.cfi_offset 6, -8
+ 136              		.cfi_offset 14, -4
+ 137 0002 84B0     		sub	sp, sp, #16
+ 138              		.cfi_def_cfa_offset 32
+  76:Core/Src/modules/sensors/barometer.c ****   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x88, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_T1
+ 139              		.loc 1 76 3 view .LVU12
+ 140 0004 504C     		ldr	r4, .L10
+ 141 0006 FF26     		movs	r6, #255
+ 142 0008 0296     		str	r6, [sp, #8]
+ARM GAS  /tmp/ccpdPHoJ.s 			page 5
 
 
- 144 0008 0296     		str	r6, [sp, #8]
- 145 000a 0225     		movs	r5, #2
- 146 000c 0195     		str	r5, [sp, #4]
- 147 000e 4F4B     		ldr	r3, .L10+4
- 148 0010 0093     		str	r3, [sp]
- 149 0012 0123     		movs	r3, #1
- 150 0014 8822     		movs	r2, #136
- 151 0016 EC21     		movs	r1, #236
- 152 0018 2046     		mov	r0, r4
- 153 001a FFF7FEFF 		bl	HAL_I2C_Mem_Read
- 154              	.LVL2:
- 155              		.loc 1 75 3 is_stmt 0 discriminator 1 view .LVU15
- 156 001e 4C49     		ldr	r1, .L10+8
- 157 0020 FFF7FEFF 		bl	send_reg_log
- 158              	.LVL3:
-  76:Core/Src/modules/sensors/barometer.c ****   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0x8A, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_T2, 
- 159              		.loc 1 76 3 is_stmt 1 view .LVU16
- 160 0024 0296     		str	r6, [sp, #8]
- 161 0026 0195     		str	r5, [sp, #4]
- 162 0028 4A4B     		ldr	r3, .L10+12
- 163 002a 0093     		str	r3, [sp]
- 164 002c 0123     		movs	r3, #1
- 165 002e 8A22     		movs	r2, #138
- 166 0030 EC21     		movs	r1, #236
- 167 0032 2046     		mov	r0, r4
- 168 0034 FFF7FEFF 		bl	HAL_I2C_Mem_Read
- 169              	.LVL4:
- 170              		.loc 1 76 3 is_stmt 0 discriminator 1 view .LVU17
- 171 0038 4749     		ldr	r1, .L10+16
- 172 003a FFF7FEFF 		bl	send_reg_log
- 173              	.LVL5:
-  77:Core/Src/modules/sensors/barometer.c ****   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0x8C, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_T3, 
- 174              		.loc 1 77 3 is_stmt 1 view .LVU18
- 175 003e 0296     		str	r6, [sp, #8]
- 176 0040 0195     		str	r5, [sp, #4]
- 177 0042 464B     		ldr	r3, .L10+20
- 178 0044 0093     		str	r3, [sp]
- 179 0046 0123     		movs	r3, #1
- 180 0048 8C22     		movs	r2, #140
- 181 004a EC21     		movs	r1, #236
- 182 004c 2046     		mov	r0, r4
- 183 004e FFF7FEFF 		bl	HAL_I2C_Mem_Read
- 184              	.LVL6:
- 185              		.loc 1 77 3 is_stmt 0 discriminator 1 view .LVU19
- 186 0052 4349     		ldr	r1, .L10+24
- 187 0054 FFF7FEFF 		bl	send_reg_log
- 188              	.LVL7:
-  78:Core/Src/modules/sensors/barometer.c ****   
-  79:Core/Src/modules/sensors/barometer.c ****   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0x8E, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P1, 
- 189              		.loc 1 79 3 is_stmt 1 view .LVU20
- 190 0058 0296     		str	r6, [sp, #8]
- 191 005a 0195     		str	r5, [sp, #4]
- 192 005c 414B     		ldr	r3, .L10+28
- 193 005e 0093     		str	r3, [sp]
- 194 0060 0123     		movs	r3, #1
- 195 0062 8E22     		movs	r2, #142
- 196 0064 EC21     		movs	r1, #236
-ARM GAS  /tmp/ccH8O7Bv.s 			page 6
+ 143 000a 0225     		movs	r5, #2
+ 144 000c 0195     		str	r5, [sp, #4]
+ 145 000e 4F4B     		ldr	r3, .L10+4
+ 146 0010 0093     		str	r3, [sp]
+ 147 0012 0123     		movs	r3, #1
+ 148 0014 8822     		movs	r2, #136
+ 149 0016 EC21     		movs	r1, #236
+ 150 0018 2046     		mov	r0, r4
+ 151 001a FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 152              	.LVL2:
+ 153              		.loc 1 76 3 is_stmt 0 discriminator 1 view .LVU13
+ 154 001e 4C49     		ldr	r1, .L10+8
+ 155 0020 FFF7FEFF 		bl	send_reg_log
+ 156              	.LVL3:
+  77:Core/Src/modules/sensors/barometer.c ****   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x8A, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_T2
+ 157              		.loc 1 77 3 is_stmt 1 view .LVU14
+ 158 0024 0296     		str	r6, [sp, #8]
+ 159 0026 0195     		str	r5, [sp, #4]
+ 160 0028 4A4B     		ldr	r3, .L10+12
+ 161 002a 0093     		str	r3, [sp]
+ 162 002c 0123     		movs	r3, #1
+ 163 002e 8A22     		movs	r2, #138
+ 164 0030 EC21     		movs	r1, #236
+ 165 0032 2046     		mov	r0, r4
+ 166 0034 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 167              	.LVL4:
+ 168              		.loc 1 77 3 is_stmt 0 discriminator 1 view .LVU15
+ 169 0038 4749     		ldr	r1, .L10+16
+ 170 003a FFF7FEFF 		bl	send_reg_log
+ 171              	.LVL5:
+  78:Core/Src/modules/sensors/barometer.c ****   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x8C, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_T3
+ 172              		.loc 1 78 3 is_stmt 1 view .LVU16
+ 173 003e 0296     		str	r6, [sp, #8]
+ 174 0040 0195     		str	r5, [sp, #4]
+ 175 0042 464B     		ldr	r3, .L10+20
+ 176 0044 0093     		str	r3, [sp]
+ 177 0046 0123     		movs	r3, #1
+ 178 0048 8C22     		movs	r2, #140
+ 179 004a EC21     		movs	r1, #236
+ 180 004c 2046     		mov	r0, r4
+ 181 004e FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 182              	.LVL6:
+ 183              		.loc 1 78 3 is_stmt 0 discriminator 1 view .LVU17
+ 184 0052 4349     		ldr	r1, .L10+24
+ 185 0054 FFF7FEFF 		bl	send_reg_log
+ 186              	.LVL7:
+  79:Core/Src/modules/sensors/barometer.c ****   
+  80:Core/Src/modules/sensors/barometer.c ****   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x8E, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P1
+ 187              		.loc 1 80 3 is_stmt 1 view .LVU18
+ 188 0058 0296     		str	r6, [sp, #8]
+ 189 005a 0195     		str	r5, [sp, #4]
+ 190 005c 414B     		ldr	r3, .L10+28
+ 191 005e 0093     		str	r3, [sp]
+ 192 0060 0123     		movs	r3, #1
+ 193 0062 8E22     		movs	r2, #142
+ 194 0064 EC21     		movs	r1, #236
+ 195 0066 2046     		mov	r0, r4
+ARM GAS  /tmp/ccpdPHoJ.s 			page 6
 
 
- 197 0066 2046     		mov	r0, r4
- 198 0068 FFF7FEFF 		bl	HAL_I2C_Mem_Read
- 199              	.LVL8:
- 200              		.loc 1 79 3 is_stmt 0 discriminator 1 view .LVU21
- 201 006c 3E49     		ldr	r1, .L10+32
- 202 006e FFF7FEFF 		bl	send_reg_log
- 203              	.LVL9:
-  80:Core/Src/modules/sensors/barometer.c ****   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0x90, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P2, 
- 204              		.loc 1 80 3 is_stmt 1 view .LVU22
- 205 0072 0296     		str	r6, [sp, #8]
- 206 0074 0195     		str	r5, [sp, #4]
- 207 0076 3D4B     		ldr	r3, .L10+36
- 208 0078 0093     		str	r3, [sp]
- 209 007a 0123     		movs	r3, #1
- 210 007c 9022     		movs	r2, #144
- 211 007e EC21     		movs	r1, #236
- 212 0080 2046     		mov	r0, r4
- 213 0082 FFF7FEFF 		bl	HAL_I2C_Mem_Read
- 214              	.LVL10:
- 215              		.loc 1 80 3 is_stmt 0 discriminator 1 view .LVU23
- 216 0086 3A49     		ldr	r1, .L10+40
- 217 0088 FFF7FEFF 		bl	send_reg_log
- 218              	.LVL11:
-  81:Core/Src/modules/sensors/barometer.c ****   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0x92, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P3, 
- 219              		.loc 1 81 3 is_stmt 1 view .LVU24
- 220 008c 0296     		str	r6, [sp, #8]
- 221 008e 0195     		str	r5, [sp, #4]
- 222 0090 384B     		ldr	r3, .L10+44
- 223 0092 0093     		str	r3, [sp]
- 224 0094 0123     		movs	r3, #1
- 225 0096 9222     		movs	r2, #146
- 226 0098 EC21     		movs	r1, #236
- 227 009a 2046     		mov	r0, r4
- 228 009c FFF7FEFF 		bl	HAL_I2C_Mem_Read
- 229              	.LVL12:
- 230              		.loc 1 81 3 is_stmt 0 discriminator 1 view .LVU25
- 231 00a0 3549     		ldr	r1, .L10+48
- 232 00a2 FFF7FEFF 		bl	send_reg_log
- 233              	.LVL13:
-  82:Core/Src/modules/sensors/barometer.c ****   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0x94, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P4, 
- 234              		.loc 1 82 3 is_stmt 1 view .LVU26
- 235 00a6 0296     		str	r6, [sp, #8]
- 236 00a8 0195     		str	r5, [sp, #4]
- 237 00aa 344B     		ldr	r3, .L10+52
- 238 00ac 0093     		str	r3, [sp]
- 239 00ae 0123     		movs	r3, #1
- 240 00b0 9422     		movs	r2, #148
- 241 00b2 EC21     		movs	r1, #236
- 242 00b4 2046     		mov	r0, r4
- 243 00b6 FFF7FEFF 		bl	HAL_I2C_Mem_Read
- 244              	.LVL14:
- 245              		.loc 1 82 3 is_stmt 0 discriminator 1 view .LVU27
- 246 00ba 3149     		ldr	r1, .L10+56
- 247 00bc FFF7FEFF 		bl	send_reg_log
- 248              	.LVL15:
-  83:Core/Src/modules/sensors/barometer.c ****   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0x96, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P5, 
- 249              		.loc 1 83 3 is_stmt 1 view .LVU28
-ARM GAS  /tmp/ccH8O7Bv.s 			page 7
+ 196 0068 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 197              	.LVL8:
+ 198              		.loc 1 80 3 is_stmt 0 discriminator 1 view .LVU19
+ 199 006c 3E49     		ldr	r1, .L10+32
+ 200 006e FFF7FEFF 		bl	send_reg_log
+ 201              	.LVL9:
+  81:Core/Src/modules/sensors/barometer.c ****   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x90, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P2
+ 202              		.loc 1 81 3 is_stmt 1 view .LVU20
+ 203 0072 0296     		str	r6, [sp, #8]
+ 204 0074 0195     		str	r5, [sp, #4]
+ 205 0076 3D4B     		ldr	r3, .L10+36
+ 206 0078 0093     		str	r3, [sp]
+ 207 007a 0123     		movs	r3, #1
+ 208 007c 9022     		movs	r2, #144
+ 209 007e EC21     		movs	r1, #236
+ 210 0080 2046     		mov	r0, r4
+ 211 0082 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 212              	.LVL10:
+ 213              		.loc 1 81 3 is_stmt 0 discriminator 1 view .LVU21
+ 214 0086 3A49     		ldr	r1, .L10+40
+ 215 0088 FFF7FEFF 		bl	send_reg_log
+ 216              	.LVL11:
+  82:Core/Src/modules/sensors/barometer.c ****   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x92, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P3
+ 217              		.loc 1 82 3 is_stmt 1 view .LVU22
+ 218 008c 0296     		str	r6, [sp, #8]
+ 219 008e 0195     		str	r5, [sp, #4]
+ 220 0090 384B     		ldr	r3, .L10+44
+ 221 0092 0093     		str	r3, [sp]
+ 222 0094 0123     		movs	r3, #1
+ 223 0096 9222     		movs	r2, #146
+ 224 0098 EC21     		movs	r1, #236
+ 225 009a 2046     		mov	r0, r4
+ 226 009c FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 227              	.LVL12:
+ 228              		.loc 1 82 3 is_stmt 0 discriminator 1 view .LVU23
+ 229 00a0 3549     		ldr	r1, .L10+48
+ 230 00a2 FFF7FEFF 		bl	send_reg_log
+ 231              	.LVL13:
+  83:Core/Src/modules/sensors/barometer.c ****   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x94, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P4
+ 232              		.loc 1 83 3 is_stmt 1 view .LVU24
+ 233 00a6 0296     		str	r6, [sp, #8]
+ 234 00a8 0195     		str	r5, [sp, #4]
+ 235 00aa 344B     		ldr	r3, .L10+52
+ 236 00ac 0093     		str	r3, [sp]
+ 237 00ae 0123     		movs	r3, #1
+ 238 00b0 9422     		movs	r2, #148
+ 239 00b2 EC21     		movs	r1, #236
+ 240 00b4 2046     		mov	r0, r4
+ 241 00b6 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 242              	.LVL14:
+ 243              		.loc 1 83 3 is_stmt 0 discriminator 1 view .LVU25
+ 244 00ba 3149     		ldr	r1, .L10+56
+ 245 00bc FFF7FEFF 		bl	send_reg_log
+ 246              	.LVL15:
+  84:Core/Src/modules/sensors/barometer.c ****   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x96, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P5
+ 247              		.loc 1 84 3 is_stmt 1 view .LVU26
+ 248 00c0 0296     		str	r6, [sp, #8]
+ARM GAS  /tmp/ccpdPHoJ.s 			page 7
 
 
- 250 00c0 0296     		str	r6, [sp, #8]
- 251 00c2 0195     		str	r5, [sp, #4]
- 252 00c4 2F4B     		ldr	r3, .L10+60
- 253 00c6 0093     		str	r3, [sp]
- 254 00c8 0123     		movs	r3, #1
- 255 00ca 9622     		movs	r2, #150
- 256 00cc EC21     		movs	r1, #236
- 257 00ce 2046     		mov	r0, r4
- 258 00d0 FFF7FEFF 		bl	HAL_I2C_Mem_Read
- 259              	.LVL16:
- 260              		.loc 1 83 3 is_stmt 0 discriminator 1 view .LVU29
- 261 00d4 2C49     		ldr	r1, .L10+64
- 262 00d6 FFF7FEFF 		bl	send_reg_log
- 263              	.LVL17:
-  84:Core/Src/modules/sensors/barometer.c ****   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0x98, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P6, 
- 264              		.loc 1 84 3 is_stmt 1 view .LVU30
- 265 00da 0296     		str	r6, [sp, #8]
- 266 00dc 0195     		str	r5, [sp, #4]
- 267 00de 2B4B     		ldr	r3, .L10+68
- 268 00e0 0093     		str	r3, [sp]
- 269 00e2 0123     		movs	r3, #1
- 270 00e4 9822     		movs	r2, #152
- 271 00e6 EC21     		movs	r1, #236
- 272 00e8 2046     		mov	r0, r4
- 273 00ea FFF7FEFF 		bl	HAL_I2C_Mem_Read
- 274              	.LVL18:
- 275              		.loc 1 84 3 is_stmt 0 discriminator 1 view .LVU31
- 276 00ee 2849     		ldr	r1, .L10+72
- 277 00f0 FFF7FEFF 		bl	send_reg_log
- 278              	.LVL19:
-  85:Core/Src/modules/sensors/barometer.c ****   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0x9A, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P7, 
- 279              		.loc 1 85 3 is_stmt 1 view .LVU32
- 280 00f4 0296     		str	r6, [sp, #8]
- 281 00f6 0195     		str	r5, [sp, #4]
- 282 00f8 264B     		ldr	r3, .L10+76
- 283 00fa 0093     		str	r3, [sp]
- 284 00fc 0123     		movs	r3, #1
- 285 00fe 9A22     		movs	r2, #154
- 286 0100 EC21     		movs	r1, #236
- 287 0102 2046     		mov	r0, r4
- 288 0104 FFF7FEFF 		bl	HAL_I2C_Mem_Read
- 289              	.LVL20:
- 290              		.loc 1 85 3 is_stmt 0 discriminator 1 view .LVU33
- 291 0108 2349     		ldr	r1, .L10+80
- 292 010a FFF7FEFF 		bl	send_reg_log
- 293              	.LVL21:
-  86:Core/Src/modules/sensors/barometer.c ****   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0x9C, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P8, 
- 294              		.loc 1 86 3 is_stmt 1 view .LVU34
- 295 010e 0296     		str	r6, [sp, #8]
- 296 0110 0195     		str	r5, [sp, #4]
- 297 0112 224B     		ldr	r3, .L10+84
- 298 0114 0093     		str	r3, [sp]
- 299 0116 0123     		movs	r3, #1
- 300 0118 9C22     		movs	r2, #156
- 301 011a EC21     		movs	r1, #236
- 302 011c 2046     		mov	r0, r4
- 303 011e FFF7FEFF 		bl	HAL_I2C_Mem_Read
-ARM GAS  /tmp/ccH8O7Bv.s 			page 8
+ 249 00c2 0195     		str	r5, [sp, #4]
+ 250 00c4 2F4B     		ldr	r3, .L10+60
+ 251 00c6 0093     		str	r3, [sp]
+ 252 00c8 0123     		movs	r3, #1
+ 253 00ca 9622     		movs	r2, #150
+ 254 00cc EC21     		movs	r1, #236
+ 255 00ce 2046     		mov	r0, r4
+ 256 00d0 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 257              	.LVL16:
+ 258              		.loc 1 84 3 is_stmt 0 discriminator 1 view .LVU27
+ 259 00d4 2C49     		ldr	r1, .L10+64
+ 260 00d6 FFF7FEFF 		bl	send_reg_log
+ 261              	.LVL17:
+  85:Core/Src/modules/sensors/barometer.c ****   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x98, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P6
+ 262              		.loc 1 85 3 is_stmt 1 view .LVU28
+ 263 00da 0296     		str	r6, [sp, #8]
+ 264 00dc 0195     		str	r5, [sp, #4]
+ 265 00de 2B4B     		ldr	r3, .L10+68
+ 266 00e0 0093     		str	r3, [sp]
+ 267 00e2 0123     		movs	r3, #1
+ 268 00e4 9822     		movs	r2, #152
+ 269 00e6 EC21     		movs	r1, #236
+ 270 00e8 2046     		mov	r0, r4
+ 271 00ea FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 272              	.LVL18:
+ 273              		.loc 1 85 3 is_stmt 0 discriminator 1 view .LVU29
+ 274 00ee 2849     		ldr	r1, .L10+72
+ 275 00f0 FFF7FEFF 		bl	send_reg_log
+ 276              	.LVL19:
+  86:Core/Src/modules/sensors/barometer.c ****   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x9A, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P7
+ 277              		.loc 1 86 3 is_stmt 1 view .LVU30
+ 278 00f4 0296     		str	r6, [sp, #8]
+ 279 00f6 0195     		str	r5, [sp, #4]
+ 280 00f8 264B     		ldr	r3, .L10+76
+ 281 00fa 0093     		str	r3, [sp]
+ 282 00fc 0123     		movs	r3, #1
+ 283 00fe 9A22     		movs	r2, #154
+ 284 0100 EC21     		movs	r1, #236
+ 285 0102 2046     		mov	r0, r4
+ 286 0104 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 287              	.LVL20:
+ 288              		.loc 1 86 3 is_stmt 0 discriminator 1 view .LVU31
+ 289 0108 2349     		ldr	r1, .L10+80
+ 290 010a FFF7FEFF 		bl	send_reg_log
+ 291              	.LVL21:
+  87:Core/Src/modules/sensors/barometer.c ****   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x9C, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P8
+ 292              		.loc 1 87 3 is_stmt 1 view .LVU32
+ 293 010e 0296     		str	r6, [sp, #8]
+ 294 0110 0195     		str	r5, [sp, #4]
+ 295 0112 224B     		ldr	r3, .L10+84
+ 296 0114 0093     		str	r3, [sp]
+ 297 0116 0123     		movs	r3, #1
+ 298 0118 9C22     		movs	r2, #156
+ 299 011a EC21     		movs	r1, #236
+ 300 011c 2046     		mov	r0, r4
+ 301 011e FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 302              	.LVL22:
+ARM GAS  /tmp/ccpdPHoJ.s 			page 8
 
 
- 304              	.LVL22:
- 305              		.loc 1 86 3 is_stmt 0 discriminator 1 view .LVU35
- 306 0122 1F49     		ldr	r1, .L10+88
- 307 0124 FFF7FEFF 		bl	send_reg_log
- 308              	.LVL23:
-  87:Core/Src/modules/sensors/barometer.c ****   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0x9E, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P9, 
- 309              		.loc 1 87 3 is_stmt 1 view .LVU36
- 310 0128 0296     		str	r6, [sp, #8]
- 311 012a 0195     		str	r5, [sp, #4]
- 312 012c 1D4B     		ldr	r3, .L10+92
- 313 012e 0093     		str	r3, [sp]
- 314 0130 0123     		movs	r3, #1
- 315 0132 9E22     		movs	r2, #158
- 316 0134 EC21     		movs	r1, #236
- 317 0136 2046     		mov	r0, r4
- 318 0138 FFF7FEFF 		bl	HAL_I2C_Mem_Read
- 319              	.LVL24:
- 320              		.loc 1 87 3 is_stmt 0 discriminator 1 view .LVU37
- 321 013c 1A49     		ldr	r1, .L10+96
- 322 013e FFF7FEFF 		bl	send_reg_log
- 323              	.LVL25:
-  88:Core/Src/modules/sensors/barometer.c **** }
- 324              		.loc 1 88 1 view .LVU38
- 325 0142 04B0     		add	sp, sp, #16
- 326              		.cfi_def_cfa_offset 16
- 327              		@ sp needed
- 328 0144 70BD     		pop	{r4, r5, r6, pc}
- 329              	.L11:
- 330 0146 00BF     		.align	2
- 331              	.L10:
- 332 0148 00000000 		.word	hi2c1
- 333 014c 00000000 		.word	dig_T1
- 334 0150 00000000 		.word	.LC0
- 335 0154 00000000 		.word	dig_T2
- 336 0158 08000000 		.word	.LC1
- 337 015c 00000000 		.word	dig_T3
- 338 0160 10000000 		.word	.LC2
- 339 0164 00000000 		.word	dig_P1
- 340 0168 18000000 		.word	.LC3
- 341 016c 00000000 		.word	dig_P2
- 342 0170 20000000 		.word	.LC4
- 343 0174 00000000 		.word	dig_P3
- 344 0178 28000000 		.word	.LC5
- 345 017c 00000000 		.word	dig_P4
- 346 0180 30000000 		.word	.LC6
- 347 0184 00000000 		.word	dig_P5
- 348 0188 38000000 		.word	.LC7
- 349 018c 00000000 		.word	dig_P6
- 350 0190 40000000 		.word	.LC8
- 351 0194 00000000 		.word	dig_P7
- 352 0198 48000000 		.word	.LC9
- 353 019c 00000000 		.word	dig_P8
- 354 01a0 50000000 		.word	.LC10
- 355 01a4 00000000 		.word	dig_P9
- 356 01a8 58000000 		.word	.LC11
- 357              		.cfi_endproc
- 358              	.LFE137:
-ARM GAS  /tmp/ccH8O7Bv.s 			page 9
+ 303              		.loc 1 87 3 is_stmt 0 discriminator 1 view .LVU33
+ 304 0122 1F49     		ldr	r1, .L10+88
+ 305 0124 FFF7FEFF 		bl	send_reg_log
+ 306              	.LVL23:
+  88:Core/Src/modules/sensors/barometer.c ****   send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x9E, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P9
+ 307              		.loc 1 88 3 is_stmt 1 view .LVU34
+ 308 0128 0296     		str	r6, [sp, #8]
+ 309 012a 0195     		str	r5, [sp, #4]
+ 310 012c 1D4B     		ldr	r3, .L10+92
+ 311 012e 0093     		str	r3, [sp]
+ 312 0130 0123     		movs	r3, #1
+ 313 0132 9E22     		movs	r2, #158
+ 314 0134 EC21     		movs	r1, #236
+ 315 0136 2046     		mov	r0, r4
+ 316 0138 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 317              	.LVL24:
+ 318              		.loc 1 88 3 is_stmt 0 discriminator 1 view .LVU35
+ 319 013c 1A49     		ldr	r1, .L10+96
+ 320 013e FFF7FEFF 		bl	send_reg_log
+ 321              	.LVL25:
+  89:Core/Src/modules/sensors/barometer.c **** }
+ 322              		.loc 1 89 1 view .LVU36
+ 323 0142 04B0     		add	sp, sp, #16
+ 324              		.cfi_def_cfa_offset 16
+ 325              		@ sp needed
+ 326 0144 70BD     		pop	{r4, r5, r6, pc}
+ 327              	.L11:
+ 328 0146 00BF     		.align	2
+ 329              	.L10:
+ 330 0148 00000000 		.word	hi2c1
+ 331 014c 00000000 		.word	dig_T1
+ 332 0150 00000000 		.word	.LC0
+ 333 0154 00000000 		.word	dig_T2
+ 334 0158 08000000 		.word	.LC1
+ 335 015c 00000000 		.word	dig_T3
+ 336 0160 10000000 		.word	.LC2
+ 337 0164 00000000 		.word	dig_P1
+ 338 0168 18000000 		.word	.LC3
+ 339 016c 00000000 		.word	dig_P2
+ 340 0170 20000000 		.word	.LC4
+ 341 0174 00000000 		.word	dig_P3
+ 342 0178 28000000 		.word	.LC5
+ 343 017c 00000000 		.word	dig_P4
+ 344 0180 30000000 		.word	.LC6
+ 345 0184 00000000 		.word	dig_P5
+ 346 0188 38000000 		.word	.LC7
+ 347 018c 00000000 		.word	dig_P6
+ 348 0190 40000000 		.word	.LC8
+ 349 0194 00000000 		.word	dig_P7
+ 350 0198 48000000 		.word	.LC9
+ 351 019c 00000000 		.word	dig_P8
+ 352 01a0 50000000 		.word	.LC10
+ 353 01a4 00000000 		.word	dig_P9
+ 354 01a8 58000000 		.word	.LC11
+ 355              		.cfi_endproc
+ 356              	.LFE137:
+ 358              		.section	.rodata.barometer_power_on.str1.4,"aMS",%progbits,1
+ARM GAS  /tmp/ccpdPHoJ.s 			page 9
 
 
- 360              		.section	.rodata.barometer_power_on.str1.4,"aMS",%progbits,1
- 361              		.align	2
- 362              	.LC13:
- 363 0000 6374726C 		.ascii	"ctrl_meas\000"
- 363      5F6D6561 
- 363      7300
- 364 000a 0000     		.align	2
- 365              	.LC12:
- 366 000c 2F2F2F2F 		.ascii	"////barometer_power_on///\000"
- 366      6261726F 
- 366      6D657465 
- 366      725F706F 
- 366      7765725F 
- 367              		.section	.text.barometer_power_on,"ax",%progbits
- 368              		.align	1
- 369              		.global	barometer_power_on
- 370              		.syntax unified
- 371              		.thumb
- 372              		.thumb_func
- 374              	barometer_power_on:
- 375              	.LFB138:
-  89:Core/Src/modules/sensors/barometer.c **** 
-  90:Core/Src/modules/sensors/barometer.c **** short barometer_power_on()
-  91:Core/Src/modules/sensors/barometer.c **** {
- 376              		.loc 1 91 1 is_stmt 1 view -0
- 377              		.cfi_startproc
- 378              		@ args = 0, pretend = 0, frame = 104
- 379              		@ frame_needed = 0, uses_anonymous_args = 0
- 380 0000 10B5     		push	{r4, lr}
- 381              		.cfi_def_cfa_offset 8
- 382              		.cfi_offset 4, -8
- 383              		.cfi_offset 14, -4
- 384 0002 9EB0     		sub	sp, sp, #120
- 385              		.cfi_def_cfa_offset 128
-  92:Core/Src/modules/sensors/barometer.c **** 	char buff[100] = "/\/\/\/barometer_power_on\/\/\/";
- 386              		.loc 1 92 2 view .LVU40
- 387              		.loc 1 92 7 is_stmt 0 view .LVU41
- 388 0004 184C     		ldr	r4, .L14
- 389 0006 0DF1140C 		add	ip, sp, #20
- 390 000a 2068     		ldr	r0, [r4]	@ unaligned
- 391 000c 6168     		ldr	r1, [r4, #4]	@ unaligned
- 392 000e A268     		ldr	r2, [r4, #8]	@ unaligned
- 393 0010 E368     		ldr	r3, [r4, #12]	@ unaligned
- 394 0012 ACE80F00 		stmia	ip!, {r0, r1, r2, r3}
- 395 0016 2069     		ldr	r0, [r4, #16]	@ unaligned
- 396 0018 6169     		ldr	r1, [r4, #20]	@ unaligned
- 397 001a ACE80300 		stmia	ip!, {r0, r1}
- 398 001e 238B     		ldrh	r3, [r4, #24]	@ unaligned
- 399 0020 ACF80030 		strh	r3, [ip]	@ unaligned
- 400 0024 4A22     		movs	r2, #74
- 401 0026 0021     		movs	r1, #0
- 402 0028 0DF12E00 		add	r0, sp, #46
- 403 002c FFF7FEFF 		bl	memset
- 404              	.LVL26:
-  93:Core/Src/modules/sensors/barometer.c **** 	send_message(buff, PRIORITY_HIGH);
- 405              		.loc 1 93 2 is_stmt 1 view .LVU42
- 406 0030 0221     		movs	r1, #2
-ARM GAS  /tmp/ccH8O7Bv.s 			page 10
-
-
- 407 0032 05A8     		add	r0, sp, #20
- 408 0034 FFF7FEFF 		bl	send_message
- 409              	.LVL27:
+ 359              		.align	2
+ 360              	.LC12:
+ 361 0000 6374726C 		.ascii	"ctrl_meas\000"
+ 361      5F6D6561 
+ 361      7300
+ 362              		.section	.text.barometer_power_on,"ax",%progbits
+ 363              		.align	1
+ 364              		.global	barometer_power_on
+ 365              		.syntax unified
+ 366              		.thumb
+ 367              		.thumb_func
+ 369              	barometer_power_on:
+ 370              	.LFB138:
+  90:Core/Src/modules/sensors/barometer.c **** 
+  91:Core/Src/modules/sensors/barometer.c **** short barometer_power_on()
+  92:Core/Src/modules/sensors/barometer.c **** {
+ 371              		.loc 1 92 1 is_stmt 1 view -0
+ 372              		.cfi_startproc
+ 373              		@ args = 0, pretend = 0, frame = 8
+ 374              		@ frame_needed = 0, uses_anonymous_args = 0
+ 375 0000 00B5     		push	{lr}
+ 376              		.cfi_def_cfa_offset 4
+ 377              		.cfi_offset 14, -4
+ 378 0002 87B0     		sub	sp, sp, #28
+ 379              		.cfi_def_cfa_offset 32
+  93:Core/Src/modules/sensors/barometer.c **** 	read_dig_variables();
+ 380              		.loc 1 93 2 view .LVU38
+ 381 0004 FFF7FEFF 		bl	read_dig_variables
+ 382              	.LVL26:
   94:Core/Src/modules/sensors/barometer.c **** 
-  95:Core/Src/modules/sensors/barometer.c **** 	read_dig_variables();
- 410              		.loc 1 95 2 view .LVU43
- 411 0038 FFF7FEFF 		bl	read_dig_variables
- 412              	.LVL28:
-  96:Core/Src/modules/sensors/barometer.c **** 
-  97:Core/Src/modules/sensors/barometer.c **** 	//datasheet page 25, register ctrl_meas
-  98:Core/Src/modules/sensors/barometer.c **** 	uint8_t ctrl_meas = 0b01001001;
- 413              		.loc 1 98 2 view .LVU44
- 414              		.loc 1 98 10 is_stmt 0 view .LVU45
- 415 003c 4923     		movs	r3, #73
- 416 003e 8DF81330 		strb	r3, [sp, #19]
-  99:Core/Src/modules/sensors/barometer.c **** 	send_reg_log(HAL_I2C_Mem_Write(&hi2c1, 0x76 << 1, 0xF4, I2C_MEMADD_SIZE_8BIT, &ctrl_meas, 1, 0xFF)
- 417              		.loc 1 99 2 is_stmt 1 view .LVU46
- 418 0042 FF23     		movs	r3, #255
- 419 0044 0293     		str	r3, [sp, #8]
- 420 0046 0123     		movs	r3, #1
- 421 0048 0193     		str	r3, [sp, #4]
- 422 004a 0DF11302 		add	r2, sp, #19
- 423 004e 0092     		str	r2, [sp]
- 424 0050 F422     		movs	r2, #244
- 425 0052 EC21     		movs	r1, #236
- 426 0054 0548     		ldr	r0, .L14+4
- 427 0056 FFF7FEFF 		bl	HAL_I2C_Mem_Write
- 428              	.LVL29:
- 429              		.loc 1 99 2 is_stmt 0 discriminator 1 view .LVU47
- 430 005a 0549     		ldr	r1, .L14+8
- 431 005c FFF7FEFF 		bl	send_reg_log
- 432              	.LVL30:
- 100:Core/Src/modules/sensors/barometer.c **** 
- 101:Core/Src/modules/sensors/barometer.c ****     return 0;
- 433              		.loc 1 101 5 is_stmt 1 view .LVU48
- 102:Core/Src/modules/sensors/barometer.c **** }
- 434              		.loc 1 102 1 is_stmt 0 view .LVU49
- 435 0060 0020     		movs	r0, #0
- 436 0062 1EB0     		add	sp, sp, #120
- 437              		.cfi_def_cfa_offset 8
- 438              		@ sp needed
- 439 0064 10BD     		pop	{r4, pc}
- 440              	.L15:
- 441 0066 00BF     		.align	2
- 442              	.L14:
- 443 0068 0C000000 		.word	.LC12
- 444 006c 00000000 		.word	hi2c1
- 445 0070 00000000 		.word	.LC13
- 446              		.cfi_endproc
- 447              	.LFE138:
- 449              		.section	.text.bmp280_compensate_T_int32,"ax",%progbits
- 450              		.align	1
- 451              		.global	bmp280_compensate_T_int32
- 452              		.syntax unified
- 453              		.thumb
- 454              		.thumb_func
- 456              	bmp280_compensate_T_int32:
-ARM GAS  /tmp/ccH8O7Bv.s 			page 11
+  95:Core/Src/modules/sensors/barometer.c **** 	//datasheet page 25, register ctrl_meas
+  96:Core/Src/modules/sensors/barometer.c **** 	uint8_t ctrl_meas = 0b01001001;
+ 383              		.loc 1 96 2 view .LVU39
+ 384              		.loc 1 96 10 is_stmt 0 view .LVU40
+ 385 0008 4923     		movs	r3, #73
+ 386 000a 8DF81730 		strb	r3, [sp, #23]
+  97:Core/Src/modules/sensors/barometer.c **** 	send_reg_log(HAL_I2C_Mem_Write(&hi2c1, dev_address, 0xF4, I2C_MEMADD_SIZE_8BIT, &ctrl_meas, 1, tim
+ 387              		.loc 1 97 2 is_stmt 1 view .LVU41
+ 388 000e FF23     		movs	r3, #255
+ 389 0010 0293     		str	r3, [sp, #8]
+ 390 0012 0123     		movs	r3, #1
+ 391 0014 0193     		str	r3, [sp, #4]
+ 392 0016 0DF11702 		add	r2, sp, #23
+ 393 001a 0092     		str	r2, [sp]
+ 394 001c F422     		movs	r2, #244
+ 395 001e EC21     		movs	r1, #236
+ 396 0020 0448     		ldr	r0, .L14
+ 397 0022 FFF7FEFF 		bl	HAL_I2C_Mem_Write
+ 398              	.LVL27:
+ 399              		.loc 1 97 2 is_stmt 0 discriminator 1 view .LVU42
+ 400 0026 0449     		ldr	r1, .L14+4
+ 401 0028 FFF7FEFF 		bl	send_reg_log
+ 402              	.LVL28:
+  98:Core/Src/modules/sensors/barometer.c **** 
+  99:Core/Src/modules/sensors/barometer.c ****     return 0;
+ 403              		.loc 1 99 5 is_stmt 1 view .LVU43
+ 100:Core/Src/modules/sensors/barometer.c **** }
+ARM GAS  /tmp/ccpdPHoJ.s 			page 10
 
 
- 457              	.LVL31:
- 458              	.LFB139:
- 103:Core/Src/modules/sensors/barometer.c **** 
- 104:Core/Src/modules/sensors/barometer.c **** int32_t t_fine;
- 105:Core/Src/modules/sensors/barometer.c **** int32_t bmp280_compensate_T_int32(int32_t adc_T)
- 106:Core/Src/modules/sensors/barometer.c **** {
- 459              		.loc 1 106 1 is_stmt 1 view -0
- 460              		.cfi_startproc
- 461              		@ args = 0, pretend = 0, frame = 0
- 462              		@ frame_needed = 0, uses_anonymous_args = 0
- 463              		@ link register save eliminated.
- 107:Core/Src/modules/sensors/barometer.c **** 	int32_t var1, var2, T;
- 464              		.loc 1 107 2 view .LVU51
- 108:Core/Src/modules/sensors/barometer.c **** 	var1 = ((((adc_T>>3) - ((int32_t)dig_T1<<1))) * ((int32_t)dig_T2)) >> 11;
- 465              		.loc 1 108 2 view .LVU52
- 466              		.loc 1 108 26 is_stmt 0 view .LVU53
- 467 0000 0E4B     		ldr	r3, .L17
- 468 0002 1B88     		ldrh	r3, [r3]
- 469              		.loc 1 108 41 view .LVU54
- 470 0004 5A00     		lsls	r2, r3, #1
- 471              		.loc 1 108 23 view .LVU55
- 472 0006 C2EBE002 		rsb	r2, r2, r0, asr #3
- 473              		.loc 1 108 51 view .LVU56
- 474 000a 0D49     		ldr	r1, .L17+4
- 475 000c B1F90010 		ldrsh	r1, [r1]
- 476              		.loc 1 108 48 view .LVU57
- 477 0010 01FB02F2 		mul	r2, r1, r2
- 478              	.LVL32:
- 109:Core/Src/modules/sensors/barometer.c **** 	var2 = (((((adc_T>>4) - ((int32_t)dig_T1)) * ((adc_T>>4) - ((int32_t)dig_T1)))
- 479              		.loc 1 109 2 is_stmt 1 view .LVU58
- 480              		.loc 1 109 24 is_stmt 0 view .LVU59
- 481 0014 C3EB2010 		rsb	r0, r3, r0, asr #4
- 482              	.LVL33:
- 483              		.loc 1 109 45 view .LVU60
- 484 0018 00FB00F0 		mul	r0, r0, r0
- 110:Core/Src/modules/sensors/barometer.c **** 	>> 12) *
- 485              		.loc 1 110 2 view .LVU61
- 486 001c 0013     		asrs	r0, r0, #12
- 111:Core/Src/modules/sensors/barometer.c **** 	((int32_t)dig_T3)) >> 14;
- 487              		.loc 1 111 3 view .LVU62
- 488 001e 094B     		ldr	r3, .L17+8
- 489 0020 B3F90030 		ldrsh	r3, [r3]
- 110:Core/Src/modules/sensors/barometer.c **** 	>> 12) *
- 490              		.loc 1 110 9 view .LVU63
- 491 0024 03FB00F0 		mul	r0, r3, r0
- 109:Core/Src/modules/sensors/barometer.c **** 	var2 = (((((adc_T>>4) - ((int32_t)dig_T1)) * ((adc_T>>4) - ((int32_t)dig_T1)))
- 492              		.loc 1 109 7 view .LVU64
- 493 0028 8013     		asrs	r0, r0, #14
- 494              	.LVL34:
- 112:Core/Src/modules/sensors/barometer.c **** 	t_fine = var1 + var2;
- 495              		.loc 1 112 2 is_stmt 1 view .LVU65
- 496              		.loc 1 112 16 is_stmt 0 view .LVU66
- 497 002a 00EBE220 		add	r0, r0, r2, asr #11
- 498              	.LVL35:
- 499              		.loc 1 112 9 view .LVU67
- 500 002e 064B     		ldr	r3, .L17+12
- 501              	.LVL36:
-ARM GAS  /tmp/ccH8O7Bv.s 			page 12
+ 404              		.loc 1 100 1 is_stmt 0 view .LVU44
+ 405 002c 0020     		movs	r0, #0
+ 406 002e 07B0     		add	sp, sp, #28
+ 407              		.cfi_def_cfa_offset 4
+ 408              		@ sp needed
+ 409 0030 5DF804FB 		ldr	pc, [sp], #4
+ 410              	.L15:
+ 411              		.align	2
+ 412              	.L14:
+ 413 0034 00000000 		.word	hi2c1
+ 414 0038 00000000 		.word	.LC12
+ 415              		.cfi_endproc
+ 416              	.LFE138:
+ 418              		.section	.text.bmp280_compensate_T_int32,"ax",%progbits
+ 419              		.align	1
+ 420              		.global	bmp280_compensate_T_int32
+ 421              		.syntax unified
+ 422              		.thumb
+ 423              		.thumb_func
+ 425              	bmp280_compensate_T_int32:
+ 426              	.LVL29:
+ 427              	.LFB139:
+ 101:Core/Src/modules/sensors/barometer.c **** 
+ 102:Core/Src/modules/sensors/barometer.c **** static int32_t t_fine;
+ 103:Core/Src/modules/sensors/barometer.c **** int32_t bmp280_compensate_T_int32(int32_t adc_T)
+ 104:Core/Src/modules/sensors/barometer.c **** {
+ 428              		.loc 1 104 1 is_stmt 1 view -0
+ 429              		.cfi_startproc
+ 430              		@ args = 0, pretend = 0, frame = 0
+ 431              		@ frame_needed = 0, uses_anonymous_args = 0
+ 432              		@ link register save eliminated.
+ 105:Core/Src/modules/sensors/barometer.c **** 	int32_t var1, var2, T;
+ 433              		.loc 1 105 2 view .LVU46
+ 106:Core/Src/modules/sensors/barometer.c **** 	var1 = ((((adc_T>>3) - ((int32_t)dig_T1<<1))) * ((int32_t)dig_T2)) >> 11;
+ 434              		.loc 1 106 2 view .LVU47
+ 435              		.loc 1 106 26 is_stmt 0 view .LVU48
+ 436 0000 0E4B     		ldr	r3, .L17
+ 437 0002 1B88     		ldrh	r3, [r3]
+ 438              		.loc 1 106 41 view .LVU49
+ 439 0004 5A00     		lsls	r2, r3, #1
+ 440              		.loc 1 106 23 view .LVU50
+ 441 0006 C2EBE002 		rsb	r2, r2, r0, asr #3
+ 442              		.loc 1 106 51 view .LVU51
+ 443 000a 0D49     		ldr	r1, .L17+4
+ 444 000c B1F90010 		ldrsh	r1, [r1]
+ 445              		.loc 1 106 48 view .LVU52
+ 446 0010 01FB02F2 		mul	r2, r1, r2
+ 447              	.LVL30:
+ 107:Core/Src/modules/sensors/barometer.c **** 	var2 = (((((adc_T>>4) - ((int32_t)dig_T1)) * ((adc_T>>4) - ((int32_t)dig_T1)))
+ 448              		.loc 1 107 2 is_stmt 1 view .LVU53
+ 449              		.loc 1 107 24 is_stmt 0 view .LVU54
+ 450 0014 C3EB2010 		rsb	r0, r3, r0, asr #4
+ 451              	.LVL31:
+ 452              		.loc 1 107 45 view .LVU55
+ 453 0018 00FB00F0 		mul	r0, r0, r0
+ 108:Core/Src/modules/sensors/barometer.c **** 	>> 12) *
+ 454              		.loc 1 108 2 view .LVU56
+ARM GAS  /tmp/ccpdPHoJ.s 			page 11
 
 
- 502              		.loc 1 112 9 view .LVU68
- 503 0030 1860     		str	r0, [r3]
- 113:Core/Src/modules/sensors/barometer.c **** 	T = (t_fine * 5 + 128) >> 8;
- 504              		.loc 1 113 2 is_stmt 1 view .LVU69
- 505              		.loc 1 113 14 is_stmt 0 view .LVU70
- 506 0032 00EB8000 		add	r0, r0, r0, lsl #2
- 507              		.loc 1 113 18 view .LVU71
- 508 0036 8030     		adds	r0, r0, #128
- 509              	.LVL37:
- 114:Core/Src/modules/sensors/barometer.c **** 	return T;
- 510              		.loc 1 114 2 is_stmt 1 view .LVU72
- 115:Core/Src/modules/sensors/barometer.c **** }
- 511              		.loc 1 115 1 is_stmt 0 view .LVU73
- 512 0038 0012     		asrs	r0, r0, #8
- 513              	.LVL38:
- 514              		.loc 1 115 1 view .LVU74
- 515 003a 7047     		bx	lr
- 516              	.L18:
- 517              		.align	2
- 518              	.L17:
- 519 003c 00000000 		.word	dig_T1
- 520 0040 00000000 		.word	dig_T2
- 521 0044 00000000 		.word	dig_T3
- 522 0048 00000000 		.word	t_fine
- 523              		.cfi_endproc
- 524              	.LFE139:
- 526              		.section	.rodata.read_temp.str1.4,"aMS",%progbits,1
- 527              		.align	2
- 528              	.LC14:
- 529 0000 74656D70 		.ascii	"temp_msb\000"
- 529      5F6D7362 
- 529      00
- 530 0009 000000   		.align	2
- 531              	.LC15:
- 532 000c 74656D70 		.ascii	"temp_lsb\000"
- 532      5F6C7362 
- 532      00
- 533 0015 000000   		.align	2
- 534              	.LC16:
- 535 0018 74656D70 		.ascii	"temp_xlsb\000"
- 535      5F786C73 
- 535      6200
- 536              		.section	.text.read_temp,"ax",%progbits
- 537              		.align	1
- 538              		.global	read_temp
- 539              		.syntax unified
- 540              		.thumb
- 541              		.thumb_func
- 543              	read_temp:
- 544              	.LFB135:
-  41:Core/Src/modules/sensors/barometer.c **** 	uint8_t temp_raw[3];
- 545              		.loc 1 41 1 is_stmt 1 view -0
- 546              		.cfi_startproc
- 547              		@ args = 0, pretend = 0, frame = 8
- 548              		@ frame_needed = 0, uses_anonymous_args = 0
- 549 0000 70B5     		push	{r4, r5, r6, lr}
- 550              		.cfi_def_cfa_offset 16
-ARM GAS  /tmp/ccH8O7Bv.s 			page 13
+ 455 001c 0013     		asrs	r0, r0, #12
+ 109:Core/Src/modules/sensors/barometer.c **** 	((int32_t)dig_T3)) >> 14;
+ 456              		.loc 1 109 3 view .LVU57
+ 457 001e 094B     		ldr	r3, .L17+8
+ 458 0020 B3F90030 		ldrsh	r3, [r3]
+ 108:Core/Src/modules/sensors/barometer.c **** 	>> 12) *
+ 459              		.loc 1 108 9 view .LVU58
+ 460 0024 03FB00F0 		mul	r0, r3, r0
+ 107:Core/Src/modules/sensors/barometer.c **** 	var2 = (((((adc_T>>4) - ((int32_t)dig_T1)) * ((adc_T>>4) - ((int32_t)dig_T1)))
+ 461              		.loc 1 107 7 view .LVU59
+ 462 0028 8013     		asrs	r0, r0, #14
+ 463              	.LVL32:
+ 110:Core/Src/modules/sensors/barometer.c **** 	t_fine = var1 + var2;
+ 464              		.loc 1 110 2 is_stmt 1 view .LVU60
+ 465              		.loc 1 110 16 is_stmt 0 view .LVU61
+ 466 002a 00EBE220 		add	r0, r0, r2, asr #11
+ 467              	.LVL33:
+ 468              		.loc 1 110 9 view .LVU62
+ 469 002e 064B     		ldr	r3, .L17+12
+ 470              	.LVL34:
+ 471              		.loc 1 110 9 view .LVU63
+ 472 0030 1860     		str	r0, [r3]
+ 111:Core/Src/modules/sensors/barometer.c **** 	T = (t_fine * 5 + 128) >> 8;
+ 473              		.loc 1 111 2 is_stmt 1 view .LVU64
+ 474              		.loc 1 111 14 is_stmt 0 view .LVU65
+ 475 0032 00EB8000 		add	r0, r0, r0, lsl #2
+ 476              		.loc 1 111 18 view .LVU66
+ 477 0036 8030     		adds	r0, r0, #128
+ 478              	.LVL35:
+ 112:Core/Src/modules/sensors/barometer.c **** 	return T;
+ 479              		.loc 1 112 2 is_stmt 1 view .LVU67
+ 113:Core/Src/modules/sensors/barometer.c **** }
+ 480              		.loc 1 113 1 is_stmt 0 view .LVU68
+ 481 0038 0012     		asrs	r0, r0, #8
+ 482              	.LVL36:
+ 483              		.loc 1 113 1 view .LVU69
+ 484 003a 7047     		bx	lr
+ 485              	.L18:
+ 486              		.align	2
+ 487              	.L17:
+ 488 003c 00000000 		.word	dig_T1
+ 489 0040 00000000 		.word	dig_T2
+ 490 0044 00000000 		.word	dig_T3
+ 491 0048 00000000 		.word	t_fine
+ 492              		.cfi_endproc
+ 493              	.LFE139:
+ 495              		.section	.rodata.read_temp.str1.4,"aMS",%progbits,1
+ 496              		.align	2
+ 497              	.LC13:
+ 498 0000 74656D70 		.ascii	"temp_msb\000"
+ 498      5F6D7362 
+ 498      00
+ 499 0009 000000   		.align	2
+ 500              	.LC14:
+ 501 000c 74656D70 		.ascii	"temp_lsb\000"
+ 501      5F6C7362 
+ 501      00
+ARM GAS  /tmp/ccpdPHoJ.s 			page 12
 
 
- 551              		.cfi_offset 4, -16
- 552              		.cfi_offset 5, -12
- 553              		.cfi_offset 6, -8
- 554              		.cfi_offset 14, -4
- 555 0002 86B0     		sub	sp, sp, #24
- 556              		.cfi_def_cfa_offset 40
-  42:Core/Src/modules/sensors/barometer.c ****     temp_raw[0] = temp_raw[1] = temp_raw[2]  = 0;
- 557              		.loc 1 42 2 view .LVU76
-  43:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0xFA, I2C_MEMADD_SIZE_8BIT, temp_raw, 1, 0xFF)
- 558              		.loc 1 43 5 view .LVU77
-  43:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0xFA, I2C_MEMADD_SIZE_8BIT, temp_raw, 1, 0xFF)
- 559              		.loc 1 43 46 is_stmt 0 view .LVU78
- 560 0004 0023     		movs	r3, #0
- 561 0006 8DF81630 		strb	r3, [sp, #22]
-  43:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0xFA, I2C_MEMADD_SIZE_8BIT, temp_raw, 1, 0xFF)
- 562              		.loc 1 43 31 view .LVU79
- 563 000a 8DF81530 		strb	r3, [sp, #21]
-  43:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0xFA, I2C_MEMADD_SIZE_8BIT, temp_raw, 1, 0xFF)
- 564              		.loc 1 43 17 view .LVU80
- 565 000e 8DF81430 		strb	r3, [sp, #20]
-  44:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0xFB, I2C_MEMADD_SIZE_8BIT, temp_raw+1, 1, 0xF
- 566              		.loc 1 44 5 is_stmt 1 view .LVU81
- 567 0012 1D4D     		ldr	r5, .L21
- 568 0014 FF26     		movs	r6, #255
- 569 0016 0296     		str	r6, [sp, #8]
- 570 0018 0124     		movs	r4, #1
- 571 001a 0194     		str	r4, [sp, #4]
- 572 001c 05AB     		add	r3, sp, #20
- 573 001e 0093     		str	r3, [sp]
- 574 0020 2346     		mov	r3, r4
- 575 0022 FA22     		movs	r2, #250
- 576 0024 EC21     		movs	r1, #236
- 577 0026 2846     		mov	r0, r5
- 578 0028 FFF7FEFF 		bl	HAL_I2C_Mem_Read
- 579              	.LVL39:
-  44:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0xFB, I2C_MEMADD_SIZE_8BIT, temp_raw+1, 1, 0xF
- 580              		.loc 1 44 5 is_stmt 0 discriminator 1 view .LVU82
- 581 002c 1749     		ldr	r1, .L21+4
- 582 002e FFF7FEFF 		bl	send_reg_log
- 583              	.LVL40:
-  45:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0xFC, I2C_MEMADD_SIZE_8BIT, temp_raw+2, 1, 0xF
- 584              		.loc 1 45 5 is_stmt 1 view .LVU83
- 585 0032 0296     		str	r6, [sp, #8]
- 586 0034 0194     		str	r4, [sp, #4]
- 587 0036 0DF11503 		add	r3, sp, #21
- 588 003a 0093     		str	r3, [sp]
- 589 003c 2346     		mov	r3, r4
- 590 003e FB22     		movs	r2, #251
- 591 0040 EC21     		movs	r1, #236
- 592 0042 2846     		mov	r0, r5
- 593 0044 FFF7FEFF 		bl	HAL_I2C_Mem_Read
- 594              	.LVL41:
-  45:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0xFC, I2C_MEMADD_SIZE_8BIT, temp_raw+2, 1, 0xF
- 595              		.loc 1 45 5 is_stmt 0 discriminator 1 view .LVU84
- 596 0048 1149     		ldr	r1, .L21+8
- 597 004a FFF7FEFF 		bl	send_reg_log
- 598              	.LVL42:
-ARM GAS  /tmp/ccH8O7Bv.s 			page 14
+ 502 0015 000000   		.align	2
+ 503              	.LC15:
+ 504 0018 74656D70 		.ascii	"temp_xlsb\000"
+ 504      5F786C73 
+ 504      6200
+ 505              		.section	.text.read_temp,"ax",%progbits
+ 506              		.align	1
+ 507              		.global	read_temp
+ 508              		.syntax unified
+ 509              		.thumb
+ 510              		.thumb_func
+ 512              	read_temp:
+ 513              	.LFB135:
+  44:Core/Src/modules/sensors/barometer.c **** 	uint8_t temp_raw[3];
+ 514              		.loc 1 44 1 is_stmt 1 view -0
+ 515              		.cfi_startproc
+ 516              		@ args = 0, pretend = 0, frame = 8
+ 517              		@ frame_needed = 0, uses_anonymous_args = 0
+ 518 0000 70B5     		push	{r4, r5, r6, lr}
+ 519              		.cfi_def_cfa_offset 16
+ 520              		.cfi_offset 4, -16
+ 521              		.cfi_offset 5, -12
+ 522              		.cfi_offset 6, -8
+ 523              		.cfi_offset 14, -4
+ 524 0002 86B0     		sub	sp, sp, #24
+ 525              		.cfi_def_cfa_offset 40
+  45:Core/Src/modules/sensors/barometer.c ****     temp_raw[0] = temp_raw[1] = temp_raw[2]  = 0;
+ 526              		.loc 1 45 2 view .LVU71
+  46:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xFA, I2C_MEMADD_SIZE_8BIT, temp_raw, 1, tim
+ 527              		.loc 1 46 5 view .LVU72
+  46:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xFA, I2C_MEMADD_SIZE_8BIT, temp_raw, 1, tim
+ 528              		.loc 1 46 46 is_stmt 0 view .LVU73
+ 529 0004 0023     		movs	r3, #0
+ 530 0006 8DF81630 		strb	r3, [sp, #22]
+  46:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xFA, I2C_MEMADD_SIZE_8BIT, temp_raw, 1, tim
+ 531              		.loc 1 46 31 view .LVU74
+ 532 000a 8DF81530 		strb	r3, [sp, #21]
+  46:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xFA, I2C_MEMADD_SIZE_8BIT, temp_raw, 1, tim
+ 533              		.loc 1 46 17 view .LVU75
+ 534 000e 8DF81430 		strb	r3, [sp, #20]
+  47:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xFB, I2C_MEMADD_SIZE_8BIT, temp_raw+1, 1, t
+ 535              		.loc 1 47 5 is_stmt 1 view .LVU76
+ 536 0012 1D4D     		ldr	r5, .L21
+ 537 0014 FF26     		movs	r6, #255
+ 538 0016 0296     		str	r6, [sp, #8]
+ 539 0018 0124     		movs	r4, #1
+ 540 001a 0194     		str	r4, [sp, #4]
+ 541 001c 05AB     		add	r3, sp, #20
+ 542 001e 0093     		str	r3, [sp]
+ 543 0020 2346     		mov	r3, r4
+ 544 0022 FA22     		movs	r2, #250
+ 545 0024 EC21     		movs	r1, #236
+ 546 0026 2846     		mov	r0, r5
+ 547 0028 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 548              	.LVL37:
+  47:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xFB, I2C_MEMADD_SIZE_8BIT, temp_raw+1, 1, t
+ 549              		.loc 1 47 5 is_stmt 0 discriminator 1 view .LVU77
+ARM GAS  /tmp/ccpdPHoJ.s 			page 13
 
 
-  46:Core/Src/modules/sensors/barometer.c **** 
- 599              		.loc 1 46 5 is_stmt 1 view .LVU85
- 600 004e 0296     		str	r6, [sp, #8]
- 601 0050 0194     		str	r4, [sp, #4]
- 602 0052 0DF11603 		add	r3, sp, #22
- 603 0056 0093     		str	r3, [sp]
- 604 0058 2346     		mov	r3, r4
- 605 005a FC22     		movs	r2, #252
- 606 005c EC21     		movs	r1, #236
- 607 005e 2846     		mov	r0, r5
- 608 0060 FFF7FEFF 		bl	HAL_I2C_Mem_Read
- 609              	.LVL43:
-  46:Core/Src/modules/sensors/barometer.c **** 
- 610              		.loc 1 46 5 is_stmt 0 discriminator 1 view .LVU86
- 611 0064 0B49     		ldr	r1, .L21+12
- 612 0066 FFF7FEFF 		bl	send_reg_log
- 613              	.LVL44:
-  48:Core/Src/modules/sensors/barometer.c ****     int32_t actual_temp = bmp280_compensate_T_int32(temp_raw_32);
- 614              		.loc 1 48 5 is_stmt 1 view .LVU87
-  48:Core/Src/modules/sensors/barometer.c ****     int32_t actual_temp = bmp280_compensate_T_int32(temp_raw_32);
- 615              		.loc 1 48 58 is_stmt 0 view .LVU88
- 616 006a 9DF81420 		ldrb	r2, [sp, #20]	@ zero_extendqisi2
-  48:Core/Src/modules/sensors/barometer.c ****     int32_t actual_temp = bmp280_compensate_T_int32(temp_raw_32);
- 617              		.loc 1 48 90 view .LVU89
- 618 006e 9DF81530 		ldrb	r3, [sp, #21]	@ zero_extendqisi2
-  48:Core/Src/modules/sensors/barometer.c ****     int32_t actual_temp = bmp280_compensate_T_int32(temp_raw_32);
- 619              		.loc 1 48 94 view .LVU90
- 620 0072 1B01     		lsls	r3, r3, #4
-  48:Core/Src/modules/sensors/barometer.c ****     int32_t actual_temp = bmp280_compensate_T_int32(temp_raw_32);
- 621              		.loc 1 48 69 view .LVU91
- 622 0074 43EA0233 		orr	r3, r3, r2, lsl #12
-  48:Core/Src/modules/sensors/barometer.c ****     int32_t actual_temp = bmp280_compensate_T_int32(temp_raw_32);
- 623              		.loc 1 48 121 view .LVU92
- 624 0078 9DF81600 		ldrb	r0, [sp, #22]	@ zero_extendqisi2
- 625              	.LVL45:
-  49:Core/Src/modules/sensors/barometer.c **** 	return actual_temp;
- 626              		.loc 1 49 5 is_stmt 1 view .LVU93
-  49:Core/Src/modules/sensors/barometer.c **** 	return actual_temp;
- 627              		.loc 1 49 27 is_stmt 0 view .LVU94
- 628 007c 43EA1010 		orr	r0, r3, r0, lsr #4
- 629              	.LVL46:
-  49:Core/Src/modules/sensors/barometer.c **** 	return actual_temp;
- 630              		.loc 1 49 27 view .LVU95
- 631 0080 FFF7FEFF 		bl	bmp280_compensate_T_int32
- 632              	.LVL47:
-  50:Core/Src/modules/sensors/barometer.c **** }
- 633              		.loc 1 50 2 is_stmt 1 view .LVU96
-  51:Core/Src/modules/sensors/barometer.c **** 
- 634              		.loc 1 51 1 is_stmt 0 view .LVU97
- 635 0084 06B0     		add	sp, sp, #24
- 636              		.cfi_def_cfa_offset 16
- 637              		@ sp needed
- 638 0086 70BD     		pop	{r4, r5, r6, pc}
- 639              	.L22:
- 640              		.align	2
- 641              	.L21:
- 642 0088 00000000 		.word	hi2c1
-ARM GAS  /tmp/ccH8O7Bv.s 			page 15
+ 550 002c 1749     		ldr	r1, .L21+4
+ 551 002e FFF7FEFF 		bl	send_reg_log
+ 552              	.LVL38:
+  48:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xFC, I2C_MEMADD_SIZE_8BIT, temp_raw+2, 1, t
+ 553              		.loc 1 48 5 is_stmt 1 view .LVU78
+ 554 0032 0296     		str	r6, [sp, #8]
+ 555 0034 0194     		str	r4, [sp, #4]
+ 556 0036 0DF11503 		add	r3, sp, #21
+ 557 003a 0093     		str	r3, [sp]
+ 558 003c 2346     		mov	r3, r4
+ 559 003e FB22     		movs	r2, #251
+ 560 0040 EC21     		movs	r1, #236
+ 561 0042 2846     		mov	r0, r5
+ 562 0044 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 563              	.LVL39:
+  48:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xFC, I2C_MEMADD_SIZE_8BIT, temp_raw+2, 1, t
+ 564              		.loc 1 48 5 is_stmt 0 discriminator 1 view .LVU79
+ 565 0048 1149     		ldr	r1, .L21+8
+ 566 004a FFF7FEFF 		bl	send_reg_log
+ 567              	.LVL40:
+  49:Core/Src/modules/sensors/barometer.c **** 
+ 568              		.loc 1 49 5 is_stmt 1 view .LVU80
+ 569 004e 0296     		str	r6, [sp, #8]
+ 570 0050 0194     		str	r4, [sp, #4]
+ 571 0052 0DF11603 		add	r3, sp, #22
+ 572 0056 0093     		str	r3, [sp]
+ 573 0058 2346     		mov	r3, r4
+ 574 005a FC22     		movs	r2, #252
+ 575 005c EC21     		movs	r1, #236
+ 576 005e 2846     		mov	r0, r5
+ 577 0060 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 578              	.LVL41:
+  49:Core/Src/modules/sensors/barometer.c **** 
+ 579              		.loc 1 49 5 is_stmt 0 discriminator 1 view .LVU81
+ 580 0064 0B49     		ldr	r1, .L21+12
+ 581 0066 FFF7FEFF 		bl	send_reg_log
+ 582              	.LVL42:
+  51:Core/Src/modules/sensors/barometer.c ****     int32_t actual_temp = bmp280_compensate_T_int32(temp_raw_32);
+ 583              		.loc 1 51 5 is_stmt 1 view .LVU82
+  51:Core/Src/modules/sensors/barometer.c ****     int32_t actual_temp = bmp280_compensate_T_int32(temp_raw_32);
+ 584              		.loc 1 51 58 is_stmt 0 view .LVU83
+ 585 006a 9DF81420 		ldrb	r2, [sp, #20]	@ zero_extendqisi2
+  51:Core/Src/modules/sensors/barometer.c ****     int32_t actual_temp = bmp280_compensate_T_int32(temp_raw_32);
+ 586              		.loc 1 51 90 view .LVU84
+ 587 006e 9DF81530 		ldrb	r3, [sp, #21]	@ zero_extendqisi2
+  51:Core/Src/modules/sensors/barometer.c ****     int32_t actual_temp = bmp280_compensate_T_int32(temp_raw_32);
+ 588              		.loc 1 51 94 view .LVU85
+ 589 0072 1B01     		lsls	r3, r3, #4
+  51:Core/Src/modules/sensors/barometer.c ****     int32_t actual_temp = bmp280_compensate_T_int32(temp_raw_32);
+ 590              		.loc 1 51 69 view .LVU86
+ 591 0074 43EA0233 		orr	r3, r3, r2, lsl #12
+  51:Core/Src/modules/sensors/barometer.c ****     int32_t actual_temp = bmp280_compensate_T_int32(temp_raw_32);
+ 592              		.loc 1 51 121 view .LVU87
+ 593 0078 9DF81600 		ldrb	r0, [sp, #22]	@ zero_extendqisi2
+ 594              	.LVL43:
+  52:Core/Src/modules/sensors/barometer.c **** 	return actual_temp;
+ 595              		.loc 1 52 5 is_stmt 1 view .LVU88
+ARM GAS  /tmp/ccpdPHoJ.s 			page 14
 
 
- 643 008c 00000000 		.word	.LC14
- 644 0090 0C000000 		.word	.LC15
- 645 0094 18000000 		.word	.LC16
- 646              		.cfi_endproc
- 647              	.LFE135:
- 649              		.section	.text.bmp280_compensate_P_int64,"ax",%progbits
- 650              		.align	1
- 651              		.global	bmp280_compensate_P_int64
- 652              		.syntax unified
- 653              		.thumb
- 654              		.thumb_func
- 656              	bmp280_compensate_P_int64:
- 657              	.LVL48:
- 658              	.LFB140:
- 116:Core/Src/modules/sensors/barometer.c **** 
- 117:Core/Src/modules/sensors/barometer.c **** uint32_t bmp280_compensate_P_int64(int32_t adc_P)
- 118:Core/Src/modules/sensors/barometer.c **** {
- 659              		.loc 1 118 1 is_stmt 1 view -0
- 660              		.cfi_startproc
- 661              		@ args = 0, pretend = 0, frame = 0
- 662              		@ frame_needed = 0, uses_anonymous_args = 0
- 663              		.loc 1 118 1 is_stmt 0 view .LVU99
- 664 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
- 665              		.cfi_def_cfa_offset 24
- 666              		.cfi_offset 3, -24
- 667              		.cfi_offset 4, -20
- 668              		.cfi_offset 5, -16
- 669              		.cfi_offset 6, -12
- 670              		.cfi_offset 7, -8
- 671              		.cfi_offset 14, -4
- 119:Core/Src/modules/sensors/barometer.c **** 	int64_t var1, var2, p;
- 672              		.loc 1 119 2 is_stmt 1 view .LVU100
- 120:Core/Src/modules/sensors/barometer.c **** 	var1 = ((int64_t)t_fine) - 128000;
- 673              		.loc 1 120 2 view .LVU101
- 674              		.loc 1 120 10 is_stmt 0 view .LVU102
- 675 0002 664B     		ldr	r3, .L27
- 676 0004 1968     		ldr	r1, [r3]
- 677 0006 CB17     		asrs	r3, r1, #31
- 678              		.loc 1 120 7 view .LVU103
- 679 0008 B1F5FA31 		subs	r1, r1, #128000
- 680 000c 43F1FF33 		adc	r3, r3, #-1
- 681              	.LVL49:
- 121:Core/Src/modules/sensors/barometer.c **** 	var2 = var1 * var1 * (int64_t)dig_P6;
- 682              		.loc 1 121 2 is_stmt 1 view .LVU104
- 683              		.loc 1 121 14 is_stmt 0 view .LVU105
- 684 0010 01FB03F4 		mul	r4, r1, r3
- 685 0014 A1FB0126 		umull	r2, r6, r1, r1
- 686 0018 06EB4406 		add	r6, r6, r4, lsl #1
- 687              		.loc 1 121 23 view .LVU106
- 688 001c 604C     		ldr	r4, .L27+4
- 689 001e B4F90050 		ldrsh	r5, [r4]
- 690 0022 EC17     		asrs	r4, r5, #31
- 691              		.loc 1 121 7 view .LVU107
- 692 0024 02FB04F4 		mul	r4, r2, r4
- 693 0028 05FB0644 		mla	r4, r5, r6, r4
- 694 002c A2FB0575 		umull	r7, r5, r2, r5
- 695 0030 2C44     		add	r4, r4, r5
-ARM GAS  /tmp/ccH8O7Bv.s 			page 16
+  52:Core/Src/modules/sensors/barometer.c **** 	return actual_temp;
+ 596              		.loc 1 52 27 is_stmt 0 view .LVU89
+ 597 007c 43EA1010 		orr	r0, r3, r0, lsr #4
+ 598              	.LVL44:
+  52:Core/Src/modules/sensors/barometer.c **** 	return actual_temp;
+ 599              		.loc 1 52 27 view .LVU90
+ 600 0080 FFF7FEFF 		bl	bmp280_compensate_T_int32
+ 601              	.LVL45:
+  53:Core/Src/modules/sensors/barometer.c **** }
+ 602              		.loc 1 53 2 is_stmt 1 view .LVU91
+  54:Core/Src/modules/sensors/barometer.c **** 
+ 603              		.loc 1 54 1 is_stmt 0 view .LVU92
+ 604 0084 06B0     		add	sp, sp, #24
+ 605              		.cfi_def_cfa_offset 16
+ 606              		@ sp needed
+ 607 0086 70BD     		pop	{r4, r5, r6, pc}
+ 608              	.L22:
+ 609              		.align	2
+ 610              	.L21:
+ 611 0088 00000000 		.word	hi2c1
+ 612 008c 00000000 		.word	.LC13
+ 613 0090 0C000000 		.word	.LC14
+ 614 0094 18000000 		.word	.LC15
+ 615              		.cfi_endproc
+ 616              	.LFE135:
+ 618              		.section	.text.bmp280_compensate_P_int64,"ax",%progbits
+ 619              		.align	1
+ 620              		.global	bmp280_compensate_P_int64
+ 621              		.syntax unified
+ 622              		.thumb
+ 623              		.thumb_func
+ 625              	bmp280_compensate_P_int64:
+ 626              	.LVL46:
+ 627              	.LFB140:
+ 114:Core/Src/modules/sensors/barometer.c **** 
+ 115:Core/Src/modules/sensors/barometer.c **** uint32_t bmp280_compensate_P_int64(int32_t adc_P)
+ 116:Core/Src/modules/sensors/barometer.c **** {
+ 628              		.loc 1 116 1 is_stmt 1 view -0
+ 629              		.cfi_startproc
+ 630              		@ args = 0, pretend = 0, frame = 0
+ 631              		@ frame_needed = 0, uses_anonymous_args = 0
+ 632              		.loc 1 116 1 is_stmt 0 view .LVU94
+ 633 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 634              		.cfi_def_cfa_offset 24
+ 635              		.cfi_offset 3, -24
+ 636              		.cfi_offset 4, -20
+ 637              		.cfi_offset 5, -16
+ 638              		.cfi_offset 6, -12
+ 639              		.cfi_offset 7, -8
+ 640              		.cfi_offset 14, -4
+ 117:Core/Src/modules/sensors/barometer.c **** 	int64_t var1, var2, p;
+ 641              		.loc 1 117 2 is_stmt 1 view .LVU95
+ 118:Core/Src/modules/sensors/barometer.c **** 	var1 = ((int64_t)t_fine) - 128000;
+ 642              		.loc 1 118 2 view .LVU96
+ 643              		.loc 1 118 10 is_stmt 0 view .LVU97
+ 644 0002 664B     		ldr	r3, .L27
+ 645 0004 1968     		ldr	r1, [r3]
+ARM GAS  /tmp/ccpdPHoJ.s 			page 15
 
 
- 696              	.LVL50:
- 122:Core/Src/modules/sensors/barometer.c **** 	var2 = var2 + ((var1*(int64_t)dig_P5)<<17);
- 697              		.loc 1 122 2 is_stmt 1 view .LVU108
- 698              		.loc 1 122 23 is_stmt 0 view .LVU109
- 699 0032 5C4D     		ldr	r5, .L27+8
- 700 0034 B5F900C0 		ldrsh	ip, [r5]
- 701 0038 4FEAEC75 		asr	r5, ip, #31
- 702              		.loc 1 122 22 view .LVU110
- 703 003c 0CFB03FE 		mul	lr, ip, r3
- 704 0040 01FB05EE 		mla	lr, r1, r5, lr
- 705 0044 ACFB01C5 		umull	ip, r5, ip, r1
- 706 0048 AE44     		add	lr, lr, r5
- 707              		.loc 1 122 39 view .LVU111
- 708 004a 4FEA4E4E 		lsl	lr, lr, #17
- 709 004e 4EEADC3E 		orr	lr, lr, ip, lsr #15
- 710 0052 4FEA4C4C 		lsl	ip, ip, #17
- 711              		.loc 1 122 7 view .LVU112
- 712 0056 1CEB070C 		adds	ip, ip, r7
- 713 005a 44EB0E04 		adc	r4, r4, lr
- 714              	.LVL51:
- 123:Core/Src/modules/sensors/barometer.c **** 	var2 = var2 + (((int64_t)dig_P4)<<35);
- 715              		.loc 1 123 2 is_stmt 1 view .LVU113
- 716              		.loc 1 123 18 is_stmt 0 view .LVU114
- 717 005e 524D     		ldr	r5, .L27+12
- 718 0060 B5F90050 		ldrsh	r5, [r5]
- 719              		.loc 1 123 7 view .LVU115
- 720 0064 04EBC504 		add	r4, r4, r5, lsl #3
- 721              	.LVL52:
- 124:Core/Src/modules/sensors/barometer.c **** 	var1 = ((var1 * var1 * (int64_t)dig_P3)>>8) + ((var1 * (int64_t)dig_P2)<<12);
- 722              		.loc 1 124 2 is_stmt 1 view .LVU116
- 723              		.loc 1 124 25 is_stmt 0 view .LVU117
- 724 0068 504D     		ldr	r5, .L27+16
- 725 006a B5F900E0 		ldrsh	lr, [r5]
- 726 006e 4FEAEE75 		asr	r5, lr, #31
- 727              		.loc 1 124 23 view .LVU118
- 728 0072 02FB05F5 		mul	r5, r2, r5
- 729 0076 0EFB0655 		mla	r5, lr, r6, r5
- 730 007a A2FB0E2E 		umull	r2, lr, r2, lr
- 731 007e 7544     		add	r5, r5, lr
- 732              		.loc 1 124 41 view .LVU119
- 733 0080 120A     		lsrs	r2, r2, #8
- 734 0082 42EA0562 		orr	r2, r2, r5, lsl #24
- 735              		.loc 1 124 57 view .LVU120
- 736 0086 4A4E     		ldr	r6, .L27+20
- 737 0088 B6F900E0 		ldrsh	lr, [r6]
- 738 008c 4FEAEE76 		asr	r6, lr, #31
- 739              		.loc 1 124 55 view .LVU121
- 740 0090 0EFB03F3 		mul	r3, lr, r3
- 741              	.LVL53:
- 742              		.loc 1 124 55 view .LVU122
- 743 0094 01FB0633 		mla	r3, r1, r6, r3
- 744 0098 AEFB01E1 		umull	lr, r1, lr, r1
- 745              	.LVL54:
- 746              		.loc 1 124 55 view .LVU123
- 747 009c 0B44     		add	r3, r3, r1
- 748              		.loc 1 124 73 view .LVU124
- 749 009e 1B03     		lsls	r3, r3, #12
-ARM GAS  /tmp/ccH8O7Bv.s 			page 17
+ 646 0006 CB17     		asrs	r3, r1, #31
+ 647              		.loc 1 118 7 view .LVU98
+ 648 0008 B1F5FA31 		subs	r1, r1, #128000
+ 649 000c 43F1FF33 		adc	r3, r3, #-1
+ 650              	.LVL47:
+ 119:Core/Src/modules/sensors/barometer.c **** 	var2 = var1 * var1 * (int64_t)dig_P6;
+ 651              		.loc 1 119 2 is_stmt 1 view .LVU99
+ 652              		.loc 1 119 14 is_stmt 0 view .LVU100
+ 653 0010 01FB03F4 		mul	r4, r1, r3
+ 654 0014 A1FB0126 		umull	r2, r6, r1, r1
+ 655 0018 06EB4406 		add	r6, r6, r4, lsl #1
+ 656              		.loc 1 119 23 view .LVU101
+ 657 001c 604C     		ldr	r4, .L27+4
+ 658 001e B4F90050 		ldrsh	r5, [r4]
+ 659 0022 EC17     		asrs	r4, r5, #31
+ 660              		.loc 1 119 7 view .LVU102
+ 661 0024 02FB04F4 		mul	r4, r2, r4
+ 662 0028 05FB0644 		mla	r4, r5, r6, r4
+ 663 002c A2FB0575 		umull	r7, r5, r2, r5
+ 664 0030 2C44     		add	r4, r4, r5
+ 665              	.LVL48:
+ 120:Core/Src/modules/sensors/barometer.c **** 	var2 = var2 + ((var1*(int64_t)dig_P5)<<17);
+ 666              		.loc 1 120 2 is_stmt 1 view .LVU103
+ 667              		.loc 1 120 23 is_stmt 0 view .LVU104
+ 668 0032 5C4D     		ldr	r5, .L27+8
+ 669 0034 B5F900C0 		ldrsh	ip, [r5]
+ 670 0038 4FEAEC75 		asr	r5, ip, #31
+ 671              		.loc 1 120 22 view .LVU105
+ 672 003c 0CFB03FE 		mul	lr, ip, r3
+ 673 0040 01FB05EE 		mla	lr, r1, r5, lr
+ 674 0044 ACFB01C5 		umull	ip, r5, ip, r1
+ 675 0048 AE44     		add	lr, lr, r5
+ 676              		.loc 1 120 39 view .LVU106
+ 677 004a 4FEA4E4E 		lsl	lr, lr, #17
+ 678 004e 4EEADC3E 		orr	lr, lr, ip, lsr #15
+ 679 0052 4FEA4C4C 		lsl	ip, ip, #17
+ 680              		.loc 1 120 7 view .LVU107
+ 681 0056 1CEB070C 		adds	ip, ip, r7
+ 682 005a 44EB0E04 		adc	r4, r4, lr
+ 683              	.LVL49:
+ 121:Core/Src/modules/sensors/barometer.c **** 	var2 = var2 + (((int64_t)dig_P4)<<35);
+ 684              		.loc 1 121 2 is_stmt 1 view .LVU108
+ 685              		.loc 1 121 18 is_stmt 0 view .LVU109
+ 686 005e 524D     		ldr	r5, .L27+12
+ 687 0060 B5F90050 		ldrsh	r5, [r5]
+ 688              		.loc 1 121 7 view .LVU110
+ 689 0064 04EBC504 		add	r4, r4, r5, lsl #3
+ 690              	.LVL50:
+ 122:Core/Src/modules/sensors/barometer.c **** 	var1 = ((var1 * var1 * (int64_t)dig_P3)>>8) + ((var1 * (int64_t)dig_P2)<<12);
+ 691              		.loc 1 122 2 is_stmt 1 view .LVU111
+ 692              		.loc 1 122 25 is_stmt 0 view .LVU112
+ 693 0068 504D     		ldr	r5, .L27+16
+ 694 006a B5F900E0 		ldrsh	lr, [r5]
+ 695 006e 4FEAEE75 		asr	r5, lr, #31
+ 696              		.loc 1 122 23 view .LVU113
+ 697 0072 02FB05F5 		mul	r5, r2, r5
+ 698 0076 0EFB0655 		mla	r5, lr, r6, r5
+ARM GAS  /tmp/ccpdPHoJ.s 			page 16
 
 
- 750 00a0 43EA1E53 		orr	r3, r3, lr, lsr #20
- 751 00a4 4FEA0E3E 		lsl	lr, lr, #12
- 752              		.loc 1 124 7 view .LVU125
- 753 00a8 12EB0E02 		adds	r2, r2, lr
- 754 00ac 43EB2523 		adc	r3, r3, r5, asr #8
- 755              	.LVL55:
- 125:Core/Src/modules/sensors/barometer.c **** 	var1 = (((((int64_t)1)<<47)+var1))*((int64_t)dig_P1)>>33;
- 756              		.loc 1 125 2 is_stmt 1 view .LVU126
- 757              		.loc 1 125 29 is_stmt 0 view .LVU127
- 758 00b0 03F50043 		add	r3, r3, #32768
- 759              	.LVL56:
- 760              		.loc 1 125 38 view .LVU128
- 761 00b4 3F49     		ldr	r1, .L27+24
- 762 00b6 0D88     		ldrh	r5, [r1]
- 763              		.loc 1 125 36 view .LVU129
- 764 00b8 A2FB0521 		umull	r2, r1, r2, r5
- 765              	.LVL57:
- 766              		.loc 1 125 36 view .LVU130
- 767 00bc 05FB0311 		mla	r1, r5, r3, r1
- 768              		.loc 1 125 7 view .LVU131
- 769 00c0 4A10     		asrs	r2, r1, #1
- 770 00c2 CB17     		asrs	r3, r1, #31
- 771              	.LVL58:
- 126:Core/Src/modules/sensors/barometer.c **** 
- 127:Core/Src/modules/sensors/barometer.c **** 	if (var1 == 0)
- 772              		.loc 1 127 2 is_stmt 1 view .LVU132
- 773              		.loc 1 127 5 is_stmt 0 view .LVU133
- 774 00c4 53EA6101 		orrs	r1, r3, r1, asr #1
- 775 00c8 65D0     		beq	.L25
- 128:Core/Src/modules/sensors/barometer.c **** 	{
- 129:Core/Src/modules/sensors/barometer.c **** 		return 0; // avoid exception caused by division by zero
- 130:Core/Src/modules/sensors/barometer.c **** 	}
- 131:Core/Src/modules/sensors/barometer.c **** 
- 132:Core/Src/modules/sensors/barometer.c **** 	p = 1048576-adc_P;
- 776              		.loc 1 132 2 is_stmt 1 view .LVU134
- 777              		.loc 1 132 13 is_stmt 0 view .LVU135
- 778 00ca C0F5801E 		rsb	lr, r0, #1048576
- 779              	.LVL59:
- 133:Core/Src/modules/sensors/barometer.c **** 	p = (((p<<31)-var2)*3125)/var1;
- 780              		.loc 1 133 2 is_stmt 1 view .LVU136
- 781              		.loc 1 133 10 is_stmt 0 view .LVU137
- 782 00ce 4FEA6E01 		asr	r1, lr, #1
- 783 00d2 4FEACE7E 		lsl	lr, lr, #31
- 784              	.LVL60:
- 785              		.loc 1 133 15 view .LVU138
- 786 00d6 BEEB0C0E 		subs	lr, lr, ip
- 787 00da 61EB0404 		sbc	r4, r1, r4
- 788              	.LVL61:
- 789              		.loc 1 133 21 view .LVU139
- 790 00de 1EEB0E0C 		adds	ip, lr, lr
- 791              	.LVL62:
- 792              		.loc 1 133 21 view .LVU140
- 793 00e2 44EB0401 		adc	r1, r4, r4
- 794 00e6 1CEB0E0C 		adds	ip, ip, lr
- 795 00ea 44EB0101 		adc	r1, r4, r1
- 796 00ee 8801     		lsls	r0, r1, #6
- 797              	.LVL63:
-ARM GAS  /tmp/ccH8O7Bv.s 			page 18
+ 699 007a A2FB0E2E 		umull	r2, lr, r2, lr
+ 700 007e 7544     		add	r5, r5, lr
+ 701              		.loc 1 122 41 view .LVU114
+ 702 0080 120A     		lsrs	r2, r2, #8
+ 703 0082 42EA0562 		orr	r2, r2, r5, lsl #24
+ 704              		.loc 1 122 57 view .LVU115
+ 705 0086 4A4E     		ldr	r6, .L27+20
+ 706 0088 B6F900E0 		ldrsh	lr, [r6]
+ 707 008c 4FEAEE76 		asr	r6, lr, #31
+ 708              		.loc 1 122 55 view .LVU116
+ 709 0090 0EFB03F3 		mul	r3, lr, r3
+ 710              	.LVL51:
+ 711              		.loc 1 122 55 view .LVU117
+ 712 0094 01FB0633 		mla	r3, r1, r6, r3
+ 713 0098 AEFB01E1 		umull	lr, r1, lr, r1
+ 714              	.LVL52:
+ 715              		.loc 1 122 55 view .LVU118
+ 716 009c 0B44     		add	r3, r3, r1
+ 717              		.loc 1 122 73 view .LVU119
+ 718 009e 1B03     		lsls	r3, r3, #12
+ 719 00a0 43EA1E53 		orr	r3, r3, lr, lsr #20
+ 720 00a4 4FEA0E3E 		lsl	lr, lr, #12
+ 721              		.loc 1 122 7 view .LVU120
+ 722 00a8 12EB0E02 		adds	r2, r2, lr
+ 723 00ac 43EB2523 		adc	r3, r3, r5, asr #8
+ 724              	.LVL53:
+ 123:Core/Src/modules/sensors/barometer.c **** 	var1 = (((((int64_t)1)<<47)+var1))*((int64_t)dig_P1)>>33;
+ 725              		.loc 1 123 2 is_stmt 1 view .LVU121
+ 726              		.loc 1 123 29 is_stmt 0 view .LVU122
+ 727 00b0 03F50043 		add	r3, r3, #32768
+ 728              	.LVL54:
+ 729              		.loc 1 123 38 view .LVU123
+ 730 00b4 3F49     		ldr	r1, .L27+24
+ 731 00b6 0D88     		ldrh	r5, [r1]
+ 732              		.loc 1 123 36 view .LVU124
+ 733 00b8 A2FB0521 		umull	r2, r1, r2, r5
+ 734              	.LVL55:
+ 735              		.loc 1 123 36 view .LVU125
+ 736 00bc 05FB0311 		mla	r1, r5, r3, r1
+ 737              		.loc 1 123 7 view .LVU126
+ 738 00c0 4A10     		asrs	r2, r1, #1
+ 739 00c2 CB17     		asrs	r3, r1, #31
+ 740              	.LVL56:
+ 124:Core/Src/modules/sensors/barometer.c **** 
+ 125:Core/Src/modules/sensors/barometer.c **** 	if (var1 == 0)
+ 741              		.loc 1 125 2 is_stmt 1 view .LVU127
+ 742              		.loc 1 125 5 is_stmt 0 view .LVU128
+ 743 00c4 53EA6101 		orrs	r1, r3, r1, asr #1
+ 744 00c8 65D0     		beq	.L25
+ 126:Core/Src/modules/sensors/barometer.c **** 	{
+ 127:Core/Src/modules/sensors/barometer.c **** 		return 0; // avoid exception caused by division by zero
+ 128:Core/Src/modules/sensors/barometer.c **** 	}
+ 129:Core/Src/modules/sensors/barometer.c **** 
+ 130:Core/Src/modules/sensors/barometer.c **** 	p = 1048576-adc_P;
+ 745              		.loc 1 130 2 is_stmt 1 view .LVU129
+ 746              		.loc 1 130 13 is_stmt 0 view .LVU130
+ 747 00ca C0F5801E 		rsb	lr, r0, #1048576
+ARM GAS  /tmp/ccpdPHoJ.s 			page 17
 
 
- 798              		.loc 1 133 21 view .LVU141
- 799 00f0 40EA9C60 		orr	r0, r0, ip, lsr #26
- 800 00f4 4FEA8C15 		lsl	r5, ip, #6
- 801 00f8 1CEB050C 		adds	ip, ip, r5
- 802 00fc 41EB0001 		adc	r1, r1, r0
- 803 0100 8900     		lsls	r1, r1, #2
- 804 0102 41EA9C71 		orr	r1, r1, ip, lsr #30
- 805 0106 4FEA8C0C 		lsl	ip, ip, #2
- 806 010a 1CEB0E0C 		adds	ip, ip, lr
- 807 010e 44EB0101 		adc	r1, r4, r1
- 808 0112 8900     		lsls	r1, r1, #2
- 809 0114 41EA9C71 		orr	r1, r1, ip, lsr #30
- 810 0118 4FEA8C00 		lsl	r0, ip, #2
- 811 011c 10EB0E00 		adds	r0, r0, lr
- 812              		.loc 1 133 4 view .LVU142
- 813 0120 44EB0101 		adc	r1, r4, r1
- 814 0124 FFF7FEFF 		bl	__aeabi_ldivmod
- 815              	.LVL64:
- 816              		.loc 1 133 4 view .LVU143
- 817 0128 0346     		mov	r3, r0
- 818              	.LVL65:
- 134:Core/Src/modules/sensors/barometer.c **** 	var1 = (((int64_t)dig_P9) * (p>>13) * (p>>13)) >> 25;
- 819              		.loc 1 134 2 is_stmt 1 view .LVU144
- 820              		.loc 1 134 11 is_stmt 0 view .LVU145
- 821 012a 234A     		ldr	r2, .L27+28
- 822 012c B2F90050 		ldrsh	r5, [r2]
- 823 0130 EF17     		asrs	r7, r5, #31
- 824              		.loc 1 134 32 view .LVU146
- 825 0132 420B     		lsrs	r2, r0, #13
- 826 0134 42EAC142 		orr	r2, r2, r1, lsl #19
- 827 0138 4E13     		asrs	r6, r1, #13
- 828              		.loc 1 134 28 view .LVU147
- 829 013a 05FB06F4 		mul	r4, r5, r6
- 830 013e 02FB0744 		mla	r4, r2, r7, r4
- 831 0142 A5FB0257 		umull	r5, r7, r5, r2
- 832 0146 3C44     		add	r4, r4, r7
- 833              		.loc 1 134 38 view .LVU148
- 834 0148 02FB04F4 		mul	r4, r2, r4
- 835 014c 05FB0644 		mla	r4, r5, r6, r4
- 836 0150 A2FB0525 		umull	r2, r5, r2, r5
- 837 0154 2C44     		add	r4, r4, r5
- 838              		.loc 1 134 7 view .LVU149
- 839 0156 520E     		lsrs	r2, r2, #25
- 840 0158 42EAC412 		orr	r2, r2, r4, lsl #7
- 841              	.LVL66:
- 135:Core/Src/modules/sensors/barometer.c **** 	var2 = (((int64_t)dig_P8) * p) >> 19;
- 842              		.loc 1 135 2 is_stmt 1 view .LVU150
- 843              		.loc 1 135 11 is_stmt 0 view .LVU151
- 844 015c 174D     		ldr	r5, .L27+32
- 845 015e B5F90050 		ldrsh	r5, [r5]
- 846 0162 EF17     		asrs	r7, r5, #31
- 847              		.loc 1 135 28 view .LVU152
- 848 0164 05FB01F6 		mul	r6, r5, r1
- 849 0168 07FB0060 		mla	r0, r7, r0, r6
- 850              	.LVL67:
- 851              		.loc 1 135 28 view .LVU153
- 852 016c A5FB0356 		umull	r5, r6, r5, r3
-ARM GAS  /tmp/ccH8O7Bv.s 			page 19
+ 748              	.LVL57:
+ 131:Core/Src/modules/sensors/barometer.c **** 	p = (((p<<31)-var2)*3125)/var1;
+ 749              		.loc 1 131 2 is_stmt 1 view .LVU131
+ 750              		.loc 1 131 10 is_stmt 0 view .LVU132
+ 751 00ce 4FEA6E01 		asr	r1, lr, #1
+ 752 00d2 4FEACE7E 		lsl	lr, lr, #31
+ 753              	.LVL58:
+ 754              		.loc 1 131 15 view .LVU133
+ 755 00d6 BEEB0C0E 		subs	lr, lr, ip
+ 756 00da 61EB0404 		sbc	r4, r1, r4
+ 757              	.LVL59:
+ 758              		.loc 1 131 21 view .LVU134
+ 759 00de 1EEB0E0C 		adds	ip, lr, lr
+ 760              	.LVL60:
+ 761              		.loc 1 131 21 view .LVU135
+ 762 00e2 44EB0401 		adc	r1, r4, r4
+ 763 00e6 1CEB0E0C 		adds	ip, ip, lr
+ 764 00ea 44EB0101 		adc	r1, r4, r1
+ 765 00ee 8801     		lsls	r0, r1, #6
+ 766              	.LVL61:
+ 767              		.loc 1 131 21 view .LVU136
+ 768 00f0 40EA9C60 		orr	r0, r0, ip, lsr #26
+ 769 00f4 4FEA8C15 		lsl	r5, ip, #6
+ 770 00f8 1CEB050C 		adds	ip, ip, r5
+ 771 00fc 41EB0001 		adc	r1, r1, r0
+ 772 0100 8900     		lsls	r1, r1, #2
+ 773 0102 41EA9C71 		orr	r1, r1, ip, lsr #30
+ 774 0106 4FEA8C0C 		lsl	ip, ip, #2
+ 775 010a 1CEB0E0C 		adds	ip, ip, lr
+ 776 010e 44EB0101 		adc	r1, r4, r1
+ 777 0112 8900     		lsls	r1, r1, #2
+ 778 0114 41EA9C71 		orr	r1, r1, ip, lsr #30
+ 779 0118 4FEA8C00 		lsl	r0, ip, #2
+ 780 011c 10EB0E00 		adds	r0, r0, lr
+ 781              		.loc 1 131 4 view .LVU137
+ 782 0120 44EB0101 		adc	r1, r4, r1
+ 783 0124 FFF7FEFF 		bl	__aeabi_ldivmod
+ 784              	.LVL62:
+ 785              		.loc 1 131 4 view .LVU138
+ 786 0128 0346     		mov	r3, r0
+ 787              	.LVL63:
+ 132:Core/Src/modules/sensors/barometer.c **** 	var1 = (((int64_t)dig_P9) * (p>>13) * (p>>13)) >> 25;
+ 788              		.loc 1 132 2 is_stmt 1 view .LVU139
+ 789              		.loc 1 132 11 is_stmt 0 view .LVU140
+ 790 012a 234A     		ldr	r2, .L27+28
+ 791 012c B2F90050 		ldrsh	r5, [r2]
+ 792 0130 EF17     		asrs	r7, r5, #31
+ 793              		.loc 1 132 32 view .LVU141
+ 794 0132 420B     		lsrs	r2, r0, #13
+ 795 0134 42EAC142 		orr	r2, r2, r1, lsl #19
+ 796 0138 4E13     		asrs	r6, r1, #13
+ 797              		.loc 1 132 28 view .LVU142
+ 798 013a 05FB06F4 		mul	r4, r5, r6
+ 799 013e 02FB0744 		mla	r4, r2, r7, r4
+ 800 0142 A5FB0257 		umull	r5, r7, r5, r2
+ 801 0146 3C44     		add	r4, r4, r7
+ 802              		.loc 1 132 38 view .LVU143
+ARM GAS  /tmp/ccpdPHoJ.s 			page 18
 
 
- 853 0170 3044     		add	r0, r0, r6
- 854              		.loc 1 135 7 view .LVU154
- 855 0172 ED0C     		lsrs	r5, r5, #19
- 856 0174 45EA4035 		orr	r5, r5, r0, lsl #13
- 857              	.LVL68:
- 136:Core/Src/modules/sensors/barometer.c **** 	p = ((p + var1 + var2) >> 8) + (((int64_t)dig_P7)<<4);
- 858              		.loc 1 136 2 is_stmt 1 view .LVU155
- 859              		.loc 1 136 10 is_stmt 0 view .LVU156
- 860 0178 9B18     		adds	r3, r3, r2
- 861              	.LVL69:
- 862              		.loc 1 136 10 view .LVU157
- 863 017a 41EB6461 		adc	r1, r1, r4, asr #25
- 864              		.loc 1 136 17 view .LVU158
- 865 017e 5B19     		adds	r3, r3, r5
- 866 0180 41EBE041 		adc	r1, r1, r0, asr #19
- 867              		.loc 1 136 25 view .LVU159
- 868 0184 180A     		lsrs	r0, r3, #8
- 869              	.LVL70:
- 870              		.loc 1 136 25 view .LVU160
- 871 0186 40EA0160 		orr	r0, r0, r1, lsl #24
- 872              		.loc 1 136 35 view .LVU161
- 873 018a 0D4B     		ldr	r3, .L27+36
- 874 018c B3F90030 		ldrsh	r3, [r3]
- 875              	.LVL71:
- 137:Core/Src/modules/sensors/barometer.c **** 	return (uint32_t)p;
- 876              		.loc 1 137 2 is_stmt 1 view .LVU162
- 877              		.loc 1 137 9 is_stmt 0 view .LVU163
- 878 0190 00EB0310 		add	r0, r0, r3, lsl #4
- 879              	.LVL72:
- 880              	.L23:
- 138:Core/Src/modules/sensors/barometer.c **** }...
- 881              		.loc 1 138 1 view .LVU164
- 882 0194 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
- 883              	.LVL73:
- 884              	.L25:
- 129:Core/Src/modules/sensors/barometer.c **** 		return 0; // avoid exception caused by division by zero
- 885              		.loc 1 129 10 view .LVU165
- 886 0196 0020     		movs	r0, #0
- 887              	.LVL74:
- 129:Core/Src/modules/sensors/barometer.c **** 		return 0; // avoid exception caused by division by zero
- 888              		.loc 1 129 10 view .LVU166
- 889 0198 FCE7     		b	.L23
- 890              	.L28:
- 891 019a 00BF     		.align	2
- 892              	.L27:
- 893 019c 00000000 		.word	t_fine
- 894 01a0 00000000 		.word	dig_P6
- 895 01a4 00000000 		.word	dig_P5
- 896 01a8 00000000 		.word	dig_P4
- 897 01ac 00000000 		.word	dig_P3
- 898 01b0 00000000 		.word	dig_P2
- 899 01b4 00000000 		.word	dig_P1
- 900 01b8 00000000 		.word	dig_P9
- 901 01bc 00000000 		.word	dig_P8
- 902 01c0 00000000 		.word	dig_P7
- 903              		.cfi_endproc
- 904              	.LFE140:
-ARM GAS  /tmp/ccH8O7Bv.s 			page 20
+ 803 0148 02FB04F4 		mul	r4, r2, r4
+ 804 014c 05FB0644 		mla	r4, r5, r6, r4
+ 805 0150 A2FB0525 		umull	r2, r5, r2, r5
+ 806 0154 2C44     		add	r4, r4, r5
+ 807              		.loc 1 132 7 view .LVU144
+ 808 0156 520E     		lsrs	r2, r2, #25
+ 809 0158 42EAC412 		orr	r2, r2, r4, lsl #7
+ 810              	.LVL64:
+ 133:Core/Src/modules/sensors/barometer.c **** 	var2 = (((int64_t)dig_P8) * p) >> 19;
+ 811              		.loc 1 133 2 is_stmt 1 view .LVU145
+ 812              		.loc 1 133 11 is_stmt 0 view .LVU146
+ 813 015c 174D     		ldr	r5, .L27+32
+ 814 015e B5F90050 		ldrsh	r5, [r5]
+ 815 0162 EF17     		asrs	r7, r5, #31
+ 816              		.loc 1 133 28 view .LVU147
+ 817 0164 05FB01F6 		mul	r6, r5, r1
+ 818 0168 07FB0060 		mla	r0, r7, r0, r6
+ 819              	.LVL65:
+ 820              		.loc 1 133 28 view .LVU148
+ 821 016c A5FB0356 		umull	r5, r6, r5, r3
+ 822 0170 3044     		add	r0, r0, r6
+ 823              		.loc 1 133 7 view .LVU149
+ 824 0172 ED0C     		lsrs	r5, r5, #19
+ 825 0174 45EA4035 		orr	r5, r5, r0, lsl #13
+ 826              	.LVL66:
+ 134:Core/Src/modules/sensors/barometer.c **** 	p = ((p + var1 + var2) >> 8) + (((int64_t)dig_P7)<<4);
+ 827              		.loc 1 134 2 is_stmt 1 view .LVU150
+ 828              		.loc 1 134 10 is_stmt 0 view .LVU151
+ 829 0178 9B18     		adds	r3, r3, r2
+ 830              	.LVL67:
+ 831              		.loc 1 134 10 view .LVU152
+ 832 017a 41EB6461 		adc	r1, r1, r4, asr #25
+ 833              		.loc 1 134 17 view .LVU153
+ 834 017e 5B19     		adds	r3, r3, r5
+ 835 0180 41EBE041 		adc	r1, r1, r0, asr #19
+ 836              		.loc 1 134 25 view .LVU154
+ 837 0184 180A     		lsrs	r0, r3, #8
+ 838              	.LVL68:
+ 839              		.loc 1 134 25 view .LVU155
+ 840 0186 40EA0160 		orr	r0, r0, r1, lsl #24
+ 841              		.loc 1 134 35 view .LVU156
+ 842 018a 0D4B     		ldr	r3, .L27+36
+ 843 018c B3F90030 		ldrsh	r3, [r3]
+ 844              	.LVL69:
+ 135:Core/Src/modules/sensors/barometer.c **** 	return (uint32_t)p;
+ 845              		.loc 1 135 2 is_stmt 1 view .LVU157
+ 846              		.loc 1 135 9 is_stmt 0 view .LVU158
+ 847 0190 00EB0310 		add	r0, r0, r3, lsl #4
+ 848              	.LVL70:
+ 849              	.L23:
+ 136:Core/Src/modules/sensors/barometer.c **** }...
+ 850              		.loc 1 136 1 view .LVU159
+ 851 0194 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 852              	.LVL71:
+ 853              	.L25:
+ 127:Core/Src/modules/sensors/barometer.c **** 		return 0; // avoid exception caused by division by zero
+ 854              		.loc 1 127 10 view .LVU160
+ARM GAS  /tmp/ccpdPHoJ.s 			page 19
 
 
- 906              		.section	.rodata.read_pressure.str1.4,"aMS",%progbits,1
- 907              		.align	2
- 908              	.LC17:
- 909 0000 70726573 		.ascii	"press_msb\000"
- 909      735F6D73 
- 909      6200
- 910 000a 0000     		.align	2
- 911              	.LC18:
- 912 000c 70726573 		.ascii	"press_lsb\000"
- 912      735F6C73 
- 912      6200
- 913 0016 0000     		.align	2
- 914              	.LC19:
- 915 0018 70726573 		.ascii	"press_xlsb\000"
- 915      735F786C 
- 915      736200
- 916              		.section	.text.read_pressure,"ax",%progbits
- 917              		.align	1
- 918              		.global	read_pressure
- 919              		.syntax unified
- 920              		.thumb
- 921              		.thumb_func
- 923              	read_pressure:
- 924              	.LFB134:
-  29:Core/Src/modules/sensors/barometer.c **** {
- 925              		.loc 1 29 1 is_stmt 1 view -0
- 926              		.cfi_startproc
- 927              		@ args = 0, pretend = 0, frame = 8
- 928              		@ frame_needed = 0, uses_anonymous_args = 0
- 929 0000 70B5     		push	{r4, r5, r6, lr}
- 930              		.cfi_def_cfa_offset 16
- 931              		.cfi_offset 4, -16
- 932              		.cfi_offset 5, -12
- 933              		.cfi_offset 6, -8
- 934              		.cfi_offset 14, -4
- 935 0002 86B0     		sub	sp, sp, #24
- 936              		.cfi_def_cfa_offset 40
-  30:Core/Src/modules/sensors/barometer.c **** 	uint8_t pressure_raw[3];
- 937              		.loc 1 30 2 view .LVU168
-  31:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0xF7, I2C_MEMADD_SIZE_8BIT, pressure_raw, 1, 0
- 938              		.loc 1 31 5 view .LVU169
- 939 0004 1D4D     		ldr	r5, .L31
- 940 0006 FF26     		movs	r6, #255
- 941 0008 0296     		str	r6, [sp, #8]
- 942 000a 0124     		movs	r4, #1
- 943 000c 0194     		str	r4, [sp, #4]
- 944 000e 05AB     		add	r3, sp, #20
- 945 0010 0093     		str	r3, [sp]
- 946 0012 2346     		mov	r3, r4
- 947 0014 F722     		movs	r2, #247
- 948 0016 EC21     		movs	r1, #236
- 949 0018 2846     		mov	r0, r5
- 950 001a FFF7FEFF 		bl	HAL_I2C_Mem_Read
- 951              	.LVL75:
-  31:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0xF7, I2C_MEMADD_SIZE_8BIT, pressure_raw, 1, 0
- 952              		.loc 1 31 5 is_stmt 0 discriminator 1 view .LVU170
- 953 001e 1849     		ldr	r1, .L31+4
-ARM GAS  /tmp/ccH8O7Bv.s 			page 21
+ 855 0196 0020     		movs	r0, #0
+ 856              	.LVL72:
+ 127:Core/Src/modules/sensors/barometer.c **** 		return 0; // avoid exception caused by division by zero
+ 857              		.loc 1 127 10 view .LVU161
+ 858 0198 FCE7     		b	.L23
+ 859              	.L28:
+ 860 019a 00BF     		.align	2
+ 861              	.L27:
+ 862 019c 00000000 		.word	t_fine
+ 863 01a0 00000000 		.word	dig_P6
+ 864 01a4 00000000 		.word	dig_P5
+ 865 01a8 00000000 		.word	dig_P4
+ 866 01ac 00000000 		.word	dig_P3
+ 867 01b0 00000000 		.word	dig_P2
+ 868 01b4 00000000 		.word	dig_P1
+ 869 01b8 00000000 		.word	dig_P9
+ 870 01bc 00000000 		.word	dig_P8
+ 871 01c0 00000000 		.word	dig_P7
+ 872              		.cfi_endproc
+ 873              	.LFE140:
+ 875              		.section	.rodata.read_pressure.str1.4,"aMS",%progbits,1
+ 876              		.align	2
+ 877              	.LC16:
+ 878 0000 70726573 		.ascii	"press_msb\000"
+ 878      735F6D73 
+ 878      6200
+ 879 000a 0000     		.align	2
+ 880              	.LC17:
+ 881 000c 70726573 		.ascii	"press_lsb\000"
+ 881      735F6C73 
+ 881      6200
+ 882 0016 0000     		.align	2
+ 883              	.LC18:
+ 884 0018 70726573 		.ascii	"press_xlsb\000"
+ 884      735F786C 
+ 884      736200
+ 885              		.section	.text.read_pressure,"ax",%progbits
+ 886              		.align	1
+ 887              		.global	read_pressure
+ 888              		.syntax unified
+ 889              		.thumb
+ 890              		.thumb_func
+ 892              	read_pressure:
+ 893              	.LFB134:
+  32:Core/Src/modules/sensors/barometer.c **** {
+ 894              		.loc 1 32 1 is_stmt 1 view -0
+ 895              		.cfi_startproc
+ 896              		@ args = 0, pretend = 0, frame = 8
+ 897              		@ frame_needed = 0, uses_anonymous_args = 0
+ 898 0000 70B5     		push	{r4, r5, r6, lr}
+ 899              		.cfi_def_cfa_offset 16
+ 900              		.cfi_offset 4, -16
+ 901              		.cfi_offset 5, -12
+ 902              		.cfi_offset 6, -8
+ 903              		.cfi_offset 14, -4
+ 904 0002 86B0     		sub	sp, sp, #24
+ 905              		.cfi_def_cfa_offset 40
+ARM GAS  /tmp/ccpdPHoJ.s 			page 20
 
 
- 954 0020 FFF7FEFF 		bl	send_reg_log
- 955              	.LVL76:
-  32:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0xF8, I2C_MEMADD_SIZE_8BIT, pressure_raw+1, 1,
- 956              		.loc 1 32 5 is_stmt 1 view .LVU171
- 957 0024 0296     		str	r6, [sp, #8]
- 958 0026 0194     		str	r4, [sp, #4]
- 959 0028 0DF11503 		add	r3, sp, #21
- 960 002c 0093     		str	r3, [sp]
- 961 002e 2346     		mov	r3, r4
- 962 0030 F822     		movs	r2, #248
- 963 0032 EC21     		movs	r1, #236
- 964 0034 2846     		mov	r0, r5
- 965 0036 FFF7FEFF 		bl	HAL_I2C_Mem_Read
- 966              	.LVL77:
-  32:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0xF8, I2C_MEMADD_SIZE_8BIT, pressure_raw+1, 1,
- 967              		.loc 1 32 5 is_stmt 0 discriminator 1 view .LVU172
- 968 003a 1249     		ldr	r1, .L31+8
- 969 003c FFF7FEFF 		bl	send_reg_log
- 970              	.LVL78:
-  33:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0xF9, I2C_MEMADD_SIZE_8BIT, pressure_raw+2, 1,
- 971              		.loc 1 33 5 is_stmt 1 view .LVU173
- 972 0040 0296     		str	r6, [sp, #8]
- 973 0042 0194     		str	r4, [sp, #4]
- 974 0044 0DF11603 		add	r3, sp, #22
- 975 0048 0093     		str	r3, [sp]
- 976 004a 2346     		mov	r3, r4
- 977 004c F922     		movs	r2, #249
- 978 004e EC21     		movs	r1, #236
- 979 0050 2846     		mov	r0, r5
- 980 0052 FFF7FEFF 		bl	HAL_I2C_Mem_Read
- 981              	.LVL79:
-  33:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, 0x76 << 1, 0xF9, I2C_MEMADD_SIZE_8BIT, pressure_raw+2, 1,
- 982              		.loc 1 33 5 is_stmt 0 discriminator 1 view .LVU174
- 983 0056 0C49     		ldr	r1, .L31+12
- 984 0058 FFF7FEFF 		bl	send_reg_log
- 985              	.LVL80:
-  35:Core/Src/modules/sensors/barometer.c ****     int32_t pressure_raw_32 = (int32_t) ( ((uint32_t)pressure_raw[0] << 12) | ((uint32_t)pressure_r
- 986              		.loc 1 35 5 is_stmt 1 view .LVU175
-  35:Core/Src/modules/sensors/barometer.c ****     int32_t pressure_raw_32 = (int32_t) ( ((uint32_t)pressure_raw[0] << 12) | ((uint32_t)pressure_r
- 987              		.loc 1 35 66 is_stmt 0 view .LVU176
- 988 005c 9DF81420 		ldrb	r2, [sp, #20]	@ zero_extendqisi2
-  35:Core/Src/modules/sensors/barometer.c ****     int32_t pressure_raw_32 = (int32_t) ( ((uint32_t)pressure_raw[0] << 12) | ((uint32_t)pressure_r
- 989              		.loc 1 35 102 view .LVU177
- 990 0060 9DF81530 		ldrb	r3, [sp, #21]	@ zero_extendqisi2
-  35:Core/Src/modules/sensors/barometer.c ****     int32_t pressure_raw_32 = (int32_t) ( ((uint32_t)pressure_raw[0] << 12) | ((uint32_t)pressure_r
- 991              		.loc 1 35 106 view .LVU178
- 992 0064 1B01     		lsls	r3, r3, #4
-  35:Core/Src/modules/sensors/barometer.c ****     int32_t pressure_raw_32 = (int32_t) ( ((uint32_t)pressure_raw[0] << 12) | ((uint32_t)pressure_r
- 993              		.loc 1 35 77 view .LVU179
- 994 0066 43EA0233 		orr	r3, r3, r2, lsl #12
-  35:Core/Src/modules/sensors/barometer.c ****     int32_t pressure_raw_32 = (int32_t) ( ((uint32_t)pressure_raw[0] << 12) | ((uint32_t)pressure_r
- 995              		.loc 1 35 137 view .LVU180
- 996 006a 9DF81600 		ldrb	r0, [sp, #22]	@ zero_extendqisi2
- 997              	.LVL81:
-  36:Core/Src/modules/sensors/barometer.c ****     uint32_t actual_pressure = bmp280_compensate_P_int64(pressure_raw_32);
- 998              		.loc 1 36 5 is_stmt 1 view .LVU181
-  36:Core/Src/modules/sensors/barometer.c ****     uint32_t actual_pressure = bmp280_compensate_P_int64(pressure_raw_32);
-ARM GAS  /tmp/ccH8O7Bv.s 			page 22
+  33:Core/Src/modules/sensors/barometer.c **** 	uint8_t pressure_raw[3];
+ 906              		.loc 1 33 2 view .LVU163
+  34:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xF7, I2C_MEMADD_SIZE_8BIT, pressure_raw, 1,
+ 907              		.loc 1 34 5 view .LVU164
+ 908 0004 1D4D     		ldr	r5, .L31
+ 909 0006 FF26     		movs	r6, #255
+ 910 0008 0296     		str	r6, [sp, #8]
+ 911 000a 0124     		movs	r4, #1
+ 912 000c 0194     		str	r4, [sp, #4]
+ 913 000e 05AB     		add	r3, sp, #20
+ 914 0010 0093     		str	r3, [sp]
+ 915 0012 2346     		mov	r3, r4
+ 916 0014 F722     		movs	r2, #247
+ 917 0016 EC21     		movs	r1, #236
+ 918 0018 2846     		mov	r0, r5
+ 919 001a FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 920              	.LVL73:
+  34:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xF7, I2C_MEMADD_SIZE_8BIT, pressure_raw, 1,
+ 921              		.loc 1 34 5 is_stmt 0 discriminator 1 view .LVU165
+ 922 001e 1849     		ldr	r1, .L31+4
+ 923 0020 FFF7FEFF 		bl	send_reg_log
+ 924              	.LVL74:
+  35:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xF8, I2C_MEMADD_SIZE_8BIT, pressure_raw+1, 
+ 925              		.loc 1 35 5 is_stmt 1 view .LVU166
+ 926 0024 0296     		str	r6, [sp, #8]
+ 927 0026 0194     		str	r4, [sp, #4]
+ 928 0028 0DF11503 		add	r3, sp, #21
+ 929 002c 0093     		str	r3, [sp]
+ 930 002e 2346     		mov	r3, r4
+ 931 0030 F822     		movs	r2, #248
+ 932 0032 EC21     		movs	r1, #236
+ 933 0034 2846     		mov	r0, r5
+ 934 0036 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 935              	.LVL75:
+  35:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xF8, I2C_MEMADD_SIZE_8BIT, pressure_raw+1, 
+ 936              		.loc 1 35 5 is_stmt 0 discriminator 1 view .LVU167
+ 937 003a 1249     		ldr	r1, .L31+8
+ 938 003c FFF7FEFF 		bl	send_reg_log
+ 939              	.LVL76:
+  36:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xF9, I2C_MEMADD_SIZE_8BIT, pressure_raw+2, 
+ 940              		.loc 1 36 5 is_stmt 1 view .LVU168
+ 941 0040 0296     		str	r6, [sp, #8]
+ 942 0042 0194     		str	r4, [sp, #4]
+ 943 0044 0DF11603 		add	r3, sp, #22
+ 944 0048 0093     		str	r3, [sp]
+ 945 004a 2346     		mov	r3, r4
+ 946 004c F922     		movs	r2, #249
+ 947 004e EC21     		movs	r1, #236
+ 948 0050 2846     		mov	r0, r5
+ 949 0052 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 950              	.LVL77:
+  36:Core/Src/modules/sensors/barometer.c ****     send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xF9, I2C_MEMADD_SIZE_8BIT, pressure_raw+2, 
+ 951              		.loc 1 36 5 is_stmt 0 discriminator 1 view .LVU169
+ 952 0056 0C49     		ldr	r1, .L31+12
+ 953 0058 FFF7FEFF 		bl	send_reg_log
+ 954              	.LVL78:
+  38:Core/Src/modules/sensors/barometer.c ****     int32_t pressure_raw_32 = (int32_t) ( ((uint32_t)pressure_raw[0] << 12) | ((uint32_t)pressure_r
+ARM GAS  /tmp/ccpdPHoJ.s 			page 21
 
 
- 999              		.loc 1 36 32 is_stmt 0 view .LVU182
- 1000 006e 43EA1010 		orr	r0, r3, r0, lsr #4
- 1001              	.LVL82:
-  36:Core/Src/modules/sensors/barometer.c ****     uint32_t actual_pressure = bmp280_compensate_P_int64(pressure_raw_32);
- 1002              		.loc 1 36 32 view .LVU183
- 1003 0072 FFF7FEFF 		bl	bmp280_compensate_P_int64
- 1004              	.LVL83:
-  37:Core/Src/modules/sensors/barometer.c **** 	return actual_pressure;
- 1005              		.loc 1 37 2 is_stmt 1 view .LVU184
-  38:Core/Src/modules/sensors/barometer.c **** }
- 1006              		.loc 1 38 1 is_stmt 0 view .LVU185
- 1007 0076 06B0     		add	sp, sp, #24
- 1008              		.cfi_def_cfa_offset 16
- 1009              		@ sp needed
- 1010 0078 70BD     		pop	{r4, r5, r6, pc}
- 1011              	.L32:
- 1012 007a 00BF     		.align	2
- 1013              	.L31:
- 1014 007c 00000000 		.word	hi2c1
- 1015 0080 00000000 		.word	.LC17
- 1016 0084 0C000000 		.word	.LC18
- 1017 0088 18000000 		.word	.LC19
- 1018              		.cfi_endproc
- 1019              	.LFE134:
- 1021              		.global	t_fine
- 1022              		.section	.bss.t_fine,"aw",%nobits
- 1023              		.align	2
- 1026              	t_fine:
- 1027 0000 00000000 		.space	4
- 1028              		.global	dig_P9
- 1029              		.section	.bss.dig_P9,"aw",%nobits
- 1030              		.align	1
- 1033              	dig_P9:
- 1034 0000 0000     		.space	2
- 1035              		.global	dig_P8
- 1036              		.section	.bss.dig_P8,"aw",%nobits
- 1037              		.align	1
- 1040              	dig_P8:
- 1041 0000 0000     		.space	2
- 1042              		.global	dig_P7
- 1043              		.section	.bss.dig_P7,"aw",%nobits
- 1044              		.align	1
- 1047              	dig_P7:
- 1048 0000 0000     		.space	2
- 1049              		.global	dig_P6
- 1050              		.section	.bss.dig_P6,"aw",%nobits
+ 955              		.loc 1 38 5 is_stmt 1 view .LVU170
+  38:Core/Src/modules/sensors/barometer.c ****     int32_t pressure_raw_32 = (int32_t) ( ((uint32_t)pressure_raw[0] << 12) | ((uint32_t)pressure_r
+ 956              		.loc 1 38 66 is_stmt 0 view .LVU171
+ 957 005c 9DF81420 		ldrb	r2, [sp, #20]	@ zero_extendqisi2
+  38:Core/Src/modules/sensors/barometer.c ****     int32_t pressure_raw_32 = (int32_t) ( ((uint32_t)pressure_raw[0] << 12) | ((uint32_t)pressure_r
+ 958              		.loc 1 38 102 view .LVU172
+ 959 0060 9DF81530 		ldrb	r3, [sp, #21]	@ zero_extendqisi2
+  38:Core/Src/modules/sensors/barometer.c ****     int32_t pressure_raw_32 = (int32_t) ( ((uint32_t)pressure_raw[0] << 12) | ((uint32_t)pressure_r
+ 960              		.loc 1 38 106 view .LVU173
+ 961 0064 1B01     		lsls	r3, r3, #4
+  38:Core/Src/modules/sensors/barometer.c ****     int32_t pressure_raw_32 = (int32_t) ( ((uint32_t)pressure_raw[0] << 12) | ((uint32_t)pressure_r
+ 962              		.loc 1 38 77 view .LVU174
+ 963 0066 43EA0233 		orr	r3, r3, r2, lsl #12
+  38:Core/Src/modules/sensors/barometer.c ****     int32_t pressure_raw_32 = (int32_t) ( ((uint32_t)pressure_raw[0] << 12) | ((uint32_t)pressure_r
+ 964              		.loc 1 38 137 view .LVU175
+ 965 006a 9DF81600 		ldrb	r0, [sp, #22]	@ zero_extendqisi2
+ 966              	.LVL79:
+  39:Core/Src/modules/sensors/barometer.c ****     uint32_t actual_pressure = bmp280_compensate_P_int64(pressure_raw_32);
+ 967              		.loc 1 39 5 is_stmt 1 view .LVU176
+  39:Core/Src/modules/sensors/barometer.c ****     uint32_t actual_pressure = bmp280_compensate_P_int64(pressure_raw_32);
+ 968              		.loc 1 39 32 is_stmt 0 view .LVU177
+ 969 006e 43EA1010 		orr	r0, r3, r0, lsr #4
+ 970              	.LVL80:
+  39:Core/Src/modules/sensors/barometer.c ****     uint32_t actual_pressure = bmp280_compensate_P_int64(pressure_raw_32);
+ 971              		.loc 1 39 32 view .LVU178
+ 972 0072 FFF7FEFF 		bl	bmp280_compensate_P_int64
+ 973              	.LVL81:
+  40:Core/Src/modules/sensors/barometer.c **** 	return actual_pressure;
+ 974              		.loc 1 40 2 is_stmt 1 view .LVU179
+  41:Core/Src/modules/sensors/barometer.c **** }
+ 975              		.loc 1 41 1 is_stmt 0 view .LVU180
+ 976 0076 06B0     		add	sp, sp, #24
+ 977              		.cfi_def_cfa_offset 16
+ 978              		@ sp needed
+ 979 0078 70BD     		pop	{r4, r5, r6, pc}
+ 980              	.L32:
+ 981 007a 00BF     		.align	2
+ 982              	.L31:
+ 983 007c 00000000 		.word	hi2c1
+ 984 0080 00000000 		.word	.LC16
+ 985 0084 0C000000 		.word	.LC17
+ 986 0088 18000000 		.word	.LC18
+ 987              		.cfi_endproc
+ 988              	.LFE134:
+ 990              		.section	.bss.t_fine,"aw",%nobits
+ 991              		.align	2
+ 994              	t_fine:
+ 995 0000 00000000 		.space	4
+ 996              		.section	.bss.dig_P9,"aw",%nobits
+ 997              		.align	1
+ 1000              	dig_P9:
+ 1001 0000 0000     		.space	2
+ 1002              		.section	.bss.dig_P8,"aw",%nobits
+ 1003              		.align	1
+ 1006              	dig_P8:
+ 1007 0000 0000     		.space	2
+ 1008              		.section	.bss.dig_P7,"aw",%nobits
+ARM GAS  /tmp/ccpdPHoJ.s 			page 22
+
+
+ 1009              		.align	1
+ 1012              	dig_P7:
+ 1013 0000 0000     		.space	2
+ 1014              		.section	.bss.dig_P6,"aw",%nobits
+ 1015              		.align	1
+ 1018              	dig_P6:
+ 1019 0000 0000     		.space	2
+ 1020              		.section	.bss.dig_P5,"aw",%nobits
+ 1021              		.align	1
+ 1024              	dig_P5:
+ 1025 0000 0000     		.space	2
+ 1026              		.section	.bss.dig_P4,"aw",%nobits
+ 1027              		.align	1
+ 1030              	dig_P4:
+ 1031 0000 0000     		.space	2
+ 1032              		.section	.bss.dig_P3,"aw",%nobits
+ 1033              		.align	1
+ 1036              	dig_P3:
+ 1037 0000 0000     		.space	2
+ 1038              		.section	.bss.dig_P2,"aw",%nobits
+ 1039              		.align	1
+ 1042              	dig_P2:
+ 1043 0000 0000     		.space	2
+ 1044              		.section	.bss.dig_P1,"aw",%nobits
+ 1045              		.align	1
+ 1048              	dig_P1:
+ 1049 0000 0000     		.space	2
+ 1050              		.section	.bss.dig_T3,"aw",%nobits
  1051              		.align	1
- 1054              	dig_P6:
+ 1054              	dig_T3:
  1055 0000 0000     		.space	2
- 1056              		.global	dig_P5
- 1057              		.section	.bss.dig_P5,"aw",%nobits
- 1058              		.align	1
- 1061              	dig_P5:
- 1062 0000 0000     		.space	2
- 1063              		.global	dig_P4
- 1064              		.section	.bss.dig_P4,"aw",%nobits
- 1065              		.align	1
-ARM GAS  /tmp/ccH8O7Bv.s 			page 23
-
-
- 1068              	dig_P4:
- 1069 0000 0000     		.space	2
- 1070              		.global	dig_P3
- 1071              		.section	.bss.dig_P3,"aw",%nobits
- 1072              		.align	1
- 1075              	dig_P3:
- 1076 0000 0000     		.space	2
- 1077              		.global	dig_P2
- 1078              		.section	.bss.dig_P2,"aw",%nobits
- 1079              		.align	1
- 1082              	dig_P2:
- 1083 0000 0000     		.space	2
- 1084              		.global	dig_P1
- 1085              		.section	.bss.dig_P1,"aw",%nobits
- 1086              		.align	1
- 1089              	dig_P1:
- 1090 0000 0000     		.space	2
- 1091              		.global	dig_T3
- 1092              		.section	.bss.dig_T3,"aw",%nobits
- 1093              		.align	1
- 1096              	dig_T3:
- 1097 0000 0000     		.space	2
- 1098              		.global	dig_T2
- 1099              		.section	.bss.dig_T2,"aw",%nobits
- 1100              		.align	1
- 1103              	dig_T2:
- 1104 0000 0000     		.space	2
- 1105              		.global	dig_T1
- 1106              		.section	.bss.dig_T1,"aw",%nobits
- 1107              		.align	1
- 1110              	dig_T1:
- 1111 0000 0000     		.space	2
- 1112              		.text
- 1113              	.Letext0:
- 1114              		.file 2 "/usr/arm-none-eabi/include/machine/_default_types.h"
- 1115              		.file 3 "/usr/arm-none-eabi/include/sys/_stdint.h"
- 1116              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h"
- 1117              		.file 5 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
- 1118              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
- 1119              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c.h"
- 1120              		.file 8 "Core/Inc/modules/communication.h"
- 1121              		.file 9 "Core/Inc/i2c.h"
- 1122              		.file 10 "<built-in>"
-ARM GAS  /tmp/ccH8O7Bv.s 			page 24
+ 1056              		.section	.bss.dig_T2,"aw",%nobits
+ 1057              		.align	1
+ 1060              	dig_T2:
+ 1061 0000 0000     		.space	2
+ 1062              		.section	.bss.dig_T1,"aw",%nobits
+ 1063              		.align	1
+ 1066              	dig_T1:
+ 1067 0000 0000     		.space	2
+ 1068              		.text
+ 1069              	.Letext0:
+ 1070              		.file 2 "/usr/arm-none-eabi/include/machine/_default_types.h"
+ 1071              		.file 3 "/usr/arm-none-eabi/include/sys/_stdint.h"
+ 1072              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h"
+ 1073              		.file 5 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 1074              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 1075              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c.h"
+ 1076              		.file 8 "Core/Inc/i2c.h"
+ 1077              		.file 9 "Core/Inc/modules/communication.h"
+ARM GAS  /tmp/ccpdPHoJ.s 			page 23
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 barometer.c
-     /tmp/ccH8O7Bv.s:21     .text.check_barometer_identity:00000000 $t
-     /tmp/ccH8O7Bv.s:27     .text.check_barometer_identity:00000000 check_barometer_identity
-     /tmp/ccH8O7Bv.s:79     .text.check_barometer_identity:00000030 $d
-     /tmp/ccH8O7Bv.s:84     .rodata.read_dig_variables.str1.4:00000000 $d
-     /tmp/ccH8O7Bv.s:121    .text.read_dig_variables:00000000 $t
-     /tmp/ccH8O7Bv.s:127    .text.read_dig_variables:00000000 read_dig_variables
-     /tmp/ccH8O7Bv.s:332    .text.read_dig_variables:00000148 $d
-     /tmp/ccH8O7Bv.s:1110   .bss.dig_T1:00000000 dig_T1
-     /tmp/ccH8O7Bv.s:1103   .bss.dig_T2:00000000 dig_T2
-     /tmp/ccH8O7Bv.s:1096   .bss.dig_T3:00000000 dig_T3
-     /tmp/ccH8O7Bv.s:1089   .bss.dig_P1:00000000 dig_P1
-     /tmp/ccH8O7Bv.s:1082   .bss.dig_P2:00000000 dig_P2
-     /tmp/ccH8O7Bv.s:1075   .bss.dig_P3:00000000 dig_P3
-     /tmp/ccH8O7Bv.s:1068   .bss.dig_P4:00000000 dig_P4
-     /tmp/ccH8O7Bv.s:1061   .bss.dig_P5:00000000 dig_P5
-     /tmp/ccH8O7Bv.s:1054   .bss.dig_P6:00000000 dig_P6
-     /tmp/ccH8O7Bv.s:1047   .bss.dig_P7:00000000 dig_P7
-     /tmp/ccH8O7Bv.s:1040   .bss.dig_P8:00000000 dig_P8
-     /tmp/ccH8O7Bv.s:1033   .bss.dig_P9:00000000 dig_P9
-     /tmp/ccH8O7Bv.s:361    .rodata.barometer_power_on.str1.4:00000000 $d
-     /tmp/ccH8O7Bv.s:368    .text.barometer_power_on:00000000 $t
-     /tmp/ccH8O7Bv.s:374    .text.barometer_power_on:00000000 barometer_power_on
-     /tmp/ccH8O7Bv.s:443    .text.barometer_power_on:00000068 $d
-     /tmp/ccH8O7Bv.s:450    .text.bmp280_compensate_T_int32:00000000 $t
-     /tmp/ccH8O7Bv.s:456    .text.bmp280_compensate_T_int32:00000000 bmp280_compensate_T_int32
-     /tmp/ccH8O7Bv.s:519    .text.bmp280_compensate_T_int32:0000003c $d
-     /tmp/ccH8O7Bv.s:1026   .bss.t_fine:00000000 t_fine
-     /tmp/ccH8O7Bv.s:527    .rodata.read_temp.str1.4:00000000 $d
-     /tmp/ccH8O7Bv.s:537    .text.read_temp:00000000 $t
-     /tmp/ccH8O7Bv.s:543    .text.read_temp:00000000 read_temp
-     /tmp/ccH8O7Bv.s:642    .text.read_temp:00000088 $d
-     /tmp/ccH8O7Bv.s:650    .text.bmp280_compensate_P_int64:00000000 $t
-     /tmp/ccH8O7Bv.s:656    .text.bmp280_compensate_P_int64:00000000 bmp280_compensate_P_int64
-     /tmp/ccH8O7Bv.s:893    .text.bmp280_compensate_P_int64:0000019c $d
-     /tmp/ccH8O7Bv.s:907    .rodata.read_pressure.str1.4:00000000 $d
-     /tmp/ccH8O7Bv.s:917    .text.read_pressure:00000000 $t
-     /tmp/ccH8O7Bv.s:923    .text.read_pressure:00000000 read_pressure
-     /tmp/ccH8O7Bv.s:1014   .text.read_pressure:0000007c $d
-     /tmp/ccH8O7Bv.s:1023   .bss.t_fine:00000000 $d
-     /tmp/ccH8O7Bv.s:1030   .bss.dig_P9:00000000 $d
-     /tmp/ccH8O7Bv.s:1037   .bss.dig_P8:00000000 $d
-     /tmp/ccH8O7Bv.s:1044   .bss.dig_P7:00000000 $d
-     /tmp/ccH8O7Bv.s:1051   .bss.dig_P6:00000000 $d
-     /tmp/ccH8O7Bv.s:1058   .bss.dig_P5:00000000 $d
-     /tmp/ccH8O7Bv.s:1065   .bss.dig_P4:00000000 $d
-     /tmp/ccH8O7Bv.s:1072   .bss.dig_P3:00000000 $d
-     /tmp/ccH8O7Bv.s:1079   .bss.dig_P2:00000000 $d
-     /tmp/ccH8O7Bv.s:1086   .bss.dig_P1:00000000 $d
-     /tmp/ccH8O7Bv.s:1093   .bss.dig_T3:00000000 $d
-     /tmp/ccH8O7Bv.s:1100   .bss.dig_T2:00000000 $d
-     /tmp/ccH8O7Bv.s:1107   .bss.dig_T1:00000000 $d
+     /tmp/ccpdPHoJ.s:21     .text.check_barometer_identity:00000000 $t
+     /tmp/ccpdPHoJ.s:27     .text.check_barometer_identity:00000000 check_barometer_identity
+     /tmp/ccpdPHoJ.s:77     .text.check_barometer_identity:00000030 $d
+     /tmp/ccpdPHoJ.s:82     .rodata.read_dig_variables.str1.4:00000000 $d
+     /tmp/ccpdPHoJ.s:119    .text.read_dig_variables:00000000 $t
+     /tmp/ccpdPHoJ.s:125    .text.read_dig_variables:00000000 read_dig_variables
+     /tmp/ccpdPHoJ.s:330    .text.read_dig_variables:00000148 $d
+     /tmp/ccpdPHoJ.s:1066   .bss.dig_T1:00000000 dig_T1
+     /tmp/ccpdPHoJ.s:1060   .bss.dig_T2:00000000 dig_T2
+     /tmp/ccpdPHoJ.s:1054   .bss.dig_T3:00000000 dig_T3
+     /tmp/ccpdPHoJ.s:1048   .bss.dig_P1:00000000 dig_P1
+     /tmp/ccpdPHoJ.s:1042   .bss.dig_P2:00000000 dig_P2
+     /tmp/ccpdPHoJ.s:1036   .bss.dig_P3:00000000 dig_P3
+     /tmp/ccpdPHoJ.s:1030   .bss.dig_P4:00000000 dig_P4
+     /tmp/ccpdPHoJ.s:1024   .bss.dig_P5:00000000 dig_P5
+     /tmp/ccpdPHoJ.s:1018   .bss.dig_P6:00000000 dig_P6
+     /tmp/ccpdPHoJ.s:1012   .bss.dig_P7:00000000 dig_P7
+     /tmp/ccpdPHoJ.s:1006   .bss.dig_P8:00000000 dig_P8
+     /tmp/ccpdPHoJ.s:1000   .bss.dig_P9:00000000 dig_P9
+     /tmp/ccpdPHoJ.s:359    .rodata.barometer_power_on.str1.4:00000000 $d
+     /tmp/ccpdPHoJ.s:363    .text.barometer_power_on:00000000 $t
+     /tmp/ccpdPHoJ.s:369    .text.barometer_power_on:00000000 barometer_power_on
+     /tmp/ccpdPHoJ.s:413    .text.barometer_power_on:00000034 $d
+     /tmp/ccpdPHoJ.s:419    .text.bmp280_compensate_T_int32:00000000 $t
+     /tmp/ccpdPHoJ.s:425    .text.bmp280_compensate_T_int32:00000000 bmp280_compensate_T_int32
+     /tmp/ccpdPHoJ.s:488    .text.bmp280_compensate_T_int32:0000003c $d
+     /tmp/ccpdPHoJ.s:994    .bss.t_fine:00000000 t_fine
+     /tmp/ccpdPHoJ.s:496    .rodata.read_temp.str1.4:00000000 $d
+     /tmp/ccpdPHoJ.s:506    .text.read_temp:00000000 $t
+     /tmp/ccpdPHoJ.s:512    .text.read_temp:00000000 read_temp
+     /tmp/ccpdPHoJ.s:611    .text.read_temp:00000088 $d
+     /tmp/ccpdPHoJ.s:619    .text.bmp280_compensate_P_int64:00000000 $t
+     /tmp/ccpdPHoJ.s:625    .text.bmp280_compensate_P_int64:00000000 bmp280_compensate_P_int64
+     /tmp/ccpdPHoJ.s:862    .text.bmp280_compensate_P_int64:0000019c $d
+     /tmp/ccpdPHoJ.s:876    .rodata.read_pressure.str1.4:00000000 $d
+     /tmp/ccpdPHoJ.s:886    .text.read_pressure:00000000 $t
+     /tmp/ccpdPHoJ.s:892    .text.read_pressure:00000000 read_pressure
+     /tmp/ccpdPHoJ.s:983    .text.read_pressure:0000007c $d
+     /tmp/ccpdPHoJ.s:991    .bss.t_fine:00000000 $d
+     /tmp/ccpdPHoJ.s:997    .bss.dig_P9:00000000 $d
+     /tmp/ccpdPHoJ.s:1003   .bss.dig_P8:00000000 $d
+     /tmp/ccpdPHoJ.s:1009   .bss.dig_P7:00000000 $d
+     /tmp/ccpdPHoJ.s:1015   .bss.dig_P6:00000000 $d
+     /tmp/ccpdPHoJ.s:1021   .bss.dig_P5:00000000 $d
+     /tmp/ccpdPHoJ.s:1027   .bss.dig_P4:00000000 $d
+     /tmp/ccpdPHoJ.s:1033   .bss.dig_P3:00000000 $d
+     /tmp/ccpdPHoJ.s:1039   .bss.dig_P2:00000000 $d
+     /tmp/ccpdPHoJ.s:1045   .bss.dig_P1:00000000 $d
+     /tmp/ccpdPHoJ.s:1051   .bss.dig_T3:00000000 $d
+     /tmp/ccpdPHoJ.s:1057   .bss.dig_T2:00000000 $d
+     /tmp/ccpdPHoJ.s:1063   .bss.dig_T1:00000000 $d
 
 UNDEFINED SYMBOLS
 HAL_I2C_Mem_Read
 hi2c1
-ARM GAS  /tmp/ccH8O7Bv.s 			page 25
+ARM GAS  /tmp/ccpdPHoJ.s 			page 24
 
 
 send_reg_log
-memset
-send_message
 HAL_I2C_Mem_Write
 __aeabi_ldivmod
