@@ -1,4 +1,4 @@
-ARM GAS  /tmp/ccWuOLkC.s 			page 1
+ARM GAS  /tmp/ccFj5Zqt.s 			page 1
 
 
    1              		.cpu cortex-m4
@@ -58,7 +58,7 @@ ARM GAS  /tmp/ccWuOLkC.s 			page 1
   42              		.cfi_def_cfa_offset 80
   13:Core/Src/modules/sensors/accelerometer.c **** 	uint16_t register_address = 0x0F; //Адрес регистра в котором хранится
   43              		.loc 1 13 2 view .LVU1
-ARM GAS  /tmp/ccWuOLkC.s 			page 2
+ARM GAS  /tmp/ccFj5Zqt.s 			page 2
 
 
   44              	.LVL0:
@@ -118,7 +118,7 @@ ARM GAS  /tmp/ccWuOLkC.s 			page 1
   24:Core/Src/modules/sensors/accelerometer.c **** 		send_message(buffer, PRIORITY_HIGH);
   82              		.loc 1 24 8 is_stmt 0 view .LVU12
   83 0030 0DF1140C 		add	ip, sp, #20
-ARM GAS  /tmp/ccWuOLkC.s 			page 3
+ARM GAS  /tmp/ccFj5Zqt.s 			page 3
 
 
   84 0034 114C     		ldr	r4, .L6+8
@@ -178,7 +178,7 @@ ARM GAS  /tmp/ccWuOLkC.s 			page 1
  132              		.cfi_startproc
  133              		@ args = 0, pretend = 0, frame = 8
  134              		@ frame_needed = 0, uses_anonymous_args = 0
-ARM GAS  /tmp/ccWuOLkC.s 			page 4
+ARM GAS  /tmp/ccFj5Zqt.s 			page 4
 
 
  135 0000 00B5     		push	{lr}
@@ -238,7 +238,7 @@ ARM GAS  /tmp/ccWuOLkC.s 			page 1
  181      4C00
  182 0016 0000     		.align	2
  183              	.LC5:
-ARM GAS  /tmp/ccWuOLkC.s 			page 5
+ARM GAS  /tmp/ccFj5Zqt.s 			page 5
 
 
  184 0018 4F555459 		.ascii	"OUTY_L_XL\000"
@@ -298,7 +298,7 @@ ARM GAS  /tmp/ccWuOLkC.s 			page 1
  225 0008 5D4E     		ldr	r6, .L14+16
  226 000a FF27     		movs	r7, #255
  227 000c 0297     		str	r7, [sp, #8]
-ARM GAS  /tmp/ccWuOLkC.s 			page 6
+ARM GAS  /tmp/ccFj5Zqt.s 			page 6
 
 
  228 000e 0124     		movs	r4, #1
@@ -358,7 +358,7 @@ ARM GAS  /tmp/ccWuOLkC.s 			page 1
  276              		.loc 1 48 2 is_stmt 1 view .LVU39
  277 0064 0297     		str	r7, [sp, #8]
  278 0066 0194     		str	r4, [sp, #4]
-ARM GAS  /tmp/ccWuOLkC.s 			page 7
+ARM GAS  /tmp/ccFj5Zqt.s 			page 7
 
 
  279 0068 CDF800B0 		str	fp, [sp]
@@ -418,7 +418,7 @@ ARM GAS  /tmp/ccWuOLkC.s 			page 1
  327 00bc D421     		movs	r1, #212
  328 00be 3046     		mov	r0, r6
  329 00c0 FFF7FEFF 		bl	HAL_I2C_Mem_Read
-ARM GAS  /tmp/ccWuOLkC.s 			page 8
+ARM GAS  /tmp/ccFj5Zqt.s 			page 8
 
 
  330              	.LVL18:
@@ -478,7 +478,7 @@ ARM GAS  /tmp/ccWuOLkC.s 			page 1
  379              	.LVL26:
  380              		.loc 1 59 16 view .LVU65
  381 0114 C8E90001 		strd	r0, [r8]
-ARM GAS  /tmp/ccWuOLkC.s 			page 9
+ARM GAS  /tmp/ccFj5Zqt.s 			page 9
 
 
   60:Core/Src/modules/sensors/accelerometer.c **** 	buffer_xyz[1] = ((double)y_val * 0.488/1000)*9.81;
@@ -538,7 +538,7 @@ ARM GAS  /tmp/ccWuOLkC.s 			page 1
  433              		.loc 1 62 1 view .LVU79
  434 016a 00BFAFF3 		.align	3
  434      0080
-ARM GAS  /tmp/ccWuOLkC.s 			page 10
+ARM GAS  /tmp/ccFj5Zqt.s 			page 10
 
 
  435              	.L14:
@@ -580,24 +580,24 @@ ARM GAS  /tmp/ccWuOLkC.s 			page 1
  464              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c.h"
  465              		.file 8 "Core/Inc/modules/communication.h"
  466              		.file 9 "Core/Inc/i2c.h"
-ARM GAS  /tmp/ccWuOLkC.s 			page 11
+ARM GAS  /tmp/ccFj5Zqt.s 			page 11
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 accelerometer.c
-     /tmp/ccWuOLkC.s:21     .rodata.check_acc_identity.str1.4:00000000 $d
-     /tmp/ccWuOLkC.s:25     .text.check_acc_identity:00000000 $t
-     /tmp/ccWuOLkC.s:31     .text.check_acc_identity:00000000 check_acc_identity
-     /tmp/ccWuOLkC.s:111    .text.check_acc_identity:00000074 $d
-     /tmp/ccWuOLkC.s:119    .rodata.acc_power_on.str1.4:00000000 $d
-     /tmp/ccWuOLkC.s:123    .text.acc_power_on:00000000 $t
-     /tmp/ccWuOLkC.s:129    .text.acc_power_on:00000000 acc_power_on
-     /tmp/ccWuOLkC.s:170    .text.acc_power_on:00000030 $d
-     /tmp/ccWuOLkC.s:176    .rodata.read_acceleration_xyz.str1.4:00000000 $d
-     /tmp/ccWuOLkC.s:195    .text.read_acceleration_xyz:00000000 $t
-     /tmp/ccWuOLkC.s:201    .text.read_acceleration_xyz:00000000 read_acceleration_xyz
-     /tmp/ccWuOLkC.s:436    .text.read_acceleration_xyz:00000170 $d
-     /tmp/ccWuOLkC.s:452    .rodata:00000000 $d
+     /tmp/ccFj5Zqt.s:21     .rodata.check_acc_identity.str1.4:00000000 $d
+     /tmp/ccFj5Zqt.s:25     .text.check_acc_identity:00000000 $t
+     /tmp/ccFj5Zqt.s:31     .text.check_acc_identity:00000000 check_acc_identity
+     /tmp/ccFj5Zqt.s:111    .text.check_acc_identity:00000074 $d
+     /tmp/ccFj5Zqt.s:119    .rodata.acc_power_on.str1.4:00000000 $d
+     /tmp/ccFj5Zqt.s:123    .text.acc_power_on:00000000 $t
+     /tmp/ccFj5Zqt.s:129    .text.acc_power_on:00000000 acc_power_on
+     /tmp/ccFj5Zqt.s:170    .text.acc_power_on:00000030 $d
+     /tmp/ccFj5Zqt.s:176    .rodata.read_acceleration_xyz.str1.4:00000000 $d
+     /tmp/ccFj5Zqt.s:195    .text.read_acceleration_xyz:00000000 $t
+     /tmp/ccFj5Zqt.s:201    .text.read_acceleration_xyz:00000000 read_acceleration_xyz
+     /tmp/ccFj5Zqt.s:436    .text.read_acceleration_xyz:00000170 $d
+     /tmp/ccFj5Zqt.s:452    .rodata:00000000 $d
 
 UNDEFINED SYMBOLS
 HAL_I2C_Mem_Read

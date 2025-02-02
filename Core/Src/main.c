@@ -23,13 +23,13 @@
 #include "usart.h"
 #include "gpio.h"
 
-#include "communication.h"
-#include "accelerometer.h"
-#include "barometer.h"
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
+#include "accelerometer.h"
+#include "barometer.h"
+#include "communication.h"
+#include "servo.h"
 
 /* USER CODE END Includes */
 
@@ -139,12 +139,25 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  short pwm_switch = 0;
   while (1)
   {
-    HAL_Delay(1000);
+    HAL_Delay(500);
 
     char data[100] =  "------------------------BMP----------------------\n\r\0";
     send_message(data, PRIORITY_HIGH);
+
+    if (pwm_switch)
+    {
+      servo_turn_min();
+      pwm_switch = 0;
+    }
+    else
+    {
+      servo_turn_max();
+      pwm_switch = 1;
+    }
+    
 
     int32_t actual_temp = read_temp();
 
