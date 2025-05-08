@@ -1,24 +1,26 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2024 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file                                                                       : main.c
+ * @brief                                                                      : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2024 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "fatfs.h"
 #include "i2c.h"
+#include "spi.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -26,10 +28,12 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
+#include <string.h>
 #include "accelerometer.h"
 #include "barometer.h"
 #include "communication.h"
 #include "servo.h"
+#include "option/unicode.c"
 
 /* USER CODE END Includes */
 
@@ -54,7 +58,7 @@
 /* Калибровочные переменные */
 
 /* Для температуры */
-///uint16_t dig_T1[1];
+/// uint16_t dig_T1[1];
 
 /* USER CODE END PV */
 
@@ -77,8 +81,8 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-  char data[100] =  "F411 says: I'm alive\n\r\0";
-  send_message(data, PRIORITY_HIGH);
+	char data[] = "Shellow from SSAU & Vela!\n\r\0";
+	send_message(data, PRIORITY_HIGH);
 
   /* USER CODE END 1 */
 
@@ -103,88 +107,158 @@ int main(void)
   MX_I2C1_Init();
   MX_USART1_UART_Init();
   MX_TIM1_Init();
+  MX_SPI1_Init();
+  MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
-  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 
-  char str_buf[100] =  "--------------------LSM6DS33 init--------------------------\n\r";
-  send_message(str_buf, PRIORITY_HIGH);
+	char str_bufsd[100] = "--------------------SD CARD--------------------------\n\r";
+	send_message(str_bufsd, PRIORITY_HIGH);
 
-  if (check_acc_identity())
-  {
-		char buffer [100] = "ACCELEROMETER READ SUCCESSFULLY (nice)\n\r";
+	FATFS fs;
+	FIL Fil;
+	FRESULT fs_status;
+	UINT RWC, WWC; // Read/Write Word Counter
+	DWORD FreeClusters;
+	uint32_t TotalSize, FreeSpace;
+
+	char RW_Buffer[200];
+	char TxBuffer[250];
+
+	//------------------[ Mount The SD Card ]--------------------
+	fs_status = f_mount(&fs, (const TCHAR *)_T(""), 1);
+	if (fs_status != FR_OK)
+	{
+		sprintf(TxBuffer, "Error! While Mounting SD Card, Error Code: (%i)\r\n", fs_status);
+		send_message(TxBuffer, PRIORITY_HIGH);
+	}
+	else
+	{
+		sprintf(TxBuffer, "SD Card Mounted Successfully! \r\n\n");
+		send_message(TxBuffer, PRIORITY_HIGH);
+
+		/*capacity related variable*/
+		DWORD fre_clust;
+		uint32_t total, free_space;
+		FATFS* fs_ptr = &fs;
+		fs_status = f_getfree((const TCHAR *)_T(" "), &fre_clust, &fs_ptr);
+
+		if (fs_status != FR_OK)
+		{
+			sprintf(TxBuffer, "Error! While reading free space, Error Code: (%i)\r\n", fs_status);
+			send_message(TxBuffer, PRIORITY_HIGH);
+		}
+
+		char buffer[1024]; // to store data
+
+		total = (uint32_t)((fs_ptr->n_fatent - 2) * fs_ptr->csize * 0.5);
+		sprintf(buffer, "SD CARD Total Size: \t%lu\r\n", total);
 		send_message(buffer, PRIORITY_HIGH);
 
-    acc_power_on();
-  }
-  else
-  {
-		char buffer [50] = "ACCELEROMETER READ ERROR\n\r";
-		send_message(buffer, PRIORITY_HIGH);
-  }
+		free_space = (uint32_t)(fre_clust * fs_ptr->csize * 0.5);
 
-  if (check_barometer_identity())
-  {
-		char buffer [28] = "BMP READ SUCCESSFULLY\n\r";
+		sprintf(buffer, "SD CARD Free Space: \t%lu\r\n", free_space);
 		send_message(buffer, PRIORITY_HIGH);
-  }
-  else
-  {
-		char buffer [20] = "BMP READ ERROR\n\r";
-		send_message(buffer, PRIORITY_HIGH);
-  }
 
-  barometer_power_on();
-  
+		// Open the file
+		fs_status = f_open(&Fil, (const TCHAR *)_T("/VeryNewTextFileLong.txt"), FA_WRITE | FA_READ | FA_CREATE_ALWAYS);
+		if (fs_status != FR_OK)
+		{
+			sprintf(TxBuffer, "Error! While Creating/Opening A New Text File, Error Code: (%i)\r\n", fs_status);
+			send_message(TxBuffer, PRIORITY_HIGH);
+		}
+		else
+		{
+			sprintf(TxBuffer, "Text File Created & Opened! Writing Data To The Text File..\r\n\n");
+			send_message(TxBuffer, PRIORITY_HIGH);
+			// (1) Write Data To The Text File [ Using f_puts() Function ]
+			f_puts((const TCHAR *)_T("Hello! From STM32 To SD Card Over SPI, Using f_puts()\r\n"), &Fil);
+			// (2) Write Data To The Text File [ Using f_write() Function ]
+			strcpy(RW_Buffer, "Hello! From STM32 To SD Card Over SPI, Using f_write()\r\n");
+			f_write(&Fil, RW_Buffer, strlen(RW_Buffer), &WWC);
+			// Close The File
+			f_close(&Fil);
+		}
+	}
+
+	char str_buf[100] = "--------------------LSM6DS33 init--------------------------\n\r";
+	send_message(str_buf, PRIORITY_HIGH);
+
+	if (check_acc_identity())
+	{
+		char buffer[100] = "ACCELEROMETER READ SUCCESSFULLY (nice)\n\r";
+		send_message(buffer, PRIORITY_HIGH);
+
+		acc_power_on();
+	}
+	else
+	{
+		char buffer[50] = "ACCELEROMETER READ ERROR\n\r";
+		send_message(buffer, PRIORITY_HIGH);
+	}
+
+	if (check_barometer_identity())
+	{
+		char buffer[28] = "BMP READ SUCCESSFULLY\n\r";
+		send_message(buffer, PRIORITY_HIGH);
+	}
+	else
+	{
+		char buffer[20] = "BMP READ ERROR\n\r";
+		send_message(buffer, PRIORITY_HIGH);
+	}
+
+	barometer_power_on();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  short pwm_switch = 0;
-  while (1)
-  {
-    HAL_Delay(500);
+	short pwm_switch = 0;
+	while (1)
+	{
+		HAL_Delay(500);
 
-    char data[100] =  "------------------------BMP----------------------\n\r\0";
-    send_message(data, PRIORITY_HIGH);
+		char data[100] = "------------------------BMP----------------------\n\r\0";
+		send_message(data, PRIORITY_HIGH);
 
-    if (pwm_switch)
-    {
-      servo_turn_min();
-      pwm_switch = 0;
-    }
-    else
-    {
-      servo_turn_max();
-      pwm_switch = 1;
-    }
-    
+		if (pwm_switch)
+		{
+			servo_turn_min();
+			pwm_switch = 0;
+		}
+		else
+		{
+			servo_turn_max();
+			pwm_switch = 1;
+		}
 
-    int32_t actual_temp = read_temp();
+		int32_t actual_temp = read_temp();
 
-    char temp_str[100]; 
-    sprintf(temp_str, "Temperature: %.2f Celsius\n\n\r", ((float)actual_temp)/100);
-    send_message(temp_str, PRIORITY_HIGH);
+		char temp_str[100];
+		sprintf(temp_str, "Temperature                                              : %.2f Celsius\n\n\r", ((float)actual_temp) / 100);
+		send_message(temp_str, PRIORITY_HIGH);
 
-    uint32_t actual_pressure = read_pressure();
+		uint32_t actual_pressure = read_pressure();
 
-    char pressure_str[100];
-    sprintf(pressure_str, "Pressure: %.4f Pa\n\n\r",  ((float)actual_pressure)/256);
-    send_message(pressure_str, PRIORITY_HIGH);
+		char pressure_str[100];
+		sprintf(pressure_str, "Pressure                                             : %.4f Pa\n\n\r", ((float)actual_pressure) / 256);
+		send_message(pressure_str, PRIORITY_HIGH);
 
-    char data1[100] =  "------------------------ACC----------------------\n\r\0";
-    send_message(data1, PRIORITY_HIGH);
+		char data1[100] = "------------------------ACC----------------------\n\r\0";
+		send_message(data1, PRIORITY_HIGH);
 
-    double acc_vals[3];
-    read_acceleration_xyz(acc_vals);
+		double acc_vals[3];
+		read_acceleration_xyz(acc_vals);
 
-    char acc_str[100]; 
-    sprintf(acc_str, "Acceleration: (%0.4f, %0.4f, %0.4f) \n\n\r", acc_vals[0], acc_vals[1], acc_vals[2]);
-    send_message(acc_str, PRIORITY_HIGH);
+		char acc_str[100];
+		sprintf(acc_str, "Acceleration                                              : (%0.4f, %0.4f, %0.4f) \n\n\r", acc_vals[0], acc_vals[1], acc_vals[2]);
+		send_message(acc_str, PRIORITY_HIGH);
 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  }
+	}
   /* USER CODE END 3 */
 }
 
@@ -211,7 +285,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
   RCC_OscInitStruct.PLL.PLLM = 8;
-  RCC_OscInitStruct.PLL.PLLN = 100;
+  RCC_OscInitStruct.PLL.PLLN = 72;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -228,7 +302,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
     Error_Handler();
   }
@@ -245,11 +319,11 @@ void SystemClock_Config(void)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1)
-  {
-  }
+	/* User can add his own implementation to report the HAL error return state */
+	__disable_irq();
+	while (1)
+	{
+	}
   /* USER CODE END Error_Handler_Debug */
 }
 
@@ -264,8 +338,8 @@ void Error_Handler(void)
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+	/* User can add his own implementation to report the file name and line number,
+	   ex                                                                         : printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */

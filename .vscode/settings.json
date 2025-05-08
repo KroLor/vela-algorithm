@@ -8,7 +8,8 @@
         "i2c.h": "c",
         "main.h": "c",
         "accelerometer.h": "c",
-        "servo.h": "c"
+        "servo.h": "c",
+        "user_diskio_spi.h": "c"
     },
     "cortex-debug.armToolchainPath": "/usr/bin",
     "cortex-debug.openocdPath": "/usr/bin/openocd"
