@@ -9,7 +9,8 @@
         "main.h": "c",
         "accelerometer.h": "c",
         "servo.h": "c",
-        "user_diskio_spi.h": "c"
+        "user_diskio_spi.h": "c",
+        "stdint.h": "c"
     },
     "cortex-debug.armToolchainPath": "/usr/bin",
     "cortex-debug.openocdPath": "/usr/bin/openocd"

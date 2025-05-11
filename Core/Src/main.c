@@ -29,6 +29,7 @@
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 #include "accelerometer.h"
 #include "barometer.h"
 #include "communication.h"
@@ -55,6 +56,9 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+
+bool is_liftoff = false;
+
 /* Калибровочные переменные */
 
 /* Для температуры */
@@ -81,8 +85,6 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-	char data[] = "Shellow from SSAU & Vela!\n\r\0";
-	send_message(data, PRIORITY_HIGH);
 
   /* USER CODE END 1 */
 
@@ -110,7 +112,13 @@ int main(void)
   MX_SPI1_Init();
   MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
+	char msg[256] = "⛵ Shellow from SSAU & Vela! ⛵\n\r\0";
+	send_message(msg, PRIORITY_HIGH);
+
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+
+	sprintf(msg, "Starting initialization....\n\r\0");
+	send_message(msg, PRIORITY_HIGH);
 
 	char str_bufsd[100] = "--------------------SD CARD--------------------------\n\r";
 	send_message(str_bufsd, PRIORITY_HIGH);
@@ -219,6 +227,12 @@ int main(void)
 	{
 		HAL_Delay(500);
 
+		if (is_liftoff)
+		{
+			char msg_state[] = "state: liftoff\n\r\0";
+			send_message(msg_state, PRIORITY_HIGH);
+		}
+
 		char data[100] = "------------------------BMP----------------------\n\r\0";
 		send_message(data, PRIORITY_HIGH);
 
@@ -309,6 +323,20 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	if(GPIO_Pin == JUMPER_PIN) {
+		if (!is_liftoff)
+		{
+			char touched_off_msg[] = "\n\n\n\r🚀 Поплыли к звездам! 🚀 \n\n\n\r\0";
+			send_message(touched_off_msg, PRIORITY_HIGH);
+			is_liftoff = true;
+		}
+	} else {
+		__NOP();
+	}
+}
 
 /* USER CODE END 4 */
 
