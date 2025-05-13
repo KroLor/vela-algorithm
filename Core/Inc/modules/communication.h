@@ -7,6 +7,13 @@ typedef enum
 	PRIORITY_HIGH
 } Msg_Priority;
 
+typedef enum
+{
+	StateChange,
+	SdCard
+
+} MsgArea;
+
 /// @brief Конвертирует статус регистра в читабельное сообщение и отправляет его
 /// @param status Статус регистра
 /// @param reg Название регистра

@@ -33,6 +33,7 @@
 #include "accelerometer.h"
 #include "barometer.h"
 #include "communication.h"
+#include "sd_card.h"
 #include "servo.h"
 #include "option/unicode.c"
 
@@ -123,69 +124,23 @@ int main(void)
 	char str_bufsd[100] = "--------------------SD CARD--------------------------\n\r";
 	send_message(str_bufsd, PRIORITY_HIGH);
 
-	FATFS fs;
-	FIL Fil;
-	FRESULT fs_status;
-	UINT RWC, WWC; // Read/Write Word Counter
-	DWORD FreeClusters;
-	uint32_t TotalSize, FreeSpace;
-
-	char RW_Buffer[200];
-	char TxBuffer[250];
-
 	//------------------[ Mount The SD Card ]--------------------
-	fs_status = f_mount(&fs, (const TCHAR *)_T(""), 1);
-	if (fs_status != FR_OK)
+
+	sd_status sd_stat = sd_card_mount();
+
+	if (sd_stat == SD_OK)
 	{
-		sprintf(TxBuffer, "Error! While Mounting SD Card, Error Code: (%i)\r\n", fs_status);
-		send_message(TxBuffer, PRIORITY_HIGH);
-	}
-	else
-	{
-		sprintf(TxBuffer, "SD Card Mounted Successfully! \r\n\n");
-		send_message(TxBuffer, PRIORITY_HIGH);
+		sd_file file;
+		sd_stat = sd_card_open_file(&file, "/VeryN.txt");
 
-		/*capacity related variable*/
-		DWORD fre_clust;
-		uint32_t total, free_space;
-		FATFS* fs_ptr = &fs;
-		fs_status = f_getfree((const TCHAR *)_T(" "), &fre_clust, &fs_ptr);
-
-		if (fs_status != FR_OK)
+		if (sd_stat == SD_OK)
 		{
-			sprintf(TxBuffer, "Error! While reading free space, Error Code: (%i)\r\n", fs_status);
-			send_message(TxBuffer, PRIORITY_HIGH);
-		}
+			sprintf(msg, "Text File Created & Opened! Writing Data To The Text File..\r\n\n");
+			send_message(msg, PRIORITY_HIGH);
 
-		char buffer[1024]; // to store data
+			sd_card_write(&file, "Hello! From STM32 To SD Card Over SPI, Using generic library\r\n");
 
-		total = (uint32_t)((fs_ptr->n_fatent - 2) * fs_ptr->csize * 0.5);
-		sprintf(buffer, "SD CARD Total Size: \t%lu\r\n", total);
-		send_message(buffer, PRIORITY_HIGH);
-
-		free_space = (uint32_t)(fre_clust * fs_ptr->csize * 0.5);
-
-		sprintf(buffer, "SD CARD Free Space: \t%lu\r\n", free_space);
-		send_message(buffer, PRIORITY_HIGH);
-
-		// Open the file
-		fs_status = f_open(&Fil, (const TCHAR *)_T("/VeryNewTextFileLong.txt"), FA_WRITE | FA_READ | FA_CREATE_ALWAYS);
-		if (fs_status != FR_OK)
-		{
-			sprintf(TxBuffer, "Error! While Creating/Opening A New Text File, Error Code: (%i)\r\n", fs_status);
-			send_message(TxBuffer, PRIORITY_HIGH);
-		}
-		else
-		{
-			sprintf(TxBuffer, "Text File Created & Opened! Writing Data To The Text File..\r\n\n");
-			send_message(TxBuffer, PRIORITY_HIGH);
-			// (1) Write Data To The Text File [ Using f_puts() Function ]
-			f_puts((const TCHAR *)_T("Hello! From STM32 To SD Card Over SPI, Using f_puts()\r\n"), &Fil);
-			// (2) Write Data To The Text File [ Using f_write() Function ]
-			strcpy(RW_Buffer, "Hello! From STM32 To SD Card Over SPI, Using f_write()\r\n");
-			f_write(&Fil, RW_Buffer, strlen(RW_Buffer), &WWC);
-			// Close The File
-			f_close(&Fil);
+			sd_card_close(&file);
 		}
 	}
 

@@ -1,4 +1,5 @@
 #include "communication.h"
+#include "sd_card.h"
 #include <string.h>
 #include <usart.h>
 
@@ -40,4 +41,9 @@ void send_reg_log(HAL_StatusTypeDef status, char *reg)
 void send_message(char *msg, Msg_Priority priority)
 {
 	HAL_UART_Transmit(&huart1, (uint8_t *)msg, strlen(msg), timeout_default);
+
+	if (sd_card_is_enabled())
+	{
+
+	}
 }

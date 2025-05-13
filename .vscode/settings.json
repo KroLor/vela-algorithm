@@ -10,7 +10,13 @@
         "accelerometer.h": "c",
         "servo.h": "c",
         "user_diskio_spi.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "string.h": "c",
+        "communication.h": "c",
+        "sd_card.h": "c",
+        "stdbool.h": "c",
+        "fatfs.h": "c",
+        "barometer.h": "c"
     },
     "cortex-debug.armToolchainPath": "/usr/bin",
     "cortex-debug.openocdPath": "/usr/bin/openocd"
