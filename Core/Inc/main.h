@@ -62,6 +62,10 @@ void Error_Handler(void);
 #define jumper_EXTI_IRQn EXTI1_IRQn
 #define SD_CS_Pin GPIO_PIN_1
 #define SD_CS_GPIO_Port GPIOB
+#define radio_m1_Pin GPIO_PIN_15
+#define radio_m1_GPIO_Port GPIOA
+#define radio_m0_Pin GPIO_PIN_3
+#define radio_m0_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

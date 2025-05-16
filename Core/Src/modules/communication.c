@@ -1,4 +1,5 @@
 #include "communication.h"
+#include "system_definitions.h"
 #include "sd_card.h"
 #include <string.h>
 #include <usart.h>
@@ -41,7 +42,7 @@ void send_reg_log(HAL_StatusTypeDef status, char *reg)
 
 void send_message(char *msg, Msg_Priority priority)
 {
-	HAL_UART_Transmit(&huart1, (uint8_t *)msg, strlen(msg), timeout_default);
+	HAL_UART_Transmit(&RADIO_UART_HANDLE, (uint8_t *)msg, strlen(msg), timeout_default);
 
 	if (sd_card_is_enabled())
 	{
@@ -54,4 +55,14 @@ void send_message(char *msg, Msg_Priority priority)
 			sd_card_close(&file);
 		}
 	}
+}
+
+void send_status(uint8_t status)
+{
+	HAL_GPIO_WritePin(LED1_PORT, LED1_PIN, status & 1);
+	HAL_GPIO_WritePin(LED2_PORT, LED2_PIN, status & (1 << 1));
+	HAL_GPIO_WritePin(LED3_PORT, LED3_PIN, status & (1 << 2));
+	HAL_GPIO_WritePin(LED4_PORT, LED4_PIN, status & (1 << 3));
+	HAL_GPIO_WritePin(LED5_PORT, LED5_PIN, status & (1 << 4));
+	HAL_GPIO_WritePin(LED6_PORT, LED6_PIN, status & (1 << 5));
 }

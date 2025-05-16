@@ -1,5 +1,6 @@
 #include "flight_algorithm.h"
 #include "system_definitions.h"
+#include "status_encoder.h"
 #include "communication.h"
 #include "barometer.h"
 #include "accelerometer.h"
@@ -92,6 +93,7 @@ void start_flight()
 
 void initialize_system()
 {
+	uint8_t status = 0;
 	char msg[256];
 	sprintf(msg, "_____________ [begin system init] _____________\n\r");
 	send_message(msg, PRIORITY_HIGH);
@@ -99,7 +101,6 @@ void initialize_system()
 	//1. SD CARD - the first, to enable log to it right away.
 	sprintf(msg, "_____[init: sd card]_____\n\r");
 	send_message(msg, PRIORITY_HIGH);
-
 
 	sd_status sd_stat = sd_card_mount();
 
@@ -138,6 +139,7 @@ void initialize_system()
 		}
 
 		_sd_card_set_enabled();
+		status_sd_mounts(status);
 	}
 	else
 	{
@@ -156,6 +158,8 @@ void initialize_system()
 
 		acc_power_on();
 		sensors_status |= SENSOR_ACC;
+
+		status_acc_responds(status);
 	}
 	else
 	{
@@ -173,6 +177,8 @@ void initialize_system()
 		sensors_status |= SENSOR_BAROM;
 
 		barometer_power_on();
+
+		status_barometer_responds(status);
 	}
 	else
 	{

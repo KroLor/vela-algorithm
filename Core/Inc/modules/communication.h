@@ -30,3 +30,4 @@ void send_reg_log(HAL_StatusTypeDef status, char *reg);
 /// @param priority Приоритет сообщения
 void send_message(char *msg, Msg_Priority priority);
 
+void send_status(uint8_t status);

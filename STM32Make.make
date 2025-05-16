@@ -82,8 +82,10 @@ Core/Src/modules/communication.c \
 Core/Src/modules/flight_algorithm.c \
 Core/Src/modules/sensors/accelerometer.c \
 Core/Src/modules/sensors/barometer.c \
+Core/Src/modules/sensors/radio.c \
 Core/Src/modules/sensors/sd_card.c \
 Core/Src/modules/sensors/servo.c \
+Core/Src/modules/status_encoder.c \
 Core/Src/spi.c \
 Core/Src/stm32f4xx_hal_msp.c \
 Core/Src/stm32f4xx_it.c \

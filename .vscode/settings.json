@@ -20,7 +20,9 @@
         "flight_algorithm.h": "c",
         "system_definitions.h": "c",
         "stm32f411xe.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "stm32f4xx_hal_gpio.h": "c",
+        "radio.h": "c"
     },
     "cortex-debug.armToolchainPath": "/usr/bin",
     "cortex-debug.openocdPath": "/usr/bin/openocd"

@@ -112,6 +112,7 @@ int main(void)
   MX_FATFS_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
+  
 	char msg[256] = "⛵ Shellow from SSAU & Vela! ⛵\n\r\0";
 	send_message(msg, PRIORITY_HIGH);
 
@@ -135,7 +136,6 @@ int main(void)
 			do_start_flight = false;
 			start_flight();
 		}
-		
 
     /* USER CODE END WHILE */
 
