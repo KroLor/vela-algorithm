@@ -16,7 +16,11 @@
         "sd_card.h": "c",
         "stdbool.h": "c",
         "fatfs.h": "c",
-        "barometer.h": "c"
+        "barometer.h": "c",
+        "flight_algorithm.h": "c",
+        "system_definitions.h": "c",
+        "stm32f411xe.h": "c",
+        "stdio.h": "c"
     },
     "cortex-debug.armToolchainPath": "/usr/bin",
     "cortex-debug.openocdPath": "/usr/bin/openocd"

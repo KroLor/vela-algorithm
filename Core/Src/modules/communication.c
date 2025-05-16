@@ -4,6 +4,7 @@
 #include <usart.h>
 
 static const uint32_t timeout_default = 0xFF; // Таймаут, 255 мс
+static char log_file_name[] = "/sys.log";
 
 void send_reg_log(HAL_StatusTypeDef status, char *reg)
 {
@@ -44,6 +45,13 @@ void send_message(char *msg, Msg_Priority priority)
 
 	if (sd_card_is_enabled())
 	{
+		sd_file file;
+		sd_status sd_stat = sd_card_open_file(&file, log_file_name);
 
+		if (sd_stat == SD_OK)
+		{
+			sd_stat = sd_card_write(&file, msg);
+			sd_card_close(&file);
+		}
 	}
 }

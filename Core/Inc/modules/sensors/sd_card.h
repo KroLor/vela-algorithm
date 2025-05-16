@@ -17,6 +17,8 @@ typedef struct {
 
 bool sd_card_is_enabled();
 
+void _sd_card_set_enabled();
+
 /// @brief Устанавливает режим работы в устройство
 sd_status sd_card_mount();
 

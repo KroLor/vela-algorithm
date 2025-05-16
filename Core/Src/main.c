@@ -30,12 +30,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-#include "accelerometer.h"
-#include "barometer.h"
-#include "communication.h"
-#include "sd_card.h"
-#include "servo.h"
 #include "option/unicode.c"
+#include "communication.h"
+#include "flight_algorithm.h"
 
 /* USER CODE END Includes */
 
@@ -58,8 +55,6 @@
 
 /* USER CODE BEGIN PV */
 
-bool is_liftoff = false;
-
 /* Калибровочные переменные */
 
 /* Для температуры */
@@ -75,6 +70,9 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+bool do_read_sensors = false;
+bool do_start_flight = false;
 
 /* USER CODE END 0 */
 
@@ -112,66 +110,12 @@ int main(void)
   MX_TIM1_Init();
   MX_SPI1_Init();
   MX_FATFS_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 	char msg[256] = "⛵ Shellow from SSAU & Vela! ⛵\n\r\0";
 	send_message(msg, PRIORITY_HIGH);
 
-	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-
-	sprintf(msg, "Starting initialization....\n\r\0");
-	send_message(msg, PRIORITY_HIGH);
-
-	char str_bufsd[100] = "--------------------SD CARD--------------------------\n\r";
-	send_message(str_bufsd, PRIORITY_HIGH);
-
-	//------------------[ Mount The SD Card ]--------------------
-
-	sd_status sd_stat = sd_card_mount();
-
-	if (sd_stat == SD_OK)
-	{
-		sd_file file;
-		sd_stat = sd_card_open_file(&file, "/VeryN.txt");
-
-		if (sd_stat == SD_OK)
-		{
-			sprintf(msg, "Text File Created & Opened! Writing Data To The Text File..\r\n\n");
-			send_message(msg, PRIORITY_HIGH);
-
-			sd_card_write(&file, "Hello! From STM32 To SD Card Over SPI, Using generic library\r\n");
-
-			sd_card_close(&file);
-		}
-	}
-
-	char str_buf[100] = "--------------------LSM6DS33 init--------------------------\n\r";
-	send_message(str_buf, PRIORITY_HIGH);
-
-	if (check_acc_identity())
-	{
-		char buffer[100] = "ACCELEROMETER READ SUCCESSFULLY (nice)\n\r";
-		send_message(buffer, PRIORITY_HIGH);
-
-		acc_power_on();
-	}
-	else
-	{
-		char buffer[50] = "ACCELEROMETER READ ERROR\n\r";
-		send_message(buffer, PRIORITY_HIGH);
-	}
-
-	if (check_barometer_identity())
-	{
-		char buffer[28] = "BMP READ SUCCESSFULLY\n\r";
-		send_message(buffer, PRIORITY_HIGH);
-	}
-	else
-	{
-		char buffer[20] = "BMP READ ERROR\n\r";
-		send_message(buffer, PRIORITY_HIGH);
-	}
-
-	barometer_power_on();
+	initialize_system();
 
   /* USER CODE END 2 */
 
@@ -180,49 +124,18 @@ int main(void)
 	short pwm_switch = 0;
 	while (1)
 	{
-		HAL_Delay(500);
-
-		if (is_liftoff)
+		if (do_read_sensors)
 		{
-			char msg_state[] = "state: liftoff\n\r\0";
-			send_message(msg_state, PRIORITY_HIGH);
+			do_read_sensors = false;
+			read_sensors();
 		}
 
-		char data[100] = "------------------------BMP----------------------\n\r\0";
-		send_message(data, PRIORITY_HIGH);
-
-		if (pwm_switch)
+		if (do_start_flight)
 		{
-			servo_turn_min();
-			pwm_switch = 0;
+			do_start_flight = false;
+			start_flight();
 		}
-		else
-		{
-			servo_turn_max();
-			pwm_switch = 1;
-		}
-
-		int32_t actual_temp = read_temp();
-
-		char temp_str[100];
-		sprintf(temp_str, "Temperature                                              : %.2f Celsius\n\n\r", ((float)actual_temp) / 100);
-		send_message(temp_str, PRIORITY_HIGH);
-
-		uint32_t actual_pressure = read_pressure();
-
-		char pressure_str[100];
-		sprintf(pressure_str, "Pressure                                             : %.4f Pa\n\n\r", ((float)actual_pressure) / 256);
-		send_message(pressure_str, PRIORITY_HIGH);
-
-		char data1[100] = "------------------------ACC----------------------\n\r\0";
-		send_message(data1, PRIORITY_HIGH);
-
-		double acc_vals[3];
-		read_acceleration_xyz(acc_vals);
-
-		char acc_str[100];
-		sprintf(acc_str, "Acceleration                                              : (%0.4f, %0.4f, %0.4f) \n\n\r", acc_vals[0], acc_vals[1], acc_vals[2]);
-		send_message(acc_str, PRIORITY_HIGH);
+		
 
     /* USER CODE END WHILE */
 
@@ -278,18 +191,22 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+//INTERRUPT CALLBACKS
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
 	if(GPIO_Pin == JUMPER_PIN) {
-		if (!is_liftoff)
-		{
-			char touched_off_msg[] = "\n\n\n\r🚀 Поплыли к звездам! 🚀 \n\n\n\r\0";
-			send_message(touched_off_msg, PRIORITY_HIGH);
-			is_liftoff = true;
-		}
+		do_start_flight = true;
 	} else {
 		__NOP();
+	}
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if(htim->Instance == TIM2) //check if the interrupt comes from TIM2
+	{
+		do_read_sensors = true;
 	}
 }
 

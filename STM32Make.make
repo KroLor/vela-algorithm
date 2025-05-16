@@ -79,6 +79,7 @@ Core/Src/gpio.c \
 Core/Src/i2c.c \
 Core/Src/main.c \
 Core/Src/modules/communication.c \
+Core/Src/modules/flight_algorithm.c \
 Core/Src/modules/sensors/accelerometer.c \
 Core/Src/modules/sensors/barometer.c \
 Core/Src/modules/sensors/sd_card.c \

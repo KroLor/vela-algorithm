@@ -14,6 +14,11 @@ bool sd_card_is_enabled()
 	return is_enabled;
 }
 
+void _sd_card_set_enabled()
+{
+	is_enabled = true;
+}
+
 sd_status sd_card_mount()
 {
 	FRESULT fs_status;
@@ -30,7 +35,6 @@ sd_status sd_card_mount()
 		return SD_ERR;
 	}
 
-	is_enabled = true;
 	sprintf(msg, "SD Card Mounted Successfully! \r\n\n");
 	send_message(msg, PRIORITY_HIGH);
 	return SD_OK;
@@ -65,19 +69,17 @@ sd_status sd_card_get_info(sd_card_info* info)
 sd_status sd_card_open_file(sd_file* file_handle, char *filepath)
 {
 	// Open the file
-	FRESULT fs_status = f_open(&file_handle->internal_handle, (const TCHAR *)filepath, FA_WRITE | FA_READ | FA_CREATE_ALWAYS);
+	FRESULT fs_status = f_open(&file_handle->internal_handle, (const TCHAR *)filepath, FA_WRITE | FA_READ | FA_OPEN_APPEND);
 
 	char msg[256];
 	if (fs_status != FR_OK)
 	{
+		is_enabled = false;
 		sprintf(msg, "Error! While Creating/Opening A New Text File, Error Code: (%i)\r\n", fs_status);
 		send_message(msg, PRIORITY_HIGH);
 
 		return SD_ERR;
 	}
-
-	sprintf(msg, "Text File Created & Opened!\r\n\n");
-	send_message(msg, PRIORITY_HIGH);
 
 	return SD_OK;
 }
@@ -104,6 +106,16 @@ sd_status sd_card_write(sd_file *file_handle, char* str)
 
 sd_status sd_card_close(sd_file *file_handle)
 {
-	f_close(&file_handle->internal_handle);
+	FRESULT fs_status = f_close(&file_handle->internal_handle);
+	
+	if (fs_status != FR_OK)
+	{
+		char msg[256];
+		sprintf(msg, "Error! While Closing Text File, Error Code: (%i)\r\n", fs_status);
+		send_message(msg, PRIORITY_HIGH);
+
+		return SD_ERR;
+	}
+
 	return SD_OK;
 }
