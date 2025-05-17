@@ -6,6 +6,8 @@
 #include "accelerometer.h"
 #include "tim.h"
 #include "sd_card.h"
+#include "radio.h"
+#include "servo.h"
 #include <stdio.h>
 
 static uint8_t sensors_status = 0;
@@ -78,6 +80,16 @@ void read_sensors()
 */
 }
 
+void start_apogy()
+{
+	char msg[] = "Apogy!!!";
+	send_message(msg, PRIORITY_HIGH);
+
+	servo_turn_apogy();
+	HAL_Delay(1000);
+	servo_turn_max();
+}
+
 void start_flight()
 {
 	if (!is_liftoff)
@@ -87,7 +99,8 @@ void start_flight()
 		is_liftoff = true;
 
 		//start sensors reading timer
-		HAL_TIM_Base_Start_IT(&SENSORS_READ_TIM);
+		HAL_TIM_Base_Start_IT(&SENSORS_READ_TIM_HANDLE);
+		HAL_TIM_Base_Start_IT(&APOGY_TIM_HANDLE);
 	}
 }
 
@@ -97,6 +110,14 @@ void initialize_system()
 	char msg[256];
 	sprintf(msg, "_____________ [begin system init] _____________\n\r");
 	send_message(msg, PRIORITY_HIGH);
+/*
+	//1. Radio
+	sprintf(msg, "_____[init: radio]_____\n\r");
+	send_message(msg, PRIORITY_HIGH);
+
+	radio_init();
+	status_radio_responds(status);
+*/
 
 	//1. SD CARD - the first, to enable log to it right away.
 	sprintf(msg, "_____[init: sd card]_____\n\r");
@@ -187,7 +208,9 @@ void initialize_system()
 	}
 
 	//4. SERVO
-	HAL_TIM_PWM_Start(&SERVO_TIM_HANDLE, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&SERVO_TIM_HANDLE, SERVO_TIM_PWM_CHANNEL);
+
+	//servo_turn_min();
 
 	sprintf(msg, "_____________[end system init]_____________\n\r");
 	send_message(msg, PRIORITY_HIGH);

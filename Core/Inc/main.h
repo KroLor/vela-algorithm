@@ -60,12 +60,26 @@ void Error_Handler(void);
 #define jumper_Pin GPIO_PIN_1
 #define jumper_GPIO_Port GPIOA
 #define jumper_EXTI_IRQn EXTI1_IRQn
+#define radio_uart_tx_Pin GPIO_PIN_2
+#define radio_uart_tx_GPIO_Port GPIOA
+#define radio_uart_rx_Pin GPIO_PIN_3
+#define radio_uart_rx_GPIO_Port GPIOA
 #define SD_CS_Pin GPIO_PIN_1
 #define SD_CS_GPIO_Port GPIOB
+#define beacon_radio_m0_Pin GPIO_PIN_12
+#define beacon_radio_m0_GPIO_Port GPIOB
+#define beacon_radio_m1_Pin GPIO_PIN_13
+#define beacon_radio_m1_GPIO_Port GPIOB
+#define led2_Pin GPIO_PIN_15
+#define led2_GPIO_Port GPIOB
+#define led5_Pin GPIO_PIN_8
+#define led5_GPIO_Port GPIOA
 #define radio_m1_Pin GPIO_PIN_15
 #define radio_m1_GPIO_Port GPIOA
 #define radio_m0_Pin GPIO_PIN_3
 #define radio_m0_GPIO_Port GPIOB
+#define beacon_aux_Pin GPIO_PIN_9
+#define beacon_aux_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

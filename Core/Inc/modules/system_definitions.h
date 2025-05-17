@@ -2,19 +2,35 @@
 #include <tim.h>
 #include <usart.h>
 
-#define SENSORS_READ_TIM htim2
-#define SERVO_TIM_DEF TIM1
-#define SERVO_TIM_HANDLE htim1
 #define SD_SPI_HANDLE hspi1
 #define JUMPER_PIN GPIO_PIN_1
 
+//______________________________SENSORS
+#define SENSORS_READ_TIM_DEF TIM2
+#define SENSORS_READ_TIM_HANDLE htim2
+
+//______________________________APOGY
+#define APOGY_TIM_DEF TIM5
+#define APOGY_TIM_HANDLE htim5
+
+//______________________________SERVO
+#define SERVO_TIM_DEF TIM3
+#define SERVO_TIM_HANDLE htim3
+#define SERVO_TIM_PWM_CHANNEL TIM_CHANNEL_2
+
+//______________________________RADIO
 #define RADIO_M0_PORT GPIOB
 #define RADIO_M0_PIN GPIO_PIN_3
 #define RADIO_M1_PORT GPIOA
 #define RADIO_M1_PIN GPIO_PIN_15
 
-#define RADIO_UART_HANDLE huart1
+#define RADIO_UART_HANDLE huart2
 
+//______________________________USB UART
+
+#define USB_UART_HANDLE huart1
+
+//_____________________________LED
 #define LED1_PORT GPIOB
 #define LED1_PIN GPIO_PIN_14
 

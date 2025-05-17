@@ -10,3 +10,5 @@ short servo_turn_max();
 /// @brief поворачивает серво на минимальное значение
 /// @return 
 short servo_turn_min();
+
+short servo_turn_apogy();

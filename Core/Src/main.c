@@ -73,6 +73,7 @@ void SystemClock_Config(void);
 
 bool do_read_sensors = false;
 bool do_start_flight = false;
+bool is_apogy = false;
 
 /* USER CODE END 0 */
 
@@ -107,16 +108,21 @@ int main(void)
   MX_GPIO_Init();
   MX_I2C1_Init();
   MX_USART1_UART_Init();
-  MX_TIM1_Init();
   MX_SPI1_Init();
   MX_FATFS_Init();
   MX_TIM2_Init();
+  MX_USART2_UART_Init();
+  MX_TIM5_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   
 	char msg[256] = "⛵ Shellow from SSAU & Vela! ⛵\n\r\0";
 	send_message(msg, PRIORITY_HIGH);
 
 	initialize_system();
+
+  do_start_flight = true;
+  is_apogy = true;
 
   /* USER CODE END 2 */
 
@@ -136,6 +142,12 @@ int main(void)
 			do_start_flight = false;
 			start_flight();
 		}
+
+    if (is_apogy)
+    {
+      is_apogy = false;
+      start_apogy();
+    }
 
     /* USER CODE END WHILE */
 
@@ -204,10 +216,15 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	if(htim->Instance == TIM2) //check if the interrupt comes from TIM2
+	if(htim->Instance == SENSORS_READ_TIM_DEF) //check if the interrupt comes from TIM2
 	{
 		do_read_sensors = true;
 	}
+
+  if (htim->Instance == APOGY_TIM_DEF)
+  {
+    is_apogy = true;
+  }
 }
 
 /* USER CODE END 4 */

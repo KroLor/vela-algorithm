@@ -42,7 +42,7 @@ void send_reg_log(HAL_StatusTypeDef status, char *reg)
 
 void send_message(char *msg, Msg_Priority priority)
 {
-	HAL_UART_Transmit(&RADIO_UART_HANDLE, (uint8_t *)msg, strlen(msg), timeout_default);
+	HAL_UART_Transmit(&USB_UART_HANDLE, (uint8_t *)msg, strlen(msg), timeout_default);
 
 	if (sd_card_is_enabled())
 	{

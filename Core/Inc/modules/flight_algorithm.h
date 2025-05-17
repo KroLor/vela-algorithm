@@ -8,3 +8,5 @@ void initialize_system();
 void start_flight();
 
 void read_sensors();
+
+void start_apogy();
