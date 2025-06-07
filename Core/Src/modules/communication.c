@@ -55,6 +55,9 @@ void send_message(char *msg, Msg_Priority priority)
 			sd_card_close(&file);
 		}
 	}
+	else if (radio_is_enabled()) {
+		radio_send_message(msg);
+	}
 }
 
 void send_status(uint8_t status)

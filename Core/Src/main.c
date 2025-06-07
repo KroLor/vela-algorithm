@@ -71,9 +71,17 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+uint32_t start_time;
+uint32_t landing_time;
+
 bool do_read_sensors = false;
 bool do_start_flight = false;
 bool is_apogy = false;
+bool is_landing = false;
+
+const uint32_t time_to_apogee = 0;
+const uint32_t time_to_landing = 0;
+const time_off = 0; // Время от момента приземления до безопасного отключения
 
 /* USER CODE END 0 */
 
@@ -121,8 +129,9 @@ int main(void)
 
 	initialize_system();
 
-  do_start_flight = true;
-  is_apogy = true;
+  do_start_flight = false;
+  is_apogy = false;
+  is_landing = false;
 
   /* USER CODE END 2 */
 
@@ -131,24 +140,49 @@ int main(void)
 	short pwm_switch = 0;
 	while (1)
 	{
-		if (do_read_sensors)
-		{
-			do_read_sensors = false;
-			read_sensors();
-		}
-
-		if (do_start_flight)
-		{
-			do_start_flight = false;
-			start_flight();
-		}
-
-    if (is_apogy)
-    {
-      is_apogy = false;
-      start_apogy();
+    // Ждем отсоединения джампера
+    while (do_start_flight == false) {
+      HAL_GPIO_EXTI_Callback(JUMPER_PIN);
     }
 
+    start_time = HAL_GetTick(); // Millisecond
+
+    start_flight();
+
+    // Таймер до апогея
+    while (HAL_GetTick() - start_time < time_to_apogee) {
+      if (check_apogy() == APOGY_YES) {
+        is_apogy = true;
+        break;
+      }
+    }
+    
+    // После апогея
+    char msg[] = "Apogy!!!";
+	  send_message(msg, PRIORITY_HIGH);
+    start_apogy();
+
+    // Таймер до приземления
+    while (HAL_GetTick() - start_time < time_to_landing) {
+      if (check_landing() == LANDING_YES) {
+        is_landing = true;
+        break;
+      }
+    }
+
+    landing_time = HAL_GetTick(); // Millisecond
+
+    // Снизить период опроса датчиков и выключить отправку данных по радио
+
+
+    // Таймер до выключения платы // Опрос датчиков и отправка данных продолжается
+    while (1) {
+      if (HAL_GetTick() - landing_time > time_off) break;
+    }
+
+    // Закончить работу с SD картой и остальными модулями
+
+    
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
