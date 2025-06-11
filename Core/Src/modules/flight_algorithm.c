@@ -13,6 +13,10 @@
 static uint8_t sensors_status = 0;
 static bool is_liftoff = false;
 
+// uint32_t get_height() {
+	
+// }
+
 void read_sensors()
 {
 	char msg[256];
@@ -80,49 +84,36 @@ void read_sensors()
 */
 }
 
-void start_apogy()
-{
-	servo_turn_apogy();
-	HAL_Delay(1000);
-	servo_turn_max();
-
-	char count_check_apogee = 1;
-	res_sys_status apogee = check_res_sys();
-	
-	// Проверка системы спасения
-	while (apogee == RESCUE_SYSTEM_FAIL || count_check_apogee < 5) {
-	apogee = check_res_sys();
-	count_check_apogee++;
-
-	servo_turn_apogy();
-	HAL_Delay(1000);
-	servo_turn_max();
-	}
-
-	if (apogee == RESCUE_SYSTEM_OK) {
-		char msg[256];
-		sprintf(msg, "rescue system OK\r\n"); // Система спасения сработала
-		send_message(msg, PRIORITY_HIGH);
-	}
-	else if (apogee == RESCUE_SYSTEM_FAIL) {
-		char msg[256];
-		sprintf(msg, "rescue system FAIL\r\n"); // С системой спасения проблемы
-		send_message(msg, PRIORITY_HIGH);
-	}
-}
-
-res_sys_status check_res_sys() {
+bool check_res_sys(char* count_check_apogee) {
 	// Проверяем концевую кнопку
 
+
 	// Проверяем фоторезистор
+
+
+	// Проверяем акселерометр
+
+
+	(*count_check_apogee)++;
+	return 1;
 }
 
-apogy_status check_apogy() {
+bool check_apogy() {
 	
 }
 
-landing_status check_landing() {
+void res_sys() {
+	servo_turn_apogy();
+	HAL_Delay(1000); //
+	servo_turn_max();
+}
 
+bool check_landing() {
+	// Проверяем высоту
+
+
+	// Проверяем акселерометр
+	
 }
 
 void start_flight()

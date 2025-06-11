@@ -71,17 +71,19 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-uint32_t start_time;
-uint32_t landing_time;
+uint32_t start_time; // Время старта с момента включения
+uint32_t landing_time; // Время приземления с момента старта
 
 bool do_read_sensors = false;
+bool do_read_sensors2 = false;
 bool do_start_flight = false;
 bool is_apogy = false;
 bool is_landing = false;
 
 const uint32_t time_to_apogee = 0;
 const uint32_t time_to_landing = 0;
-const time_off = 0; // Время от момента приземления до безопасного отключения
+const uint32_t time_off = 0; // Время от момента приземления до отключения
+// const uint32_t start_height = 0;
 
 /* USER CODE END 0 */
 
@@ -129,10 +131,6 @@ int main(void)
 
 	initialize_system();
 
-  do_start_flight = false;
-  is_apogy = false;
-  is_landing = false;
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -140,8 +138,16 @@ int main(void)
 	short pwm_switch = 0;
 	while (1)
 	{
+    // start_height = get_height();
+
+    // Отображение состояния через светодиоды и радио
+
+
     // Ждем отсоединения джампера
     while (do_start_flight == false) {
+      // Проверка преждевременного страта через акселерометр и барометр
+
+
       HAL_GPIO_EXTI_Callback(JUMPER_PIN);
     }
 
@@ -151,37 +157,59 @@ int main(void)
 
     // Таймер до апогея
     while (HAL_GetTick() - start_time < time_to_apogee) {
-      if (check_apogy() == APOGY_YES) {
+      if (do_read_sensors) {
+        do_read_sensors = false;
+        read_sensors(); // Чтение датчиков, отправка и запись данных
+      }
+      if (check_apogy()) {
         is_apogy = true;
         break;
       }
     }
     
-    // После апогея
     char msg[] = "Apogy!!!";
 	  send_message(msg, PRIORITY_HIGH);
-    start_apogy();
+
+    char count_check_apogee = 0;
+    // Проверяем систему спасения
+    while (check_res_sys(&count_check_apogee) && count_check_apogee <= 4) {
+      if (do_read_sensors) {
+        do_read_sensors = false;
+        read_sensors(); // Чтение датчиков, отправка и запись данных
+      }
+
+      res_sys();
+    }
 
     // Таймер до приземления
     while (HAL_GetTick() - start_time < time_to_landing) {
-      if (check_landing() == LANDING_YES) {
+      if (do_read_sensors) {
+        do_read_sensors = false;
+        read_sensors(); // Чтение датчиков, отправка и запись данных
+      }
+      if (check_landing()) {
         is_landing = true;
         break;
       }
     }
 
-    landing_time = HAL_GetTick(); // Millisecond
+    landing_time = HAL_GetTick() - start_time; // Millisecond
 
-    // Снизить период опроса датчиков и выключить отправку данных по радио
+    // Снизить период опроса датчиков и остановить отправку данных по радио (do_read_sensors2 вместо do_read_sensors)
 
-
-    // Таймер до выключения платы // Опрос датчиков и отправка данных продолжается
+    // Таймер до выключения платы // Опрос датчиков продолжается
     while (1) {
+      if (do_read_sensors2) {
+        do_read_sensors2 = false;
+        read_sensors(); // Чтение датчиков, отправка и запись данных
+      }
       if (HAL_GetTick() - landing_time > time_off) break;
     }
 
     // Закончить работу с SD картой и остальными модулями
+    // Начинает работу радио-маяк
 
+    break;
     
     /* USER CODE END WHILE */
 
@@ -254,6 +282,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	{
 		do_read_sensors = true;
 	}
+
+  // if(htim->Instance == )
+	// {
+	// 	do_read_sensors2 = true;
+	// }
 
   if (htim->Instance == APOGY_TIM_DEF)
   {

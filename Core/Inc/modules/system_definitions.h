@@ -8,6 +8,8 @@
 //______________________________SENSORS
 #define SENSORS_READ_TIM_DEF TIM2
 #define SENSORS_READ_TIM_HANDLE htim2
+//#define SENSORS2_READ_TIM_DEF 
+//#define SENSORS2_READ_TIM_HANDLE 
 
 //______________________________APOGY
 #define APOGY_TIM_DEF TIM5
