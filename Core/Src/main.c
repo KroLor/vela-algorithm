@@ -55,6 +55,8 @@
 
 /* USER CODE BEGIN PV */
 
+#define DEBOUNCE_DELAY 100
+
 /* Калибровочные переменные */
 
 /* Для температуры */
@@ -71,18 +73,20 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-uint32_t start_time; // Время старта с момента включения
-uint32_t landing_time; // Время приземления с момента старта
+uint32_t last_jumper_interrupt_time = 0;
+
+uint32_t start_time; // Действительное время старта
+uint32_t apogy_time; // Действительное время апогея с момента старта
+uint32_t landing_time; // Действительное время приземления с момента старта
 
 bool do_read_sensors = false;
-bool do_read_sensors2 = false;
 bool do_start_flight = false;
 bool is_apogy = false;
 bool is_landing = false;
 
-const uint32_t time_to_apogee = 0;
-const uint32_t time_to_landing = 0;
-const uint32_t time_off = 0; // Время от момента приземления до отключения
+uint32_t time_to_apogee = 5000; // Расчетное время апогея с момента старта
+uint32_t time_to_landing = 15000; // Расчетное время приземления с момента старта
+uint32_t time_off = 5000; // Время от момента приземления до отключения
 // const uint32_t start_height = 0;
 
 /* USER CODE END 0 */
@@ -138,7 +142,7 @@ int main(void)
 	short pwm_switch = 0;
 	while (1)
 	{
-    // start_height = get_height();
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
 
     // Отображение состояния через светодиоды и радио
 
@@ -148,7 +152,8 @@ int main(void)
       // Проверка преждевременного страта через акселерометр и барометр
 
 
-      HAL_GPIO_EXTI_Callback(JUMPER_PIN);
+      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+      HAL_Delay(300);
     }
 
     start_time = HAL_GetTick(); // Millisecond
@@ -165,9 +170,14 @@ int main(void)
         is_apogy = true;
         break;
       }
+
+      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+      HAL_Delay(200);
     }
-    
-    char msg[] = "Apogy!!!";
+
+    // apogy_time = HAL_GetTick() - start_time; // Millisecond
+
+    char msg[] = "Apogy!!!\r\n";
 	  send_message(msg, PRIORITY_HIGH);
 
     char count_check_apogee = 0;
@@ -179,6 +189,9 @@ int main(void)
       }
 
       res_sys();
+
+      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+      HAL_Delay(50);
     }
 
     // Таймер до приземления
@@ -191,19 +204,38 @@ int main(void)
         is_landing = true;
         break;
       }
+
+      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+      HAL_Delay(100);
     }
 
     landing_time = HAL_GetTick() - start_time; // Millisecond
 
-    // Снизить период опроса датчиков и остановить отправку данных по радио (do_read_sensors2 вместо do_read_sensors)
+    // Снизить период опроса датчиков и остановить отправку данных по радио
+    HAL_TIM_Base_Stop_IT(&SENSORS_READ_TIM_HANDLE);
+    HAL_TIM_Base_DeInit(&SENSORS_READ_TIM_HANDLE);
+
+    SENSORS_READ_TIM_HANDLE.Init.Prescaler = 35999; // 72 MHz / 36000 = 2 кГц
+    SENSORS_READ_TIM_HANDLE.Init.Period = 3999; // 4000 отсчётов = 2 сек
+
+    HAL_TIM_Base_Init(&SENSORS_READ_TIM_HANDLE);
+    HAL_TIM_Base_Start_IT(&SENSORS_READ_TIM_HANDLE);
+
+
 
     // Таймер до выключения платы // Опрос датчиков продолжается
-    while (1) {
-      if (do_read_sensors2) {
-        do_read_sensors2 = false;
+    while (HAL_GetTick() - landing_time < time_off) {
+      if (do_read_sensors) {
+        do_read_sensors = false;
         read_sensors(); // Чтение датчиков, отправка и запись данных
       }
-      if (HAL_GetTick() - landing_time > time_off) break;
+
+      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+      HAL_Delay(50);
+      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+      HAL_Delay(100);
+      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+      HAL_Delay(200);
     }
 
     // Закончить работу с SD картой и остальными модулями
@@ -269,9 +301,19 @@ void SystemClock_Config(void)
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-	if(GPIO_Pin == JUMPER_PIN) {
-		do_start_flight = true;
-	} else {
+  if (GPIO_Pin == JUMPER_PIN) {
+    uint32_t current_time = HAL_GetTick();
+    
+    // Проверка временного интервала для антидребезга
+    if (current_time - last_jumper_interrupt_time > DEBOUNCE_DELAY) {
+      last_jumper_interrupt_time = current_time;
+      
+      if (HAL_GPIO_ReadPin(JUMPER_PORT, JUMPER_PIN)) {
+        do_start_flight = true;
+      }
+    }
+  }
+  else {
 		__NOP();
 	}
 }
@@ -282,11 +324,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	{
 		do_read_sensors = true;
 	}
-
-  // if(htim->Instance == )
-	// {
-	// 	do_read_sensors2 = true;
-	// }
 
   if (htim->Instance == APOGY_TIM_DEF)
   {

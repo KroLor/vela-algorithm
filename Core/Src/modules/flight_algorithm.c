@@ -9,13 +9,14 @@
 #include "radio.h"
 #include "servo.h"
 #include <stdio.h>
+#include <math.h>
+
+#define SEA_LEVEL_PRESSURE 101325.0f
+
+float start_height;
 
 static uint8_t sensors_status = 0;
 static bool is_liftoff = false;
-
-// uint32_t get_height() {
-	
-// }
 
 void read_sensors()
 {
@@ -40,6 +41,12 @@ void read_sensors()
 		char pressure_str[100];
 		sprintf(pressure_str, "Pressure: %.4f Pa\n\n\r", ((float)actual_pressure) / 256);
 		send_message(pressure_str, PRIORITY_HIGH);
+
+		float actual_height = get_height() - start_height;
+
+		char height_str[100];
+		sprintf(height_str, "Height: %.4f m\n\n\r", ((float)actual_height));
+		send_message(height_str, PRIORITY_HIGH);
 	}
 	else
 	{
@@ -86,9 +93,14 @@ void read_sensors()
 
 bool check_res_sys(char* count_check_apogee) {
 	// Проверяем концевую кнопку
-
+	if (HAL_GPIO_ReadPin(END_BUTTON_PORT, END_BUTTON_PIN) == GPIO_PIN_SET) {
+		return 0;
+	}
 
 	// Проверяем фоторезистор
+
+
+	// Проверяем высоту (get_height())
 
 
 	// Проверяем акселерометр
@@ -99,7 +111,13 @@ bool check_res_sys(char* count_check_apogee) {
 }
 
 bool check_apogy() {
+	// Проверяем высоту (get_height())
 	
+
+	// Проверяем акселерометр
+
+
+	return 0;
 }
 
 void res_sys() {
@@ -109,11 +127,14 @@ void res_sys() {
 }
 
 bool check_landing() {
-	// Проверяем высоту
+	// Проверяем высоту (get_height())
 
 
-	// Проверяем акселерометр
-	
+	return 0;
+}
+
+float get_height() {
+	return 44330.0f * (1.0f - powf(((float)read_pressure() / 256.0f) / SEA_LEVEL_PRESSURE, 0.1903f));
 }
 
 void start_flight()
@@ -126,7 +147,7 @@ void start_flight()
 
 		//start sensors reading timer
 		HAL_TIM_Base_Start_IT(&SENSORS_READ_TIM_HANDLE);
-		HAL_TIM_Base_Start_IT(&APOGY_TIM_HANDLE);
+		HAL_TIM_Base_Start_IT(&APOGY_TIM_HANDLE); //
 	}
 }
 
@@ -226,6 +247,8 @@ void initialize_system()
 		barometer_power_on();
 
 		status_barometer_responds(status);
+
+		start_height = get_height();
 	}
 	else
 	{

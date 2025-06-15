@@ -3,13 +3,15 @@
 #include <usart.h>
 
 #define SD_SPI_HANDLE hspi1
-#define JUMPER_PIN GPIO_PIN_1
+#define JUMPER_PORT GPIOB
+#define JUMPER_PIN  GPIO_PIN_1
+
+#define END_BUTTON_PORT GPIOA
+#define END_BUTTON_PIN GPIO_PIN_4
 
 //______________________________SENSORS
 #define SENSORS_READ_TIM_DEF TIM2
 #define SENSORS_READ_TIM_HANDLE htim2
-//#define SENSORS2_READ_TIM_DEF 
-//#define SENSORS2_READ_TIM_HANDLE 
 
 //______________________________APOGY
 #define APOGY_TIM_DEF TIM5

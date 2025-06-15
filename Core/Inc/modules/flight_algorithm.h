@@ -19,5 +19,5 @@ bool check_res_sys(char* count_check_apogee);
 bool check_apogy();
 // Вернёт 1, если приземление
 bool check_landing();
-// Возвращает текущую высоту
-// uint32_t get_height();
+// Возвращает текущую высоту от уровня моря
+float get_height();
