@@ -56,10 +56,11 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOB, SD_CS_Pin|radio_m0_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, beacon_radio_m0_Pin|beacon_radio_m1_Pin|led2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, led_acc_Pin|led_sd_Pin|led_servo_Pin|led_radio_Pin
+                          |led_gps_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(led5_GPIO_Port, led5_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(led_bar_GPIO_Port, led_bar_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(radio_m1_GPIO_Port, radio_m1_Pin, GPIO_PIN_SET);
@@ -90,15 +91,17 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(SD_CS_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PBPin PBPin PBPin PBPin */
-  GPIO_InitStruct.Pin = beacon_radio_m0_Pin|beacon_radio_m1_Pin|led2_Pin|radio_m0_Pin;
+  /*Configure GPIO pins : PBPin PBPin PBPin PBPin
+                           PBPin PBPin */
+  GPIO_InitStruct.Pin = led_acc_Pin|led_sd_Pin|led_servo_Pin|led_radio_Pin
+                          |radio_m0_Pin|led_gps_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PAPin PAPin */
-  GPIO_InitStruct.Pin = led5_Pin|radio_m1_Pin;
+  GPIO_InitStruct.Pin = led_bar_Pin|radio_m1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

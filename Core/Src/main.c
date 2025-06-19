@@ -79,14 +79,16 @@ uint32_t start_time; // Действительное время старта
 uint32_t apogy_time; // Действительное время апогея с момента старта
 uint32_t landing_time; // Действительное время приземления с момента старта
 
+uint32_t time_to_apogee = 5000; // Расчетное время апогея с момента старта
+uint32_t time_to_landing = 15000; // Расчетное время приземления с момента старта
+uint32_t time_off = 5000; // Время от момента приземления до отключения
+
+float apogy_height = 0.0f; // Расчетная высота апогея
+
 bool do_read_sensors = false;
 bool do_start_flight = false;
 bool is_apogy = false;
 bool is_landing = false;
-
-uint32_t time_to_apogee = 5000; // Расчетное время апогея с момента старта
-uint32_t time_to_landing = 15000; // Расчетное время приземления с момента старта
-uint32_t time_off = 5000; // Время от момента приземления до отключения
 // const uint32_t start_height = 0;
 
 /* USER CODE END 0 */
@@ -144,8 +146,8 @@ int main(void)
 	{
     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
 
-    // Отображение состояния через светодиоды и радио
-
+    // Передача состояния через радио
+    
 
     // Ждем отсоединения джампера
     while (do_start_flight == false) {

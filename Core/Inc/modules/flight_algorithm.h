@@ -21,3 +21,5 @@ bool check_apogy();
 bool check_landing();
 // Возвращает текущую высоту от уровня моря
 float get_height();
+// // Сохраняет начальную высоту
+// void get_start_height();
