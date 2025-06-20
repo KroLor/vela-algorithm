@@ -170,6 +170,7 @@ int main(void)
     start_time = HAL_GetTick(); // Millisecond
 
     start_flight();
+    send_status(0x0);
 
     HAL_GPIO_WritePin(vent_GPIO_Port, vent_Pin, GPIO_PIN_SET);
 
