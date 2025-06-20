@@ -8,6 +8,7 @@
 #include "sd_card.h"
 #include "radio.h"
 #include "servo.h"
+#include "adc.h"
 #include <stdio.h>
 #include <math.h>
 
@@ -17,6 +18,8 @@
 #define LAPSE_RATE 0.0065f // Градиент температуры (K/m)
 
 // float start_height = 0.0f;
+uint32_t previousValue = 0;
+const uint32_t threshold = 200;  // Порог изменения (нужно подбирать)
 
 static uint8_t sensors_status = 0;
 static bool is_liftoff = false;
@@ -101,13 +104,14 @@ bool check_res_sys(char* count_check_apogee) {
 	}
 
 	// Проверяем фоторезистор
+	uint32_t currentValue = HAL_ADC_GetValue(&hadc1);
+    int32_t difference = currentValue - previousValue;
 
-
-	// Проверяем высоту (get_height())
-
-
-	// Проверяем акселерометр
-
+    if (difference > threshold) {
+      // Резкое осветление
+      return 0;
+    }
+    previousValue = currentValue;
 
 	(*count_check_apogee)++;
 	return 1;
@@ -132,6 +136,9 @@ void res_sys() {
 bool check_landing() {
 	// Проверяем высоту (get_height())
 
+
+	// Проверяем акселерометр
+	
 
 	return 0;
 }

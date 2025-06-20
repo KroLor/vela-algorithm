@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
 #include "fatfs.h"
 #include "i2c.h"
 #include "spi.h"
@@ -130,12 +131,15 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM5_Init();
   MX_TIM3_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
   
 	char msg[256] = "⛵ Shellow from SSAU & Vela! ⛵\n\r\0";
 	send_message(msg, PRIORITY_HIGH);
 
 	initialize_system();
+
+  HAL_ADC_Start(&hadc1);
 
   /* USER CODE END 2 */
 
@@ -149,6 +153,11 @@ int main(void)
     // Передача состояния через радио
     
 
+    // Крутим вентилятор
+    HAL_GPIO_WritePin(vent_GPIO_Port, vent_Pin, GPIO_PIN_SET);
+    HAL_Delay(1000);
+    HAL_GPIO_WritePin(vent_GPIO_Port, vent_Pin, GPIO_PIN_RESET);
+
     // Ждем отсоединения джампера
     while (do_start_flight == false) {
       // Проверка преждевременного страта через акселерометр и барометр
@@ -161,6 +170,8 @@ int main(void)
     start_time = HAL_GetTick(); // Millisecond
 
     start_flight();
+
+    HAL_GPIO_WritePin(vent_GPIO_Port, vent_Pin, GPIO_PIN_SET);
 
     // Таймер до апогея
     while (HAL_GetTick() - start_time < time_to_apogee) {
@@ -193,7 +204,7 @@ int main(void)
       res_sys();
 
       HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-      HAL_Delay(50);
+      HAL_Delay(25);
     }
 
     // Таймер до приземления
@@ -233,9 +244,9 @@ int main(void)
       }
 
       HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-      HAL_Delay(50);
+      HAL_Delay(200);
       HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-      HAL_Delay(100);
+      HAL_Delay(50);
       HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
       HAL_Delay(200);
     }
