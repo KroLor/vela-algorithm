@@ -43,7 +43,7 @@ void send_reg_log(HAL_StatusTypeDef status, char *reg)
 void send_message(char *msg, Msg_Priority priority)
 {
 	HAL_UART_Transmit(&USB_UART_HANDLE, (uint8_t *)msg, strlen(msg), timeout_default);
-
+	
 	if (sd_card_is_enabled())
 	{
 		sd_file file;
@@ -55,6 +55,9 @@ void send_message(char *msg, Msg_Priority priority)
 			sd_card_close(&file);
 		}
 	}
+	// else if (radio_is_enabled()) {
+	// 	radio_send_message(msg);
+	// }
 }
 
 void send_status(uint8_t status)
