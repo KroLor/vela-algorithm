@@ -1,49 +1,130 @@
 #include "communication.h"
 #include "system_definitions.h"
 #include "sd_card.h"
+#include "radio.h"
 #include <string.h>
 #include <usart.h>
+#include <stdio.h>
 
 static const uint32_t timeout_default = 0xFF; // Таймаут, 255 мс
 static char log_file_name[] = "/sys.log";
 
-void send_reg_log(HAL_StatusTypeDef status, char *reg)
+void log_register(HAL_StatusTypeDef status, char *reg, SystemState sys_state, SystemArea sys_area)
 {
 	char *message = NULL;
 
 	switch (status)
 	{
-	case HAL_OK:
-		message = "OK";
-		break;
-	case HAL_ERROR:
-		message = "ERROR";
-		break;
+		case HAL_OK:
+			message = "OK";
+			break;
+		case HAL_ERROR:
+			message = "ERROR";
+			break;
 
-	case HAL_BUSY:
-		message = "BUSY";
-		break;
-	case HAL_TIMEOUT:
-		message = "TIMEOUT";
-		break;
-
-	default:
-		break;
+		case HAL_BUSY:
+			message = "BUSY";
+			break;
+		case HAL_TIMEOUT:
+			message = "TIMEOUT";
+			break;
+		default:
+			message = "UNKNOWN";
+			break;
 	}
 
-	char buffer[100];
-	strcat(buffer, reg);
-	strcat(buffer, ": ");
-	strcat(buffer, message);
-	strcat(buffer, "\n\r\0");
+	char buffer[256];
+	sprintf(buffer, "%s: %s\r\n", reg, message);
 
-	send_message(buffer, PRIORITY_LOW);
+	Message res_msg = { .text = buffer, .sys_state = sys_state, .sys_area = sys_area, .priority = PRIORITY_LOW };
+	log_message(&res_msg);
+}
+
+void system_state_to_str(char* msg, SystemState state)
+{
+	switch (state)
+	{
+		case SYS_STATE_NONE:
+			sprintf(msg, "none");
+			break;
+		case SYS_STATE_INIT:
+			sprintf(msg, "init");
+			break;
+		case SYS_STATE_STANDBY:
+			sprintf(msg, "standby");
+			break;
+		case SYS_STATE_LIFTOFF:
+			sprintf(msg, "liftoff");
+			break;
+		case SYS_STATE_ASCENT:
+			sprintf(msg, "ascent");
+			break;
+		case SYS_STATE_APOGY:
+			sprintf(msg, "apogy");
+			break;
+		case SYS_STATE_DESCENT:
+			sprintf(msg, "descent");
+			break;
+		case SYS_STATE_GROUND:
+			sprintf(msg, "ground");
+			break;
+		default:
+			sprintf(msg, "err");
+			break;
+	}
+}
+
+void system_area_to_str(char* msg, SystemArea area)
+{
+	switch (area)
+	{
+		case SYS_AREA_NONE:
+			sprintf(msg, "none");
+			break;
+		case SYS_AREA_INIT:
+			sprintf(msg, "init");
+			break;
+		case SYS_AREA_READ_SENSORS:
+			sprintf(msg, "read_sensors");
+			break;
+		case SYS_AREA_PERIPH_SDCARD:
+			sprintf(msg, "periph_sdcard");
+			break;
+		case SYS_AREA_PERIPH_RADIO:
+			sprintf(msg, "periph_radio");
+			break;
+		case SYS_AREA_PERIPH_BAROM:
+			sprintf(msg, "periph_barom");
+			break;
+		case SYS_AREA_PERIPH_ACC:
+			sprintf(msg, "periph_acc");
+			break;
+		default:
+			sprintf(msg, "err");
+			break;
+	}
 }
 
 void send_message(char *msg, Msg_Priority priority)
 {
-	HAL_UART_Transmit(&USB_UART_HANDLE, (uint8_t *)msg, strlen(msg), timeout_default);
-	
+	Message msg_struct = { .sys_area = SYS_AREA_NONE, .sys_state = SYS_STATE_NONE, .priority = priority, .text = msg };
+	log_message(&msg_struct);
+}
+
+void log_message(Message* msg)
+{
+	char state_text[64];
+	system_state_to_str(state_text, msg->sys_state);
+
+	char area_text[64];
+	system_area_to_str(area_text, msg->sys_area);
+
+	uint16_t log_size = strlen(msg->text) + strlen(state_text) + strlen(area_text) + 3;
+	char* log_text = malloc(log_size);
+
+	//state;area;text
+	sprintf(log_text, "%s;%s;%s", state_text, area_text, msg->text);
+
 	if (sd_card_is_enabled())
 	{
 		sd_file file;
@@ -51,13 +132,17 @@ void send_message(char *msg, Msg_Priority priority)
 
 		if (sd_stat == SD_OK)
 		{
-			sd_stat = sd_card_write(&file, msg);
+			sd_stat = sd_card_write(&file, log_text);
 			sd_card_close(&file);
 		}
 	}
-	// else if (radio_is_enabled()) {
-	// 	radio_send_message(msg);
-	// }
+
+	if(radio_is_enabled())
+	{
+		HAL_UART_Transmit(&RADIO_UART_HANDLE, (uint8_t *)log_text, log_size, timeout_default);
+	}
+
+	free(log_text);
 }
 
 void send_status(uint8_t status)

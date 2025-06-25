@@ -26,6 +26,7 @@ target_include_directories(stm32cubemx INTERFACE
 target_sources(stm32cubemx INTERFACE
     ../../Core/Src/main.c
     ../../Core/Src/gpio.c
+    ../../Core/Src/adc.c
     ../../Core/Src/i2c.c
     ../../Core/Src/spi.c
     ../../Core/Src/tim.c
@@ -34,6 +35,9 @@ target_sources(stm32cubemx INTERFACE
     ../../Core/Src/stm32f4xx_hal_msp.c
     ../../FATFS/App/fatfs.c
     ../../FATFS/Target/user_diskio.c
+    ../../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.c
+    ../../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc_ex.c
+    ../../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_adc.c
     ../../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c
     ../../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c
     ../../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c

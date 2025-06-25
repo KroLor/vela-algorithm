@@ -22,7 +22,8 @@
         "stm32f411xe.h": "c",
         "stdio.h": "c",
         "stm32f4xx_hal_gpio.h": "c",
-        "radio.h": "c"
+        "radio.h": "c",
+        "cmath": "c"
     },
     "cortex-debug.armToolchainPath": "/usr/bin",
     "cortex-debug.openocdPath": "/usr/bin/openocd"

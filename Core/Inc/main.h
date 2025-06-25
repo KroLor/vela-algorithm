@@ -64,8 +64,8 @@ void Error_Handler(void);
 #define radio_uart_tx_GPIO_Port GPIOA
 #define radio_uart_rx_Pin GPIO_PIN_3
 #define radio_uart_rx_GPIO_Port GPIOA
-#define end_button_Pin GPIO_PIN_4
-#define end_button_GPIO_Port GPIOA
+#define limit_switch_Pin GPIO_PIN_4
+#define limit_switch_GPIO_Port GPIOA
 #define SD_CS_Pin GPIO_PIN_1
 #define SD_CS_GPIO_Port GPIOB
 #define vent_Pin GPIO_PIN_2
@@ -80,6 +80,8 @@ void Error_Handler(void);
 #define led_radio_GPIO_Port GPIOB
 #define led_bar_Pin GPIO_PIN_8
 #define led_bar_GPIO_Port GPIOA
+#define radio_aux_Pin GPIO_PIN_11
+#define radio_aux_GPIO_Port GPIOA
 #define radio_m1_Pin GPIO_PIN_15
 #define radio_m1_GPIO_Port GPIOA
 #define radio_m0_Pin GPIO_PIN_3

@@ -2,6 +2,21 @@
 #include <tim.h>
 #include <usart.h>
 
+#ifndef __SYSTEM_DEFINITIONS_H
+#define __SYSTEM_DEFINITIONS_H
+
+typedef enum
+{
+	SYS_STATE_NONE = 0,
+	SYS_STATE_INIT,
+	SYS_STATE_STANDBY,
+	SYS_STATE_LIFTOFF,
+	SYS_STATE_ASCENT,
+	SYS_STATE_APOGY,
+	SYS_STATE_DESCENT,
+	SYS_STATE_GROUND
+} SystemState;
+
 #define SD_SPI_HANDLE hspi1
 #define JUMPER_PORT GPIOB
 #define JUMPER_PIN  GPIO_PIN_1
@@ -52,3 +67,5 @@
 
 #define LED6_PORT GPIOB
 #define LED6_PIN GPIO_PIN_4
+
+#endif

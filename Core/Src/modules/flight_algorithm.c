@@ -21,6 +21,7 @@
 uint32_t previousValue = 0;
 const uint32_t threshold = 200;  // Порог изменения (нужно подбирать)
 
+static SystemState curr_state;
 static uint8_t sensors_status = 0;
 static bool is_liftoff = false;
 
@@ -171,8 +172,9 @@ void start_flight()
 {
 	if (!is_liftoff)
 	{
-		char touched_off_msg[] = "\n\n\n\r🚀 Поплыли к звездам! 🚀 \n\n\n\r\0";
-		send_message(touched_off_msg, PRIORITY_HIGH);
+		Message msg = { .text = "\n\n\n\r🚀 Поплыли к звездам! 🚀 \n\n\n\r\0", .sys_area = SYS_AREA_NONE, .sys_state = SYS_STATE_LIFTOFF, .priority = PRIORITY_HIGH };
+		log_message(&msg);
+
 		is_liftoff = true;
 
 		//start sensors reading timer
@@ -183,10 +185,13 @@ void start_flight()
 
 void initialize_system()
 {
+	Message msg = { .sys_area = SYS_AREA_INIT, .sys_state = SYS_STATE_INIT, .priority = PRIORITY_HIGH };
+	msg.text = malloc(256);
 	uint8_t status = 0x0;
-	char msg[256];
-	sprintf(msg, "_____________ [begin system init] _____________\n\r");
-	send_message(msg, PRIORITY_HIGH);
+
+	sprintf(msg.text, "_____________ [begin system init] \n\r");
+	log_message(&msg);
+
 /*
 	//1. Radio
 	sprintf(msg, "_____[init: radio]_____\n\r");
@@ -197,43 +202,44 @@ void initialize_system()
 */
 
 	//1. SD CARD - the first, to enable log to it right away.
-	sprintf(msg, "_____[init: sd card]_____\n\r");
-	send_message(msg, PRIORITY_HIGH);
+	msg.sys_area = SYS_AREA_PERIPH_SDCARD;
+	sprintf(msg.text, "_____[init: sd card]\n\r");
+	log_message(&msg);
 
 	sd_status sd_stat = sd_card_mount();
 
 	if (sd_stat == SD_OK)
 	{
-		sprintf(msg, "sd card mounted\r\n");
-		send_message(msg, PRIORITY_HIGH);
+		sprintf(msg.text, "sd card mounted\r\n");
+		log_message(&msg);
 
 		sd_file file;
 		sd_stat = sd_card_open_file(&file, "/test");
 
 		if (sd_stat == SD_OK)
 		{
-			sprintf(msg, "sd card test file opened\r\n");
-			send_message(msg, PRIORITY_HIGH);
+			sprintf(msg.text, "sd card test file opened\r\n");
+			log_message(&msg);
 
 			sd_stat = sd_card_write(&file, "Good luck, good flight.\r\n");
 
 			if (sd_stat == SD_OK)
 			{
-				sprintf(msg, "sd card test file written\r\n");
-				send_message(msg, PRIORITY_HIGH);
+				sprintf(msg.text, "sd card test file written\r\n");
+				log_message(&msg);
 			}
 			else
 			{
-				sprintf(msg, "!!sd card test file write failure!!\r\n");
-				send_message(msg, PRIORITY_HIGH);
+				sprintf(msg.text, "!!sd card test file write failure!!\r\n");
+				log_message(&msg);
 			}
 
 			sd_card_close(&file);
 		}
 		else
 		{
-			sprintf(msg, "!!sd card test file failed to open!!\r\n");
-			send_message(msg, PRIORITY_HIGH);
+			sprintf(msg.text, "!!sd card test file failed to open!!\r\n");
+			log_message(&msg);
 		}
 
 		_sd_card_set_enabled();
@@ -241,18 +247,19 @@ void initialize_system()
 	}
 	else
 	{
-		sprintf(msg, "!!!sd card failed to mount!!!\r\n");
-		send_message(msg, PRIORITY_HIGH);
+		sprintf(msg.text, "!!!sd card failed to mount!!!\r\n");
+		log_message(&msg);
 	}
 
 	//2. ACCELEROMETER
-	sprintf(msg, "_____[init: acc]_____\r\n");
-	send_message(msg, PRIORITY_HIGH);
+	msg.sys_area = SYS_AREA_PERIPH_ACC;
+	sprintf(msg.text, "[init: acc]_____\r\n");
+	log_message(&msg);
 
 	if (check_acc_identity())
 	{
-		sprintf(msg, "accelerometer responds nicely, powering it on...\r\n");
-		send_message(msg, PRIORITY_HIGH);
+		sprintf(msg.text, "accelerometer responds nicely, powering it on...\r\n");
+		log_message(&msg);
 
 		acc_power_on();
 		sensors_status |= SENSOR_ACC;
@@ -261,17 +268,20 @@ void initialize_system()
 	}
 	else
 	{
-		sprintf(msg, "!!!accelerometer not responding!!!\n\r");
-		send_message(msg, PRIORITY_HIGH);
+		sprintf(msg.text, "!!!accelerometer not responding!!!\n\r");
+		log_message(&msg);
 	}
 
 	//3. BAROMETER
-	sprintf(msg, "_____[init: barometer]_____\n\r");
-	send_message(msg, PRIORITY_HIGH);
+	msg.sys_area = SYS_AREA_PERIPH_BAROM;
+	sprintf(msg.text, "[init: barometer]_____\n\r");
+	log_message(&msg);
+
 	if (check_barometer_identity())
 	{
-		sprintf(msg, "barometer responds correctly, powering on...\n\r");
-		send_message(msg, PRIORITY_HIGH);
+		sprintf(msg.text, "barometer responds correctly, powering on...\n\r");
+		log_message(&msg);
+
 		sensors_status |= SENSOR_BAROM;
 
 		barometer_power_on();
@@ -280,8 +290,8 @@ void initialize_system()
 	}
 	else
 	{
-		sprintf(msg, "!!!barometer not responding!!!\n\r");
-		send_message(msg, PRIORITY_HIGH);
+		sprintf(msg.text, "!!!barometer not responding!!!\n\r");
+		log_message(&msg);
 	}
 
 	//4. SERVO
@@ -293,6 +303,9 @@ void initialize_system()
 
 	send_status(status);
 
-	sprintf(msg, "_____________[end system init]_____________\n\r");
-	send_message(msg, PRIORITY_HIGH);
+	msg.sys_state = SYS_AREA_INIT;
+	sprintf(msg.text, "[end system init]_____________\n\r");
+	log_message(&msg);
+
+	free(msg.text);
 }

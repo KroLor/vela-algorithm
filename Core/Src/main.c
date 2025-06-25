@@ -134,8 +134,8 @@ int main(void)
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
   
-	char msg[256] = "⛵ Shellow from SSAU & Vela! ⛵\n\r\0";
-	send_message(msg, PRIORITY_HIGH);
+  Message msg = { .text = "⛵ Shellow from SSAU & Vela! ⛵\n\r\0", .sys_state = SYS_STATE_INIT, .sys_area = SYS_AREA_INIT, .priority = PRIORITY_HIGH };
+	log_message(&msg);
 
 	initialize_system();
 

@@ -31,9 +31,9 @@ uint32_t bmp280_compensate_P_int64(int32_t adc_P);
 uint32_t read_pressure()
 {
 	uint8_t pressure_raw[3];
-	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xF7, I2C_MEMADD_SIZE_8BIT, pressure_raw, 1, timeout_default), "press_msb");
-	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xF8, I2C_MEMADD_SIZE_8BIT, pressure_raw + 1, 1, timeout_default), "press_lsb");
-	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xF9, I2C_MEMADD_SIZE_8BIT, pressure_raw + 2, 1, timeout_default), "press_xlsb");
+	log_register(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xF7, I2C_MEMADD_SIZE_8BIT, pressure_raw, 1, timeout_default), "press_msb", SYS_STATE_NONE, SYS_AREA_PERIPH_ACC);
+	log_register(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xF8, I2C_MEMADD_SIZE_8BIT, pressure_raw + 1, 1, timeout_default), "press_lsb", SYS_STATE_NONE, SYS_AREA_PERIPH_ACC);
+	log_register(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xF9, I2C_MEMADD_SIZE_8BIT, pressure_raw + 2, 1, timeout_default), "press_xlsb", SYS_STATE_NONE, SYS_AREA_PERIPH_ACC);
 
 	int32_t pressure_raw_32 = (int32_t)(((uint32_t)pressure_raw[0] << 12) | ((uint32_t)pressure_raw[1] << 4) | ((uint32_t)pressure_raw[2] >> 4));
 	uint32_t actual_pressure = bmp280_compensate_P_int64(pressure_raw_32);
@@ -44,9 +44,9 @@ int32_t read_temp()
 {
 	uint8_t temp_raw[3];
 	temp_raw[0] = temp_raw[1] = temp_raw[2] = 0;
-	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xFA, I2C_MEMADD_SIZE_8BIT, temp_raw, 1, timeout_default), "temp_msb");
-	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xFB, I2C_MEMADD_SIZE_8BIT, temp_raw + 1, 1, timeout_default), "temp_lsb");
-	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xFC, I2C_MEMADD_SIZE_8BIT, temp_raw + 2, 1, timeout_default), "temp_xlsb");
+	log_register(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xFA, I2C_MEMADD_SIZE_8BIT, temp_raw, 1, timeout_default), "temp_msb", SYS_STATE_NONE, SYS_AREA_PERIPH_ACC);
+	log_register(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xFB, I2C_MEMADD_SIZE_8BIT, temp_raw + 1, 1, timeout_default), "temp_lsb", SYS_STATE_NONE, SYS_AREA_PERIPH_ACC);
+	log_register(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0xFC, I2C_MEMADD_SIZE_8BIT, temp_raw + 2, 1, timeout_default), "temp_xlsb", SYS_STATE_NONE, SYS_AREA_PERIPH_ACC);
 
 	int32_t temp_raw_32 = (int32_t)(((uint32_t)temp_raw[0] << 12) | ((uint32_t)temp_raw[1] << 4) | ((uint32_t)temp_raw[2] >> 4));
 	int32_t actual_temp = bmp280_compensate_T_int32(temp_raw_32);
@@ -74,19 +74,19 @@ short check_barometer_identity()
 
 void read_dig_variables()
 {
-	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x88, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_T1, 2, timeout_default), "dig_T1");
-	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x8A, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_T2, 2, timeout_default), "dig_T2");
-	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x8C, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_T3, 2, timeout_default), "dig_T3");
+	log_register(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x88, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_T1, 2, timeout_default), "dig_T1", SYS_STATE_NONE, SYS_AREA_PERIPH_ACC);
+	log_register(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x8A, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_T2, 2, timeout_default), "dig_T2", SYS_STATE_NONE, SYS_AREA_PERIPH_ACC);
+	log_register(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x8C, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_T3, 2, timeout_default), "dig_T3", SYS_STATE_NONE, SYS_AREA_PERIPH_ACC);
 
-	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x8E, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P1, 2, timeout_default), "dig_P1");
-	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x90, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P2, 2, timeout_default), "dig_P2");
-	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x92, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P3, 2, timeout_default), "dig_P3");
-	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x94, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P4, 2, timeout_default), "dig_P4");
-	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x96, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P5, 2, timeout_default), "dig_P5");
-	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x98, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P6, 2, timeout_default), "dig_P6");
-	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x9A, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P7, 2, timeout_default), "dig_P7");
-	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x9C, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P8, 2, timeout_default), "dig_P8");
-	send_reg_log(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x9E, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P9, 2, timeout_default), "dig_P9");
+	log_register(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x8E, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P1, 2, timeout_default), "dig_P1", SYS_STATE_NONE, SYS_AREA_PERIPH_ACC);
+	log_register(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x90, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P2, 2, timeout_default), "dig_P2", SYS_STATE_NONE, SYS_AREA_PERIPH_ACC);
+	log_register(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x92, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P3, 2, timeout_default), "dig_P3", SYS_STATE_NONE, SYS_AREA_PERIPH_ACC);
+	log_register(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x94, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P4, 2, timeout_default), "dig_P4", SYS_STATE_NONE, SYS_AREA_PERIPH_ACC);
+	log_register(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x96, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P5, 2, timeout_default), "dig_P5", SYS_STATE_NONE, SYS_AREA_PERIPH_ACC);
+	log_register(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x98, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P6, 2, timeout_default), "dig_P6", SYS_STATE_NONE, SYS_AREA_PERIPH_ACC);
+	log_register(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x9A, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P7, 2, timeout_default), "dig_P7", SYS_STATE_NONE, SYS_AREA_PERIPH_ACC);
+	log_register(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x9C, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P8, 2, timeout_default), "dig_P8", SYS_STATE_NONE, SYS_AREA_PERIPH_ACC);
+	log_register(HAL_I2C_Mem_Read(&hi2c1, dev_address, 0x9E, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&dig_P9, 2, timeout_default), "dig_P9", SYS_STATE_NONE, SYS_AREA_PERIPH_ACC);
 }
 
 short barometer_power_on()
@@ -95,7 +95,7 @@ short barometer_power_on()
 
 	// datasheet page 25, register ctrl_meas
 	uint8_t ctrl_meas = 0b01001001;
-	send_reg_log(HAL_I2C_Mem_Write(&hi2c1, dev_address, 0xF4, I2C_MEMADD_SIZE_8BIT, &ctrl_meas, 1, timeout_default), "ctrl_meas");
+	log_register(HAL_I2C_Mem_Write(&hi2c1, dev_address, 0xF4, I2C_MEMADD_SIZE_8BIT, &ctrl_meas, 1, timeout_default), "ctrl_meas", SYS_STATE_NONE, SYS_AREA_PERIPH_ACC);
 
 	return 0;
 }
