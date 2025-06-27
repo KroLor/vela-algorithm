@@ -124,7 +124,6 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_I2C1_Init();
-  MX_USART1_UART_Init();
   MX_SPI1_Init();
   MX_FATFS_Init();
   MX_TIM2_Init();
@@ -132,82 +131,54 @@ int main(void)
   MX_TIM5_Init();
   MX_TIM3_Init();
   MX_ADC1_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   
   Message msg = { .text = "⛵ Shellow from SSAU & Vela! ⛵\n\r\0", .sys_state = SYS_STATE_INIT, .sys_area = SYS_AREA_INIT, .priority = PRIORITY_HIGH };
 	log_message(&msg);
 
+  //(0) System initialization - start main algorithm
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+
 	initialize_system();
 
   HAL_ADC_Start(&hadc1);
+
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	short pwm_switch = 0;
+
 	while (1)
 	{
-    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+    //(1) Conditions for liftoff met - continue main algoirthm
+    if (do_start_flight)
+    {
+      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+      start_flight();
+      start_time = HAL_GetTick(); // Millisecond
 
-    // Передача состояния через радио
-    
-
-    // Крутим вентилятор
-    HAL_GPIO_WritePin(vent_GPIO_Port, vent_Pin, GPIO_PIN_SET);
-    HAL_Delay(1000);
-    HAL_GPIO_WritePin(vent_GPIO_Port, vent_Pin, GPIO_PIN_RESET);
-
-    // Ждем отсоединения джампера
-    while (do_start_flight == false) {
-      // Проверка преждевременного страта через акселерометр и барометр
-
-
-      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-      HAL_Delay(300);
+      do_start_flight = false;
+      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
     }
 
-    start_time = HAL_GetTick(); // Millisecond
-
-    start_flight();
-    send_status(0x0);
-
-    HAL_GPIO_WritePin(vent_GPIO_Port, vent_Pin, GPIO_PIN_SET);
-
-    // Таймер до апогея
-    while (HAL_GetTick() - start_time < time_to_apogee) {
-      if (do_read_sensors) {
-        do_read_sensors = false;
-        read_sensors(); // Чтение датчиков, отправка и запись данных
-      }
-      if (check_apogy()) {
-        is_apogy = true;
-        break;
-      }
-
-      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-      HAL_Delay(200);
+    //(2) Conditions for apogy met - continue main algorithm
+    if (is_apogy)
+    {
+      apogy();
+      is_apogy = false;
     }
 
-    // apogy_time = HAL_GetTick() - start_time; // Millisecond
-
-    char msg[] = "Apogy!!!\r\n";
-	  send_message(msg, PRIORITY_HIGH);
-
-    char count_check_apogee = 0;
-    // Проверяем систему спасения
-    while (check_res_sys(&count_check_apogee) && count_check_apogee <= 4) {
-      if (do_read_sensors) {
-        do_read_sensors = false;
-        read_sensors(); // Чтение датчиков, отправка и запись данных
-      }
-
-      res_sys();
-
-      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-      HAL_Delay(25);
+    //Regular sensor read
+    if (do_read_sensors)
+    {
+      read_sensors();
+      do_read_sensors = false;
     }
 
+/*
     // Таймер до приземления
     while (HAL_GetTick() - start_time < time_to_landing) {
       if (do_read_sensors) {
@@ -234,9 +205,9 @@ int main(void)
 
     HAL_TIM_Base_Init(&SENSORS_READ_TIM_HANDLE);
     HAL_TIM_Base_Start_IT(&SENSORS_READ_TIM_HANDLE);
+*/
 
-
-
+/*
     // Таймер до выключения платы // Опрос датчиков продолжается
     while (HAL_GetTick() - landing_time < time_off) {
       if (do_read_sensors) {
@@ -256,6 +227,7 @@ int main(void)
     // Начинает работу радио-маяк
 
     break;
+*/
     
     /* USER CODE END WHILE */
 
@@ -313,15 +285,17 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 //INTERRUPT CALLBACKS
 
+/// @brief EXT = External interrupts
+/// @param GPIO_Pin Which pin interrupt came from
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   if (GPIO_Pin == JUMPER_PIN) {
     uint32_t current_time = HAL_GetTick();
-    
+
     // Проверка временного интервала для антидребезга
     if (current_time - last_jumper_interrupt_time > DEBOUNCE_DELAY) {
       last_jumper_interrupt_time = current_time;
-      
+
       if (HAL_GPIO_ReadPin(JUMPER_PORT, JUMPER_PIN)) {
         do_start_flight = true;
       }
@@ -332,6 +306,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	}
 }
 
+/// @brief Timer interrupts
+/// @param htim Which timer interrupt came from
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	if(htim->Instance == SENSORS_READ_TIM_DEF) //check if the interrupt comes from TIM2

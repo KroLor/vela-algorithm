@@ -84,6 +84,9 @@ void system_area_to_str(char* msg, SystemArea area)
 		case SYS_AREA_INIT:
 			sprintf(msg, "init");
 			break;
+		case SYS_AREA_MAIN_ALGO:
+			sprintf(msg, "main_algo");
+			break;
 		case SYS_AREA_READ_SENSORS:
 			sprintf(msg, "read_sensors");
 			break;
@@ -122,8 +125,10 @@ void log_message(Message* msg)
 	uint16_t log_size = strlen(msg->text) + strlen(state_text) + strlen(area_text) + 3;
 	char* log_text = malloc(log_size);
 
+	uint32_t curr_ms = HAL_GetTick();
+
 	//state;area;text
-	sprintf(log_text, "%s;%s;%s", state_text, area_text, msg->text);
+	sprintf(log_text, "%u;%s;%s;%s", curr_ms, state_text, area_text, msg->text);
 
 	if (sd_card_is_enabled())
 	{

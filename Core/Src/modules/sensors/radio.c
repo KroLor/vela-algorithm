@@ -1,6 +1,7 @@
 #include "usart.h"
 #include "radio.h"
 #include "system_definitions.h"
+#include "main.h"
 
 bool is_enabled = false;
 static const uint32_t uart_timeout_default = 0xFF; // Таймаут, 255 мс
@@ -11,7 +12,11 @@ static const uint8_t channel = 23;
 
 bool radio_is_enabled()
 {
-	return is_enabled;
+	GPIO_PinState aux_state =  HAL_GPIO_ReadPin(radio_aux_GPIO_Port, radio_aux_Pin);
+
+	HAL_GPIO_WritePin(led_radio_GPIO_Port, led_radio_Pin, aux_state);
+
+	return (aux_state == GPIO_PIN_SET) && is_enabled;
 }
 
 void radio_init()

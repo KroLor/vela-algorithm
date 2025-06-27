@@ -17,6 +17,8 @@ typedef enum
 	SYS_STATE_GROUND
 } SystemState;
 
+SystemState get_sys_state();
+
 #define SD_SPI_HANDLE hspi1
 #define JUMPER_PORT GPIOB
 #define JUMPER_PIN  GPIO_PIN_1
@@ -43,7 +45,7 @@ typedef enum
 #define RADIO_M1_PORT GPIOA
 #define RADIO_M1_PIN GPIO_PIN_15
 
-#define RADIO_UART_HANDLE huart2
+#define RADIO_UART_HANDLE huart1
 
 //______________________________USB UART
 

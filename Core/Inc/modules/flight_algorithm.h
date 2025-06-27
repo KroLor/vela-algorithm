@@ -1,25 +1,35 @@
 #include <stdbool.h>
+#include "system_definitions.h"
 
 typedef enum {
     SENSOR_BAROM = 1,
     SENSOR_ACC = 1 << 1
 } enabled_sensors;
 
+/// @brief (0) Main algorithm for system init
 void initialize_system();
 
+/// @brief (1) Main algorithm for initiating flight
 void start_flight();
+
+/// @brief (2) Main algorithm for apogy
+void apogy();
 
 void read_sensors();
 
-// Активирует систему спасения
-void res_sys();
-// Вернёт 0, если система спасения отработала штатно
-bool check_res_sys(char* count_check_apogee);
+/// @brief Open rescue system
+void open_rescue();
+
+/// @brief Check if rescue system is open.
+/// @return 1 if success, 0 otherwise.
+bool check_rescue();
+
 // Вернёт 1, если апогей
 bool check_apogy();
 // Вернёт 1, если приземление
 bool check_landing();
 // Возвращает текущую высоту от уровня моря
 float get_height();
+
 // // Сохраняет начальную высоту
 // void get_start_height();

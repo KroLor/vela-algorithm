@@ -21,67 +21,78 @@
 uint32_t previousValue = 0;
 const uint32_t threshold = 200;  // Порог изменения (нужно подбирать)
 
-static SystemState curr_state;
 static uint8_t sensors_status = 0;
-static bool is_liftoff = false;
+
+static SystemState curr_sys_state = SYS_STATE_NONE;
+
+SystemState get_sys_state()
+{
+	return curr_sys_state;
+}
 
 void read_sensors()
 {
-	char msg[256];
-	sprintf(msg, "_____________[begin reading sensors]_____________\n\r");
-	send_message(msg, PRIORITY_DEBUG);
+	Message msg = { .sys_area = SYS_AREA_READ_SENSORS, .sys_state = curr_sys_state, .priority = PRIORITY_HIGH };
+	msg.text = malloc(256);
+
+	msg.priority = PRIORITY_DEBUG;
+	sprintf(msg.text, "[begin reading sensors]_____________\n\r");
+	log_message(&msg);
 
 	//BAROMETER
 	if (sensors_status & SENSOR_BAROM)
 	{
-		sprintf(msg, "_____[reading barometer]_____\n\r");
-		send_message(msg, PRIORITY_DEBUG);
+		msg.priority = PRIORITY_DEBUG;
+		sprintf(msg.text, "[reading barometer]_____\n\r");
+		log_message(&msg);
 
 		int32_t actual_temp = read_temp();
 
-		char temp_str[100];
-		sprintf(temp_str, "Temperature: %.2f Celsius\n\n\r", ((float)actual_temp) / 100);
-		send_message(temp_str, PRIORITY_HIGH);
+		msg.priority = PRIORITY_HIGH;
+		sprintf(msg.text, "Temperature: %.2f Celsius\n\r", ((float)actual_temp) / 100);
+		log_message(&msg);
 
 		uint32_t actual_pressure = read_pressure();
 
-		char pressure_str[100];
-		sprintf(pressure_str, "Pressure: %.4f Pa\n\n\r", ((float)actual_pressure) / 256);
-		send_message(pressure_str, PRIORITY_HIGH);
+		sprintf(msg.text, "Pressure: %.4f Pa\n\r", ((float)actual_pressure) / 256);
+		log_message(&msg);
 
 		float actual_height = get_height()/* - start_height*/;
 
-		char height_str[100];
-		sprintf(height_str, "Height: %.4f m\n\n\r", ((float)actual_height));
-		send_message(height_str, PRIORITY_HIGH);
+		sprintf(msg.text, "Height: %.4f m\n\r", ((float)actual_height));
+		log_message(&msg);
 	}
 	else
 	{
-		sprintf(msg, "!!barometer disabled!!\n\r");
-		send_message(msg, PRIORITY_DEBUG);
+		msg.priority = PRIORITY_DEBUG;
+		sprintf(msg.text, "barometer disabled!\n\r");
+		log_message(&msg);
 	}
 	
 	//ACCELEROMETER
 	if (sensors_status & SENSOR_ACC)
 	{
-		sprintf(msg, "_____[reading accelerometer]_____\n\r");
-		send_message(msg, PRIORITY_DEBUG);
+		msg.priority = PRIORITY_DEBUG;
+		sprintf(msg.text, "[reading accelerometer]_____\n\r");
+		log_message(&msg);
 
 		double acc_vals[3];
 		read_acceleration_xyz(acc_vals);
 
-		char acc_str[100];
-		sprintf(acc_str, "Acceleration: (%0.4f, %0.4f, %0.4f) \n\n\r", acc_vals[0], acc_vals[1], acc_vals[2]);
-		send_message(acc_str, PRIORITY_HIGH);
+		msg.priority = PRIORITY_HIGH;
+		sprintf(msg.text, "Acceleration: (%0.4f, %0.4f, %0.4f) \n\r", acc_vals[0], acc_vals[1], acc_vals[2]);
+		log_message(&msg);
 	}
 	else
 	{
-		sprintf(msg, "!!accelerometer disabled!!\n\r");
-		send_message(msg, PRIORITY_DEBUG);
+		msg.priority = PRIORITY_DEBUG;
+		sprintf(msg.text, "accelerometer disabled!!\n\r");
+		log_message(&msg);
 	}
 
-	sprintf(msg, "_____________[end reading sensors]_____________\n\r");
-	send_message(msg, PRIORITY_DEBUG);
+	msg.priority = PRIORITY_DEBUG;
+	sprintf(msg.text, "[end reading sensors]_____________\n\r");
+	log_message(&msg);
 
 /*
 //Servo stuff
@@ -98,24 +109,23 @@ void read_sensors()
 */
 }
 
-bool check_res_sys(char* count_check_apogee) {
+bool check_rescue() {
 	// Проверяем концевую кнопку
 	if (HAL_GPIO_ReadPin(END_BUTTON_PORT, END_BUTTON_PIN) == GPIO_PIN_SET) {
-		return 0;
+		return 1;
 	}
 
 	// Проверяем фоторезистор
 	uint32_t currentValue = HAL_ADC_GetValue(&hadc1);
-    int32_t difference = currentValue - previousValue;
+	int32_t difference = currentValue - previousValue;
 
-    if (difference > threshold) {
-      // Резкое осветление
-      return 0;
-    }
-    previousValue = currentValue;
+	if (difference > threshold) {
+	  // Резкое осветление
+	  return 1;
+	}
+	previousValue = currentValue;
 
-	(*count_check_apogee)++;
-	return 1;
+	return 0;
 }
 
 bool check_apogy() {
@@ -128,7 +138,7 @@ bool check_apogy() {
 	return 0;
 }
 
-void res_sys() {
+void open_rescue() {
 	servo_turn_apogy();
 	HAL_Delay(1000); //
 	servo_turn_max();
@@ -152,39 +162,108 @@ bool check_landing() {
 
 float get_height()
 {
-    float pressure = (float)read_pressure() / 256.0f;
-    float temperature = (float)read_temp() / 100.0f;
-    
-    if(pressure <= 0 || pressure > SEA_LEVEL_PRESSURE * 1.5f) {
-        return -9999.0f;  // Некорректное давление
-    }
-    
-    float temp_kelvin = temperature + 273.15f;
-    
-    float height = (temp_kelvin / LAPSE_RATE) * 
-                  (1.0f - powf(pressure / SEA_LEVEL_PRESSURE, 
-                  (GAS_CONSTANT * LAPSE_RATE) / GRAVITY));
-    
-    return height;
+	float pressure = (float)read_pressure() / 256.0f;
+	float temperature = (float)read_temp() / 100.0f;
+	
+	if(pressure <= 0 || pressure > SEA_LEVEL_PRESSURE * 1.5f) {
+		return -9999.0f;  // Некорректное давление
+	}
+	
+	float temp_kelvin = temperature + 273.15f;
+	
+	float height = (temp_kelvin / LAPSE_RATE) * 
+				  (1.0f - powf(pressure / SEA_LEVEL_PRESSURE, 
+				  (GAS_CONSTANT * LAPSE_RATE) / GRAVITY));
+	
+	return height;
+}
+
+void apogy()
+{
+	curr_sys_state = SYS_STATE_APOGY;
+
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+	Message msg = { .sys_area = SYS_AREA_MAIN_ALGO, .sys_state = SYS_STATE_APOGY, .priority = PRIORITY_HIGH };
+	msg.text = malloc(256);
+	
+	sprintf(msg.text, "Apogy! Initiating rescue.\r\n");
+	log_message(&msg);
+
+	//Just don't think, fire it multiple times
+	for (size_t i = 0; i < 3; i++)
+	{
+		open_rescue();
+
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+		HAL_Delay(300);
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+	}
+
+	//Hope that it works
+	if (check_rescue())
+	{
+		sprintf(msg.text, "Rescue system open!\r\n");
+		log_message(&msg);
+	}
+	else
+	{
+		sprintf(msg.text, "Rescue system failed to open! Retrying...\r\n");
+		log_message(&msg);
+
+		//Try a bit more
+		for (size_t i = 0; i < 5; i++)
+		{
+			open_rescue();
+
+			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+			HAL_Delay(300);
+			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+		}
+
+		if (check_rescue())
+		{
+			sprintf(msg.text, "Rescue system finally opened!\r\n");
+			log_message(&msg);
+		}
+		else
+		{
+			sprintf(msg.text, "Rescue system failed to open anyway.\r\n");
+			log_message(&msg);
+		}
+	}
+
+	free(msg.text);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
 }
 
 void start_flight()
 {
-	if (!is_liftoff)
-	{
-		Message msg = { .text = "\n\n\n\r🚀 Поплыли к звездам! 🚀 \n\n\n\r\0", .sys_area = SYS_AREA_NONE, .sys_state = SYS_STATE_LIFTOFF, .priority = PRIORITY_HIGH };
-		log_message(&msg);
+	curr_sys_state = SYS_STATE_LIFTOFF;
+	send_status(0x0);
 
-		is_liftoff = true;
+	Message msg = { .text = "🚀 Поплыли к звездам! 🚀 \n\n\n\r\0", .sys_area = SYS_AREA_MAIN_ALGO, .sys_state = curr_sys_state, .priority = PRIORITY_HIGH };
+	log_message(&msg);
 
-		//start sensors reading timer
-		HAL_TIM_Base_Start_IT(&SENSORS_READ_TIM_HANDLE);
-		// HAL_TIM_Base_Start_IT(&APOGY_TIM_HANDLE); //
-	}
+	//start reading sensors
+	__HAL_TIM_SET_COUNTER(&SENSORS_READ_TIM_HANDLE, 0);
+	__HAL_TIM_CLEAR_FLAG(&SENSORS_READ_TIM_HANDLE, TIM_FLAG_UPDATE);
+	HAL_TIM_Base_Start_IT(&SENSORS_READ_TIM_HANDLE);
+
+	//count down ot apogy
+	__HAL_TIM_SET_COUNTER(&APOGY_TIM_HANDLE, 0);
+	__HAL_TIM_CLEAR_FLAG(&APOGY_TIM_HANDLE, TIM_FLAG_UPDATE);
+	HAL_TIM_Base_Start_IT(&APOGY_TIM_HANDLE);
 }
 
 void initialize_system()
 {
+	curr_sys_state = SYS_STATE_INIT;
+
+	// Крутим вентилятор
+	HAL_GPIO_WritePin(vent_GPIO_Port, vent_Pin, GPIO_PIN_SET);
+	HAL_Delay(1000);
+	HAL_GPIO_WritePin(vent_GPIO_Port, vent_Pin, GPIO_PIN_RESET);
+
 	Message msg = { .sys_area = SYS_AREA_INIT, .sys_state = SYS_STATE_INIT, .priority = PRIORITY_HIGH };
 	msg.text = malloc(256);
 	uint8_t status = 0x0;
@@ -192,16 +271,7 @@ void initialize_system()
 	sprintf(msg.text, "_____________ [begin system init] \n\r");
 	log_message(&msg);
 
-/*
-	//1. Radio
-	sprintf(msg, "_____[init: radio]_____\n\r");
-	send_message(msg, PRIORITY_HIGH);
-
-	radio_init();
-	status_radio_responds(&status);
-*/
-
-	//1. SD CARD - the first, to enable log to it right away.
+	//0. SD CARD - the first, to enable log to it right away.
 	msg.sys_area = SYS_AREA_PERIPH_SDCARD;
 	sprintf(msg.text, "_____[init: sd card]\n\r");
 	log_message(&msg);
@@ -250,6 +320,15 @@ void initialize_system()
 		sprintf(msg.text, "!!!sd card failed to mount!!!\r\n");
 		log_message(&msg);
 	}
+
+	//1. Radio
+	msg.sys_area = SYS_AREA_PERIPH_RADIO;
+	sprintf(msg.text, "[init: radio]_____\n\r");
+	log_message(&msg);
+
+	HAL_Delay(1000);
+	radio_init();
+	status_radio_responds(&status);
 
 	//2. ACCELEROMETER
 	msg.sys_area = SYS_AREA_PERIPH_ACC;
