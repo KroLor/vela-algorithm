@@ -36,7 +36,7 @@ void log_register(HAL_StatusTypeDef status, char *reg, SystemState sys_state, Sy
 	char buffer[256];
 	sprintf(buffer, "%s: %s\r\n", reg, message);
 
-	Message res_msg = { .text = buffer, .sys_state = sys_state, .sys_area = sys_area, .priority = PRIORITY_LOW };
+	Message res_msg = { .text = buffer, .sys_state = sys_state, .sys_area = sys_area, .priority = PRIORITY_DEBUG };
 	log_message(&res_msg);
 }
 
@@ -122,13 +122,13 @@ void log_message(Message* msg)
 	char area_text[64];
 	system_area_to_str(area_text, msg->sys_area);
 
-	uint16_t log_size = strlen(msg->text) + strlen(state_text) + strlen(area_text) + 3;
+	uint16_t log_size = strlen(msg->text) + strlen(state_text) + strlen(area_text) + 13;
 	char* log_text = malloc(log_size);
 
 	uint32_t curr_ms = HAL_GetTick();
 
 	//state;area;text
-	sprintf(log_text, "%u;%s;%s;%s", curr_ms, state_text, area_text, msg->text);
+	sprintf(log_text, "%lu;%s;%s;%s", curr_ms, state_text, area_text, msg->text);
 
 	if (sd_card_is_enabled())
 	{
@@ -142,9 +142,9 @@ void log_message(Message* msg)
 		}
 	}
 
-	if(radio_is_enabled())
+	if(radio_is_enabled() && msg->priority == PRIORITY_HIGH)
 	{
-		HAL_UART_Transmit(&RADIO_UART_HANDLE, (uint8_t *)log_text, log_size, timeout_default);
+		HAL_UART_Transmit(&RADIO_UART_HANDLE, (uint8_t *)log_text, strlen(log_text), timeout_default);
 	}
 
 	free(log_text);

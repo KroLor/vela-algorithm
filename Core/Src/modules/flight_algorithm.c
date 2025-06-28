@@ -64,7 +64,7 @@ void read_sensors()
 	}
 	else
 	{
-		msg.priority = PRIORITY_DEBUG;
+		msg.priority = PRIORITY_HIGH;
 		sprintf(msg.text, "barometer disabled!\n\r");
 		log_message(&msg);
 	}
@@ -85,7 +85,7 @@ void read_sensors()
 	}
 	else
 	{
-		msg.priority = PRIORITY_DEBUG;
+		msg.priority = PRIORITY_HIGH;
 		sprintf(msg.text, "accelerometer disabled!!\n\r");
 		log_message(&msg);
 	}
@@ -271,57 +271,8 @@ void initialize_system()
 	sprintf(msg.text, "_____________ [begin system init] \n\r");
 	log_message(&msg);
 
-	//0. SD CARD - the first, to enable log to it right away.
-	msg.sys_area = SYS_AREA_PERIPH_SDCARD;
-	sprintf(msg.text, "_____[init: sd card]\n\r");
-	log_message(&msg);
-
-	sd_status sd_stat = sd_card_mount();
-
-	if (sd_stat == SD_OK)
-	{
-		sprintf(msg.text, "sd card mounted\r\n");
-		log_message(&msg);
-
-		sd_file file;
-		sd_stat = sd_card_open_file(&file, "/test");
-
-		if (sd_stat == SD_OK)
-		{
-			sprintf(msg.text, "sd card test file opened\r\n");
-			log_message(&msg);
-
-			sd_stat = sd_card_write(&file, "Good luck, good flight.\r\n");
-
-			if (sd_stat == SD_OK)
-			{
-				sprintf(msg.text, "sd card test file written\r\n");
-				log_message(&msg);
-			}
-			else
-			{
-				sprintf(msg.text, "!!sd card test file write failure!!\r\n");
-				log_message(&msg);
-			}
-
-			sd_card_close(&file);
-		}
-		else
-		{
-			sprintf(msg.text, "!!sd card test file failed to open!!\r\n");
-			log_message(&msg);
-		}
-
-		_sd_card_set_enabled();
-		status_sd_mounts(&status);
-	}
-	else
-	{
-		sprintf(msg.text, "!!!sd card failed to mount!!!\r\n");
-		log_message(&msg);
-	}
-
-	//1. Radio
+	//0. Radio
+	msg.priority = PRIORITY_HIGH;
 	msg.sys_area = SYS_AREA_PERIPH_RADIO;
 	sprintf(msg.text, "[init: radio]_____\n\r");
 	log_message(&msg);
@@ -330,13 +281,72 @@ void initialize_system()
 	radio_init();
 	status_radio_responds(&status);
 
+	//1. SD CARD.
+	msg.priority = PRIORITY_LOW;
+	msg.sys_area = SYS_AREA_PERIPH_SDCARD;
+	sprintf(msg.text, "_____[init: sd card]\n\r");
+	log_message(&msg);
+
+	sd_status sd_stat = sd_card_mount();
+
+	if (sd_stat == SD_OK)
+	{
+		msg.priority = PRIORITY_MEDIUM;
+		sprintf(msg.text, "sd card mounted\r\n");
+		log_message(&msg);
+
+		sd_file file;
+		sd_stat = sd_card_open_file(&file, "/test");
+
+		if (sd_stat == SD_OK)
+		{
+			msg.priority = PRIORITY_MEDIUM;
+			sprintf(msg.text, "sd card test file opened\r\n");
+			log_message(&msg);
+
+			sd_stat = sd_card_write(&file, "Good luck, good flight.\r\n");
+
+			if (sd_stat == SD_OK)
+			{
+				msg.priority = PRIORITY_HIGH;
+				sprintf(msg.text, "sd card test file written, sd works\r\n");
+				log_message(&msg);
+			}
+			else
+			{
+				msg.priority = PRIORITY_HIGH;
+				sprintf(msg.text, "sd card test file write failure!\r\n");
+				log_message(&msg);
+			}
+
+			sd_card_close(&file);
+		}
+		else
+		{
+			msg.priority = PRIORITY_HIGH;
+			sprintf(msg.text, "sd card test file failed to open!\r\n");
+			log_message(&msg);
+		}
+
+		_sd_card_set_enabled();
+		status_sd_mounts(&status);
+	}
+	else
+	{
+		msg.priority = PRIORITY_HIGH;
+		sprintf(msg.text, "sd card failed to mount!\r\n");
+		log_message(&msg);
+	}
+
 	//2. ACCELEROMETER
+	msg.priority = PRIORITY_LOW;
 	msg.sys_area = SYS_AREA_PERIPH_ACC;
 	sprintf(msg.text, "[init: acc]_____\r\n");
 	log_message(&msg);
 
 	if (check_acc_identity())
 	{
+		msg.priority = PRIORITY_HIGH;
 		sprintf(msg.text, "accelerometer responds nicely, powering it on...\r\n");
 		log_message(&msg);
 
@@ -347,17 +357,20 @@ void initialize_system()
 	}
 	else
 	{
+		msg.priority = PRIORITY_HIGH;
 		sprintf(msg.text, "!!!accelerometer not responding!!!\n\r");
 		log_message(&msg);
 	}
 
 	//3. BAROMETER
 	msg.sys_area = SYS_AREA_PERIPH_BAROM;
+	msg.priority = PRIORITY_LOW;
 	sprintf(msg.text, "[init: barometer]_____\n\r");
 	log_message(&msg);
 
 	if (check_barometer_identity())
 	{
+		msg.priority = PRIORITY_HIGH;
 		sprintf(msg.text, "barometer responds correctly, powering on...\n\r");
 		log_message(&msg);
 
@@ -369,7 +382,8 @@ void initialize_system()
 	}
 	else
 	{
-		sprintf(msg.text, "!!!barometer not responding!!!\n\r");
+		msg.priority = PRIORITY_HIGH;
+		sprintf(msg.text, "barometer not responding!\n\r");
 		log_message(&msg);
 	}
 
@@ -383,6 +397,7 @@ void initialize_system()
 	send_status(status);
 
 	msg.sys_state = SYS_AREA_INIT;
+	msg.priority = PRIORITY_HIGH;
 	sprintf(msg.text, "[end system init]_____________\n\r");
 	log_message(&msg);
 
