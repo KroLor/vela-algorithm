@@ -76,17 +76,10 @@ endif
 # C sources
 C_SOURCES =  \
 Core/Src/adc.c \
+Core/Src/components/flight_algorithm.c \
 Core/Src/gpio.c \
 Core/Src/i2c.c \
 Core/Src/main.c \
-Core/Src/modules/communication.c \
-Core/Src/modules/flight_algorithm.c \
-Core/Src/modules/sensors/accelerometer.c \
-Core/Src/modules/sensors/barometer.c \
-Core/Src/modules/sensors/radio.c \
-Core/Src/modules/sensors/sd_card.c \
-Core/Src/modules/sensors/servo.c \
-Core/Src/modules/status_encoder.c \
 Core/Src/spi.c \
 Core/Src/stm32f4xx_hal_msp.c \
 Core/Src/stm32f4xx_it.c \
@@ -122,7 +115,14 @@ FATFS/Target/user_diskio_spi.c \
 Middlewares/Third_Party/FatFs/src/diskio.c \
 Middlewares/Third_Party/FatFs/src/ff.c \
 Middlewares/Third_Party/FatFs/src/ff_gen_drv.c \
-Middlewares/Third_Party/FatFs/src/option/syscall.c
+Middlewares/Third_Party/FatFs/src/option/syscall.c \
+modules/src/communication.c \
+modules/src/sensors/accelerometer.c \
+modules/src/sensors/barometer.c \
+modules/src/sensors/radio.c \
+modules/src/sensors/sd_card.c \
+modules/src/sensors/servo.c \
+modules/src/status_encoder.c
 
 
 CXX_SOURCES = \
@@ -218,15 +218,16 @@ AS_INCLUDES = \
 # C includes
 C_INCLUDES =  \
 -ICore/Inc \
--ICore/Inc/modules \
--ICore/Inc/modules/sensors \
+-ICore/Inc/components \
 -IDrivers/CMSIS/Device/ST/STM32F4xx/Include \
 -IDrivers/CMSIS/Include \
 -IDrivers/STM32F4xx_HAL_Driver/Inc \
 -IDrivers/STM32F4xx_HAL_Driver/Inc/Legacy \
 -IFATFS/App \
 -IFATFS/Target \
--IMiddlewares/Third_Party/FatFs/src
+-IMiddlewares/Third_Party/FatFs/src \
+-Imodules/inc \
+-Imodules/inc/sensors
 
 
 

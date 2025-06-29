@@ -48,11 +48,21 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
+    modules/src/communication.c
+    modules/src/status_encoder.c
+    modules/src/sensors/accelerometer.c
+    modules/src/sensors/barometer.c
+    modules/src/sensors/radio.c
+    modules/src/sensors/sd_card.c
+    modules/src/sensors/servo.c
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
+    modules/inc
+    modules/sensors
+    Core/Inc/components
 )
 
 # Add project symbols (macros)
