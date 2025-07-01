@@ -24,7 +24,9 @@
         "stm32f4xx_hal_gpio.h": "c",
         "radio.h": "c",
         "cmath": "c",
-        "status_encoder.h": "c"
+        "status_encoder.h": "c",
+        "reent.h": "c",
+        "system_types.h": "c"
     },
     "cortex-debug.armToolchainPath": "/usr/bin",
     "cortex-debug.openocdPath": "/usr/bin/openocd"

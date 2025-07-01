@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include "system_definitions.h"
+#include "system_types.h"
 
 typedef enum {
     SENSOR_BAROM = 1,
@@ -30,6 +31,8 @@ bool check_apogy();
 bool check_landing();
 // Возвращает текущую высоту от уровня моря
 float get_height();
+
+SystemState get_sys_state();
 
 // // Сохраняет начальную высоту
 // void get_start_height();

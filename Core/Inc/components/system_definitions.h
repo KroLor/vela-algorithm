@@ -2,23 +2,8 @@
 #include <tim.h>
 #include <usart.h>
 
-
 #ifndef __SYSTEM_DEFINITIONS_H
 #define __SYSTEM_DEFINITIONS_H
-
-typedef enum
-{
-	SYS_STATE_NONE = 0,
-	SYS_STATE_INIT,
-	SYS_STATE_STANDBY,
-	SYS_STATE_LIFTOFF,
-	SYS_STATE_ASCENT,
-	SYS_STATE_APOGY,
-	SYS_STATE_DESCENT,
-	SYS_STATE_GROUND
-} SystemState;
-
-SystemState get_sys_state();
 
 #define SD_SPI_HANDLE hspi1
 #define JUMPER_PORT GPIOB

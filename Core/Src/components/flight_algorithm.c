@@ -39,6 +39,11 @@ void read_sensors()
 	sprintf(msg.text, "[begin reading sensors]_____________\n\r");
 	log_message(&msg);
 
+	Telemetry tel;
+	set_default_telemetry(&tel);
+	tel.sys_area = SYS_AREA_READ_SENSORS;
+	tel.sys_state = get_sys_state();
+
 	//BAROMETER
 	if (sensors_status & SENSOR_BAROM)
 	{
@@ -46,15 +51,18 @@ void read_sensors()
 		sprintf(msg.text, "[reading barometer]_____\n\r");
 		log_message(&msg);
 
-		int32_t actual_temp = read_temp();
+		float actual_temp = ((float)read_temp()) / 100;
+		tel.temp = actual_temp;
 
 		msg.priority = PRIORITY_HIGH;
-		sprintf(msg.text, "Temperature: %.2f Celsius\n\r", ((float)actual_temp) / 100);
+		sprintf(msg.text, "Temperature: %.2f Celsius\n\r", actual_temp);
 		log_message(&msg);
 
-		uint32_t actual_pressure = read_pressure();
+		float actual_pressure = ((float)read_pressure()) / 256;
+		
+		tel.pressure = actual_pressure;
 
-		sprintf(msg.text, "Pressure: %.4f Pa\n\r", ((float)actual_pressure) / 256);
+		sprintf(msg.text, "Pressure: %.4f Pa\n\r", actual_pressure);
 		log_message(&msg);
 
 		float actual_height = get_height()/* - start_height*/;
@@ -68,7 +76,7 @@ void read_sensors()
 		sprintf(msg.text, "barometer disabled!\n\r");
 		log_message(&msg);
 	}
-	
+
 	//ACCELEROMETER
 	if (sensors_status & SENSOR_ACC)
 	{
@@ -78,6 +86,10 @@ void read_sensors()
 
 		double acc_vals[3];
 		read_acceleration_xyz(acc_vals);
+
+		tel.acc_x = acc_vals[0];
+		tel.acc_y = acc_vals[1];
+		tel.acc_z = acc_vals[2];
 
 		msg.priority = PRIORITY_HIGH;
 		sprintf(msg.text, "Acceleration: (%0.4f, %0.4f, %0.4f) \n\r", acc_vals[0], acc_vals[1], acc_vals[2]);
@@ -89,6 +101,8 @@ void read_sensors()
 		sprintf(msg.text, "accelerometer disabled!!\n\r");
 		log_message(&msg);
 	}
+
+	log_telemetry(&tel);
 
 	msg.priority = PRIORITY_DEBUG;
 	sprintf(msg.text, "[end reading sensors]_____________\n\r");
@@ -180,7 +194,9 @@ float get_height()
 
 void apogy()
 {
+	//9.96 seconds until apogy
 	curr_sys_state = SYS_STATE_APOGY;
+	HAL_TIM_Base_Stop_IT(&APOGY_TIM_HANDLE);
 
 	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
 	Message msg = { .sys_area = SYS_AREA_MAIN_ALGO, .sys_state = SYS_STATE_APOGY, .priority = PRIORITY_HIGH };
@@ -240,7 +256,12 @@ void start_flight()
 {
 	curr_sys_state = SYS_STATE_LIFTOFF;
 	send_status(0x0);
+	Telemetry tel;
+	set_default_telemetry(&tel);
+	tel.sys_state = get_sys_state();
+	tel.sys_area = SYS_AREA_MAIN_ALGO;
 
+	log_telemetry(&tel);
 	Message msg = { .text = "🚀 Поплыли к звездам! 🚀 \n\n\n\r\0", .sys_area = SYS_AREA_MAIN_ALGO, .sys_state = curr_sys_state, .priority = PRIORITY_HIGH };
 	log_message(&msg);
 
@@ -258,6 +279,11 @@ void start_flight()
 void initialize_system()
 {
 	curr_sys_state = SYS_STATE_INIT;
+
+	Telemetry tel;
+	set_default_telemetry(&tel);
+	tel.sys_state = get_sys_state();
+	tel.sys_area = SYS_STATE_INIT;
 
 	// Крутим вентилятор
 	HAL_GPIO_WritePin(vent_GPIO_Port, vent_Pin, GPIO_PIN_SET);
@@ -395,6 +421,8 @@ void initialize_system()
 	//servo_turn_min();
 
 	send_status(status);
+
+	log_telemetry(&tel);
 
 	msg.sys_state = SYS_AREA_INIT;
 	msg.priority = PRIORITY_HIGH;
