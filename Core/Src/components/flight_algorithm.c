@@ -125,19 +125,19 @@ void read_sensors()
 
 bool check_rescue() {
 	// Проверяем концевую кнопку
-	if (HAL_GPIO_ReadPin(END_BUTTON_PORT, END_BUTTON_PIN) == GPIO_PIN_SET) {
+	if (HAL_GPIO_ReadPin(END_BUTTON_PORT, END_BUTTON_PIN) == GPIO_PIN_RESET) {
 		return 1;
 	}
 
 	// Проверяем фоторезистор
-	uint32_t currentValue = HAL_ADC_GetValue(&hadc1);
+	/* uint32_t currentValue = HAL_ADC_GetValue(&hadc1);
 	int32_t difference = currentValue - previousValue;
 
 	if (difference > threshold) {
 	  // Резкое осветление
 	  return 1;
 	}
-	previousValue = currentValue;
+	previousValue = currentValue; */
 
 	return 0;
 }
