@@ -41,6 +41,10 @@
 #define BUZZER_TIM_HANDLE htim4
 #define BUZZER_TIM_CHANNEL TIM_CHANNEL_3
 
+//______________________________FAN
+#define FAN_READ_TIM_DEF TIM9
+#define FAN_READ_TIM_HANDLE htim9
+
 //_____________________________LED
 #define LED1_PORT GPIOB
 #define LED1_PIN GPIO_PIN_14

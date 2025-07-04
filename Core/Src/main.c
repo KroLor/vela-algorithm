@@ -134,6 +134,7 @@ int main(void)
   MX_ADC1_Init();
   MX_USART1_UART_Init();
   MX_TIM4_Init();
+  MX_TIM9_Init();
   /* USER CODE BEGIN 2 */
   
   Message msg = { .text = "⛵ Shellow from SSAU & Vela! ⛵\n\r\0", .sys_state = SYS_STATE_INIT, .sys_area = SYS_AREA_INIT, .priority = PRIORITY_HIGH };
@@ -326,6 +327,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   if (htim->Instance == APOGY_TIM_DEF)
   {
     is_apogy = true;
+  }
+
+  if (htim->Instance == FAN_READ_TIM_DEF)
+  {
+    HAL_GPIO_TogglePin(vent_GPIO_Port, vent_Pin);
   }
 }
 
