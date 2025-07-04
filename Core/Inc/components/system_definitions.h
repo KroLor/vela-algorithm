@@ -37,6 +37,10 @@
 
 #define USB_UART_HANDLE huart1
 
+//______________________________BUZZER
+#define BUZZER_TIM_HANDLE TIM_CHANNEL_3
+#define BUZZER_TIM_DEF htim4
+
 //_____________________________LED
 #define LED1_PORT GPIOB
 #define LED1_PIN GPIO_PIN_14

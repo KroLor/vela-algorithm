@@ -8,6 +8,7 @@
 #include "sd_card.h"
 #include "radio.h"
 #include "servo.h"
+#include "buzzer.h"
 #include "adc.h"
 #include <stdio.h>
 #include <math.h>
@@ -250,6 +251,13 @@ void apogy()
 
 	free(msg.text);
 	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+}
+
+void landing() {
+	buzzer_start();
+	HAL_Delay(1000);
+	buzzer_stop();
+	HAL_Delay(1000);
 }
 
 void start_flight()

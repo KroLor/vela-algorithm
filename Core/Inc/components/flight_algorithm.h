@@ -16,6 +16,9 @@ void start_flight();
 /// @brief (2) Main algorithm for apogy
 void apogy();
 
+/// @brief (3) Main algorithm for landing
+void landing();
+
 void read_sensors();
 
 /// @brief Open rescue system

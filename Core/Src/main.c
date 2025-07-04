@@ -34,6 +34,7 @@
 #include "option/unicode.c"
 #include "communication.h"
 #include "flight_algorithm.h"
+#include "buzzer.h"
 
 /* USER CODE END Includes */
 
@@ -132,10 +133,13 @@ int main(void)
   MX_TIM3_Init();
   MX_ADC1_Init();
   MX_USART1_UART_Init();
+  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
   
   Message msg = { .text = "⛵ Shellow from SSAU & Vela! ⛵\n\r\0", .sys_state = SYS_STATE_INIT, .sys_area = SYS_AREA_INIT, .priority = PRIORITY_HIGH };
 	log_message(&msg);
+
+  buzzer_set_freq(2000);
 
   //(0) System initialization - start main algorithm
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
@@ -176,6 +180,10 @@ int main(void)
     {
       read_sensors();
       do_read_sensors = false;
+    }
+
+    if (is_landing) {
+      landing();
     }
 
 /*
