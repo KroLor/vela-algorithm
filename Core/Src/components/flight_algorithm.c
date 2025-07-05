@@ -262,6 +262,8 @@ void landing() {
 
 void start_flight()
 {
+	HAL_TIM_Base_Start_IT(&htim9);
+
 	curr_sys_state = SYS_STATE_LIFTOFF;
 	send_status(0x0);
 	Telemetry tel;
